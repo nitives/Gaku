@@ -34,3 +34,17 @@ export async function fetchPlaylistM3U8(trackUrl: string) {
   }
 }
 
+export async function fetchLyrics(title: string, artist: string) {
+  try {
+    const response = await fetch(
+      `https://lyrix.vercel.app/getLyricsByName/${artist}/${title}/?remix=false`
+    );
+    console.log("fetchLyrics | response:", response);
+    if (!response.ok) throw new Error("Failed to fetch lyrics");
+    const data = await response.json();
+    console.log("API fetchLyrics | data:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching lyrics:", error);
+  }
+}

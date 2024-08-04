@@ -14,35 +14,52 @@ export default async function handler(
         {
           headers: {
             Host: "api-v2.soundcloud.com",
-            Authorization: "OAuth 2-295088-300743603-2XEAimWph2HxCZ",
+            Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,
           },
         }
       );
 
       const playlist = playlistResponse.data;
+      console.log("API Playlist | playlist", playlist);
 
-      // Get the IDs of tracks that need more details
+      // Get the IDs of tracks that need more details in the correct order
       const trackIdsToFetch = playlist.tracks
         .slice(5)
-        .map((track: { id: any }) => track.id)
-        .join(",");
+        .map((track: { id: any }) => track.id);
 
-      if (trackIdsToFetch) {
+      console.log("API Playlist | Full Length:", playlist.tracks.length);
+      console.log("API Playlist | Tracks:", playlist.tracks);
+      console.log("API Playlist | trackIdsToFetch:", trackIdsToFetch.join(","));
+
+      if (trackIdsToFetch.length > 0) {
+        // Fetch details for the remaining tracks
         const tracksResponse = await axios.get(
-          `https://api-v2.soundcloud.com/tracks?ids=${trackIdsToFetch}`,
+          `https://api-v2.soundcloud.com/tracks?ids=${trackIdsToFetch.join(
+            ","
+          )}`,
           {
             headers: {
               Host: "api-v2.soundcloud.com",
-              Authorization: "OAuth 2-295088-300743603-2XEAimWph2HxCZ",
+              Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,
             },
           }
         );
 
-        // Replace the simplified track objects with full track details
+        // Create a map of the fetched tracks by ID
+        const fetchedTracksMap = new Map(
+          tracksResponse.data.map((track: any) => [track.id, track])
+        );
+
+        // Reorder the fetched tracks according to the original playlist order
+        const reorderedTracks = trackIdsToFetch.map((id: any) =>
+          fetchedTracksMap.get(id)
+        );
+
+        // Replace the simplified track objects with full track details in the correct order
         playlist.tracks.splice(
           5,
           playlist.tracks.length - 5,
-          ...tracksResponse.data
+          ...reorderedTracks
         );
       }
 

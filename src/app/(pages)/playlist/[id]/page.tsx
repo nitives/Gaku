@@ -89,12 +89,12 @@ export default function PlaylistPage() {
     }
   };
 
-  const artistNameRemove = (artistName: string, trackTitle: string): string => {
-    // Create a regular expression to match the artist name and a dash
-    const regex = new RegExp(`^${artistName}\\s*-\\s*`, "i");
-    // Replace the artist name and dash with an empty string
-    return trackTitle.replace(regex, "").trim();
-  };
+  // const artistNameRemove = (artistName: string, trackTitle: string): string => {
+  //   // Create a regular expression to match the artist name and a dash
+  //   const regex = new RegExp(`^${artistName}\\s*-\\s*`, "i");
+  //   // Replace the artist name and dash with an empty string
+  //   return trackTitle.replace(regex, "").trim();
+  // };
 
   function formatDate(dateString: string | number | Date, format = "full") {
     const date = new Date(dateString);
@@ -120,7 +120,10 @@ export default function PlaylistPage() {
     setPageTitle();
   }, [globalCurrentTrack?.title]);
 
+
   if (!playlist) return <PlaylistSkeleton />;
+
+  console.log("playlist.tracks:", playlist.tracks);
 
   return (
     <>
@@ -156,7 +159,7 @@ export default function PlaylistPage() {
               {playlist.user.username}
             </Link>
             <div className="flex text-xs spacer items-center justify-center">
-              <p className="font-normal text-sm text-muted-foreground dark:text-muted-foreground/50 text-center w-56 flex items-center justify-center gap-1 dot">
+              <p className="font-normal text-sm text-muted-foreground dark:text-muted-foreground/50 text-center w-56 flex items-center justify-center gap-1">
                 <span className="whitespace-nowrap">{playlist.genre}</span>·
                 <span title={formatDate(playlist.created_at)}>
                   {formatDate(playlist.created_at, "year")}
@@ -215,7 +218,8 @@ export default function PlaylistPage() {
                   {index + 1}
                 </motion.span>
               </span>
-              {artistNameRemove(playlist.user.username, track.title)}
+              {/* {artistNameRemove(playlist.user.username, track.title)} */}
+              {track.title}
             </li>
           ))}
         </ul>

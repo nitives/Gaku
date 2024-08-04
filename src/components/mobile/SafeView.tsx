@@ -2,6 +2,7 @@ import React, {
   InputHTMLAttributes,
   ReactNode,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { IoSearch } from "react-icons/io5";
@@ -68,6 +69,7 @@ export const ScrollHeader = ({
   onChange,
   onSearch,
   onKeyDown,
+  autoFocus,
 }: {
   title: string;
   className?: string;
@@ -75,6 +77,7 @@ export const ScrollHeader = ({
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSearch?: () => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  autoFocus?: boolean;
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -93,6 +96,10 @@ export const ScrollHeader = ({
     };
   }, []);
 
+  const handleInputFocus = (isFocused: boolean) => {
+    if (onInputFocus) onInputFocus(isFocused);
+  };
+
   return (
     <div
       className={`fixed top-0 left-0 w-full z-50 transition-all opacity-0 pt-8 standalone:pt-12 pb-2 px-5 ${
@@ -110,7 +117,10 @@ export const ScrollHeader = ({
             onChange={onChange}
             onKeyDown={onKeyDown}
             placeholder="Search"
-            onSearch={onSearch} className="mb-5" />
+            onSearch={onSearch}
+            autoFocus={autoFocus}
+            className="mb-5"
+          />
         </>
       )}
     </div>
@@ -125,8 +135,17 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const Input: React.FC<InputProps> = ({
   className,
   onSearch,
+  autoFocus,
   ...props
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [autoFocus]);
+
   return (
     <>
       {/* <div className="dark:bg-white/[0.1]" /> */}
@@ -144,6 +163,7 @@ export const Input: React.FC<InputProps> = ({
         </button>
         <input
           {...props}
+          ref={inputRef}
           spellCheck="true"
           type="search"
           className="appearance-none py-2 bg-transparent w-full placeholder:text-muted-foreground focus:outline-none"

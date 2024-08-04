@@ -1,8 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 
-console.log("process.env.SOUNDCLOUD_API_KEY:", process.env.SOUNDCLOUD_API_KEY);
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse

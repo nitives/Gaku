@@ -154,6 +154,7 @@ export const AudioPlayerHLS = ({
         played={played}
         onSeek={(time) => playerRef.current?.seekTo(time)}
         title={title}
+        artist={artist}
         img={img}
         onNext={onNext}
         onPrevious={handlePrevious}
@@ -176,12 +177,13 @@ const Controls = ({
   played,
   onSeek,
   title,
+  artist,
   img,
   onNext,
   onPrevious,
   onPlayPause,
   setIsPlaying, // Add this prop to update the global state
-  playerRef, // Add the playerRef prop
+  playerRef,
 }: {
   volume: number;
   setVolume: (volume: number) => void;
@@ -192,13 +194,14 @@ const Controls = ({
   duration: number;
   played: number;
   onSeek: (time: number) => void;
-  title?: string;
+  title: string;
+  artist: string;
   img?: string;
   onNext?: () => void;
   onPrevious?: () => void;
   onPlayPause?: (playing: boolean) => void;
   setIsPlaying?: (isPlaying: boolean) => void; // Add this prop to update the global state
-  playerRef: React.RefObject<ReactPlayer>; // Accept the playerRef prop
+  playerRef: React.RefObject<ReactPlayer>;
 }) => {
   const [localPlayed, setLocalPlayed] = useState(played * duration);
 
@@ -361,6 +364,8 @@ const Controls = ({
         )}
       </div>
       <AnimatedLyrics
+        artistName={artist}
+        songTitle={title}
         onSeek={(time) => playerRef.current?.seekTo(time)}
         delay={1}
         localPlayed={localPlayed}
@@ -383,8 +388,9 @@ export const NavbarMiniControls = ({
   onNext?: () => void;
 }) => {
   return (
+    // dark:bg-[#1d1d1d]/50
     <div className="navbar-mini-container">
-      <div className="w-full h-fit mini-control backdrop-blur-md p-2 rounded-[14px] flex justify-between bg-foreground">
+      <div className="w-full h-fit mini-control backdrop-blur-lg p-2 rounded-[14px] flex justify-between bg-white/20">
         <div className="flex items-center">
           <Image
             className="size-11 rounded-lg"

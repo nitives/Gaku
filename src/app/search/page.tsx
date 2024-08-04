@@ -14,9 +14,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAudio } from "@/context/AudioContext";
 
-const newlink =
-  "https://cf-hls-media.sndcdn.com/playlist/KsE6RhlmWtdv.128.mp3/playlist.m3u8?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiKjovL2NmLWhscy1tZWRpYS5zbmRjZG4uY29tL3BsYXlsaXN0L0tzRTZSaGxtV3Rkdi4xMjgubXAzL3BsYXlsaXN0Lm0zdTgqIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzIyMzE5MTE4fX19XX0_&Signature=Br24tsRKj5N2Kjbn881dFQH4NDVDfVzQdSfFvMDVXL42mi3MZPXvo33wAIjOnCU2GJVK8QAaNGj5rhJzcOGbV6uz8dtcND6ZbKxPfmW7K-Gd7e4S-7tKgpH7fUaaS5hqmcoMCTJf8cXtTca3rf4rpV-X0-tD2ghRfLmipG0DpVhzIgAh9YIZCAjc6GQOuY9JWgyZcNUtmZROxE1DWtJkrNrN89d-Z3ADyjYHDOAydtOaLQutSwIWQrVnhp5sR2Pn3F2ACoAsJYwRQWM5EMtdfmxl-qyie9WlyGfRRCxZXhl~LWTLO6WLKTc0g8M80GKqsQoIufdUc5AgzexrQLj0mw__&Key-Pair-Id=APKAI6TU7MMXM5DG6EPQ";
-
 export default function Home() {
   const {
     setCurrentTrack: setGlobalCurrentTrack,
@@ -129,6 +126,7 @@ export default function Home() {
             onSearch={handleSearch}
             value={query}
             title="Search"
+            autoFocus={true}
           />
           <Heading>Search</Heading>
           <Input
@@ -142,6 +140,7 @@ export default function Home() {
             placeholder="Search"
             onSearch={handleSearch}
             className="mb-5"
+            autoFocus={true}
           />
         </div>
 

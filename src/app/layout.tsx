@@ -12,6 +12,12 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Gaku",
   description: "A SoundCloud Client",
+  applicationName: "Gaku",
+  appleWebApp: {
+    capable: true,
+    title: "Gaku",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export const viewport: Viewport = {
@@ -43,12 +49,13 @@ export default function RootLayout({
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover"
-        ></meta>
+        />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className={"SFPro"}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >

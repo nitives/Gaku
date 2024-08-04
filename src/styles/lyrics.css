@@ -1,0 +1,122 @@
+.lyrics-container {
+  background: rgba(0, 0, 0, 0.001);
+  mask-image: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0) 10%,
+    rgba(0, 0, 0, 1) 15%,
+    rgba(0, 0, 0, 1) 95%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 10%,
+    rgba(0, 0, 0, 1) 15%,
+    rgba(0, 0, 0, 1) 95%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.lyrics-view .lyric-line {
+  --fontSize: clamp(16px, 12cqw, 32px);
+  --fontSizeBG: 1rem;
+  --lineBlurAmount: 1px;
+  font-weight: 700;
+  opacity: 0.5;
+  cursor: pointer;
+  font-size: var(--fontSize);
+  transform-origin: left;
+  transform: scale(0.8);
+  transition: transform 1s ease-out, opacity 0.8s ease-out,
+    padding-top 0.5s ease-out;
+  padding-top: 0;
+  margin-top: 0.5rem;
+  position: relative;
+  flex-direction: row;
+  gap: 16px;
+  width: 100%;
+  filter: blur(var(--lineBlurAmount));
+}
+
+.lyrics-view .lyric-line.active {
+  color: var(--ambient);
+  opacity: 1;
+  transform: scale(1);
+  filter: unset;
+  transition: transform 0.2s var(--appleEase), opacity 0.35s var(--appleEase),
+    filter 0.35s var(--appleEase);
+}
+
+.lyrics-view .lyric-line.finished {
+  --finishedOpacity: 0.5;
+  --lineBlurAmount: 2px;
+  transition: opacity 0.5s var(--appleEase), filter 0.5s var(--appleEase),
+    transform 0.5s var(--appleEase), grid-template-rows 0.35s ease-in-out;
+  opacity: var(--finishedOpacity);
+}
+
+.lyric-dots {
+  display: inline-flex;
+  gap: 6px;
+  animation: dot 3s infinite ease-in-out;
+  transform-origin: center;
+}
+
+.dot {
+  width: 12px;
+  aspect-ratio: 1/1;
+  animation: dotGrow 3s infinite ease-in-out;
+  transform-origin: center;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.dot.dot-1 {
+  animation-delay: 0s;
+}
+
+.dot.dot-2 {
+  animation-delay: 0.5s;
+}
+
+.dot.dot-3 {
+  animation-delay: 1s;
+}
+
+.dot .svg-dot {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+@keyframes dot {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+}
+
+@keyframes dotGrow {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.3);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}

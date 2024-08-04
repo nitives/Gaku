@@ -3,9 +3,6 @@ import { Heading, SafeView } from "@/components/mobile/SafeView";
 import { PlaylistPlayer } from "@/components/PlaylistPlayer";
 import React, { useState, useEffect } from "react";
 
-const jsss =
-  "https://cf-hls-media.sndcdn.com/playlist/ladE0RdPLsfF.128.mp3/playlist.m3u8?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiKjovL2NmLWhscy1tZWRpYS5zbmRjZG4uY29tL3BsYXlsaXN0L2xhZEUwUmRQTHNmRi4xMjgubXAzL3BsYXlsaXN0Lm0zdTgqIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzIyMjYyMTczfX19XX0_&Signature=SUzB9E6Y55P6ZzF8rOowidsUCOana03jfNBrmdlcvM6nUUSCjNTZ65YSGN3AVKZsE4~o7mc-YvNiUk5kCBEnAxG2QqSER5UX4Loe4AvZJE0H-6F~y3NZotklu8h6VbzugCxr1~Y1Qo0fjvMui-C6RsogaVZzC-DNE~8vytIRIzcwf~D9hnsLjgg5VahrANDU~zogxzIAq5gtrklPJKEBm3FuWspS-ZYpWHD5vAHROkScA8fAKS1HEU8zDw9kFI8RRD-Lc-MuFPiTi-JV45iL3odog5VJDVzgG4PFbHYuq7ZWu6ijOGXrAqs2jJ5zbkwtrPWt0inD4O5tuAIQyrJZDw__&Key-Pair-Id=APKAI6TU7MMXM5DG6EPQ";
-
 // const fetchPlaylist = async () => {
 //   try {
 //     const res = await fetch("./api/fetchPlaylist");
