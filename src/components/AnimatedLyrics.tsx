@@ -3,7 +3,6 @@ import clsx from "clsx";
 import { fetchLyrics } from "@/lib/utils";
 import "../styles/lyrics.css";
 import { motion, AnimatePresence } from "framer-motion";
-// import { lyrics } from "./lyrics.json";
 
 const LyricDots = () => (
   <motion.div
@@ -65,7 +64,7 @@ const LyricDots = () => (
 );
 
 interface LyricLine {
-  startTimeMs: string;
+  startTimeMs: string; // Keep this as string since that's how it comes from the API
   words: string;
 }
 
@@ -82,7 +81,7 @@ export const AnimatedLyrics = ({
   songTitle: string;
   artistName: string;
 }) => {
-  const [currentLine, setCurrentLine] = useState(null);
+  const [currentLine, setCurrentLine] = useState<LyricLine | null>(null);
   const currentLineRef = useRef<HTMLParagraphElement | null>(null);
   const [lyrics, setLyrics] = useState<{ lines: LyricLine[] }>({ lines: [] });
   const [showDots, setShowDots] = useState(false);
@@ -90,7 +89,6 @@ export const AnimatedLyrics = ({
   const getLyrics = async (songTitle: string, artistName: string) => {
     const data = await fetchLyrics(songTitle, artistName);
     setLyrics(data.lyrics);
-    // console.log("getLyrics | data:", data.lyrics);
   };
 
   useEffect(() => {
@@ -137,14 +135,11 @@ export const AnimatedLyrics = ({
   }, [localPlayed, delay, lyrics]);
 
   useEffect(() => {
-    // console.log("current LineRef Before:", currentLineRef.current);
     if (currentLineRef.current) {
-      // console.log("current LineRef | After:", currentLineRef.current);
       currentLineRef.current.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
-      // console.log("current LineRef | scrolled to", currentLineRef.current);
     }
   }, [currentLine]);
 
@@ -154,7 +149,11 @@ export const AnimatedLyrics = ({
   };
 
   if (!lyrics) {
-    return <div>Loading lyrics...</div>;
+    return (
+      <div>
+        <LyricDots />
+      </div>
+    );
   }
 
   return (
@@ -174,7 +173,7 @@ export const AnimatedLyrics = ({
         }}
       >
         <AnimatePresence>{showDots && <LyricDots />}</AnimatePresence>
-        {lyrics.lines.map((line: { startTimeMs: number; words: string }) => {
+        {lyrics.lines.map((line) => {
           const isCurrentLine = currentLine?.startTimeMs === line.startTimeMs;
           const isPastLine =
             Number(line.startTimeMs) < (localPlayed + delay) * 1000;
