@@ -96,10 +96,6 @@ export const ScrollHeader = ({
     };
   }, []);
 
-  const handleInputFocus = (isFocused: boolean) => {
-    if (onInputFocus) onInputFocus(isFocused);
-  };
-
   return (
     <div
       className={`fixed top-0 left-0 w-full z-50 transition-all opacity-0 pt-8 standalone:pt-12 pb-2 px-5 ${
