@@ -13,13 +13,18 @@ export default async function handler(
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
+  // Ensure that query is a string and not undefined or an array
+  const queryString = Array.isArray(query) ? query[0] : query;
+
+  if (!queryString) {
+    return res.status(400).json({ error: "Query parameter is required" });
+  }
+
   try {
     console.log("Scraping started");
 
     // Fetch the HTML from the SoundCloud page
-    const response = await axios.get(
-      query
-    );
+    const response = await axios.get(queryString);
     console.log("Response received!");
 
     // Parse the HTML using JSDOM
