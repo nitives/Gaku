@@ -1,8 +1,7 @@
-// // pages/api/music.ts
+
 // import { NextApiRequest, NextApiResponse } from 'next';
 // import axios from 'axios';
 
-// const clientId = "HdNkyvYLhMiAeZEVUCvn8NQOVKjIj9OS";
 
 // export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 //   if (req.method === 'GET') {

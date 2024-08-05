@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import type { Viewport } from "next";
 import { AudioProvider } from "@/context/AudioContext";
 import { PersistentAudioPlayer } from "@/components/PersistentAudioPlayer";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -63,6 +64,21 @@ export default function RootLayout({
             {children}
             <Navbar />
             <PersistentAudioPlayer />
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                style: {
+                  padding: "16px",
+                  borderRadius: "16px",
+                },
+                success: {
+                  duration: 3000,
+                },
+                error: {
+                  duration: 4000,
+                },
+              }}
+            />
           </AudioProvider>
         </ThemeProvider>
       </body>

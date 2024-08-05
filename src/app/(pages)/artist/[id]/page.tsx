@@ -35,7 +35,7 @@ export default function PlaylistPage() {
   };
 
   const fetchSongdata = async (artistId: string) => {
-    const response = await fetch(`/api/song/info/${artistId}`);
+    const response = await fetch(`/api/track/info/${artistId}`);
     const data = await response.json();
     console.log("fetchSongdata | data: ", data);
     setSongData(data);

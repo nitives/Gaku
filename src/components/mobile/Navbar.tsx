@@ -2,7 +2,7 @@
 import Link from "next/link";
 import React from "react";
 import { GoHomeFill } from "react-icons/go";
-import { IoSearch } from "react-icons/io5";
+import { IoAlbums, IoSearch } from "react-icons/io5";
 import { usePathname } from "next/navigation";
 
 export const Navbar = ({
@@ -62,19 +62,19 @@ export const Navbar = ({
             Search
           </span>
         </Link>
-        <Link href={"/custom"} className="flex flex-col items-center">
-          <GoHomeFill
+        <Link href={"/library"} className="flex flex-col items-center">
+          <IoAlbums
             className={`navbar-icon ${
-              isLinkActive("/custom") ? "text-ambient" : "text-black/30"
+              isLinkActive("/library") ? "text-ambient" : "text-black/30"
             }`}
             size={30}
           />
           <span
             className={`navbar-icon-title ${
-              isLinkActive("/custom") ? "text-ambient" : "text-black/30"
+              isLinkActive("/library") ? "text-ambient" : "text-black/30"
             }`}
           >
-            Custom
+            Library
           </span>
         </Link>
       </nav>

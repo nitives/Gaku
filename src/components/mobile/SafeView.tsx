@@ -168,12 +168,17 @@ export const Header = ({
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   className?: string;
   onSearch?: () => void;
+  icon?: React.ReactNode | false;
 }
 
 export const Input: React.FC<InputProps> = ({
   className,
   onSearch,
   autoFocus,
+  placeholder,
+  type,
+  title,
+  icon,
   ...props
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -186,28 +191,33 @@ export const Input: React.FC<InputProps> = ({
 
   return (
     <>
-      {/* <div className="dark:bg-white/[0.1]" /> */}
       <div
         className={`${
           className || ""
         } bg-black/[0.05] w-full rounded-xl relative flex items-center px-2 gap-2`}
       >
-        <button>
-          <IoSearch
-            onClick={onSearch}
-            className="text-muted-foreground"
-            size={20}
-          />
-        </button>
+        {icon !== false && (
+          <button>
+            {icon || (
+              <IoSearch
+                onClick={onSearch}
+                className="text-muted-foreground"
+                size={20}
+              />
+            )}
+          </button>
+        )}
         <input
           {...props}
           ref={inputRef}
           spellCheck="true"
-          type="search"
-          className="appearance-none py-2 bg-transparent w-full placeholder:text-muted-foreground focus:outline-none"
-          placeholder="Search"
+          type={type}
+          className={`appearance-none py-2 bg-transparent w-full placeholder:text-muted-foreground focus:outline-none ${
+            icon === false ? "pl-2" : ""
+          }`}
+          placeholder={placeholder}
           aria-haspopup="false"
-          title="Search"
+          title={title}
         />
       </div>
     </>

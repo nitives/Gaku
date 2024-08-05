@@ -1,0 +1,89 @@
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { IoHeart, IoHeartOutline } from "react-icons/io5";
+
+export const LibraryCard = ({
+  songId,
+  onClick,
+}: {
+  songId: string;
+  onClick: () => void;
+}) => {
+  const [songData, setSongData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchSongData = async () => {
+      try {
+        const response = await fetch(`/api/track/info/${songId}`);
+        const data = await response.json();
+        setSongData(data);
+      } catch (error) {
+        console.error("Error fetching song data:", error);
+      }
+    };
+
+    fetchSongData();
+  }, [songId]);
+
+  if (!songData) {
+    return <div>Loading...</div>; // or a skeleton loader
+  }
+
+  console.log("songData: ", songData);
+
+  return (
+    <>
+      <div
+        onClick={onClick}
+        className="w-full py-4 flex items-center gap-4 px-4 cursor-pointer hover:bg-foreground/5 transition-colors duration-150 rounded-xl"
+      >
+        <div className="min-w-16">
+          <Image
+            width={1000}
+            height={1000}
+            src={
+              songData.artwork_url ||
+              "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"
+            }
+            alt={songData.title || ""}
+            className="size-16 rounded-lg"
+            onError={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(to right, #FFA500, #FF4500)";
+              e.currentTarget.src =
+                "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"; // 1x1 transparent gif
+            }}
+          />
+        </div>
+
+        <div className="flex flex-col flex-grow">
+          <div className="flex items-center gap-2 w-[70vw] standalone:w-[65vw]">
+            <h1 title={songData.title} className="whitespace-nowrap truncate">
+              {songData.publisher_metadata.explicit
+                ? `${songData.title} 🅴`
+                : songData.title}
+            </h1>
+            {/* {premium === true && (
+              <span
+                title="This content is a preview because of SoundCloud encryption"
+                className="bg-orange-500 p-0.5 text-xs rounded-md"
+              >
+                Go+
+              </span>
+            )} */}
+          </div>
+          <h2 className="text-muted-foreground">
+            {songData.user.username}
+          </h2>
+        </div>
+        {/* <div onClick={handleFavoriteClick} className="cursor-pointer">
+          {isFavorited ? (
+            <IoHeart className="scale-y-[.95] text-red-500" size={24} />
+          ) : (
+            <IoHeartOutline className="scale-y-[.95]" size={24} />
+          )}
+        </div> */}
+      </div>
+    </>
+  );
+};

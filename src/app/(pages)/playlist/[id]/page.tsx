@@ -5,7 +5,7 @@ import { AudioPlayerHLS } from "@/components/AudioPlayerHLS";
 import { fetchPlaylistM3U8 } from "@/lib/utils";
 import Image from "next/image";
 import { SafeView, BackButton } from "@/components/mobile/SafeView";
-import { IoPlay, IoShuffle } from "react-icons/io5";
+import { IoHeart, IoHeartOutline, IoPlay, IoShuffle } from "react-icons/io5";
 import { motion } from "framer-motion";
 import { ColorGen } from "@/components/ColorGen";
 import { Lossless } from "@/components/Icons/Lossless";
@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useAudio } from "@/context/AudioContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PlaylistSkeleton } from "@/components/skeletons/PlaylistSkeleton";
+import { useLibrary } from "@/hooks/useLibrary";
 
 export default function PlaylistPage() {
   const {
@@ -31,6 +32,21 @@ export default function PlaylistPage() {
   const params = useParams();
   const id = params?.id as string;
   const [playlist, setPlaylist] = useState<any>(null);
+  const { addSong, removeSong, isSongInLibrary } = useLibrary();
+  const [isFavorited, setIsFavorited] = useState(false);
+
+  const handleLikeToggle = (track: any) => {
+    const songId = `${track.title}-${playlist.user.username}`;
+    if (isSongInLibrary(songId)) {
+      removeSong(songId);
+    } else {
+      addSong({
+        id: songId,
+        title: track.title,
+        artist: playlist.user.username,
+      });
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -199,25 +215,25 @@ export default function PlaylistPage() {
           {playlist.tracks.map((track: any, index: number) => (
             <li
               key={track.id}
-              onClick={() => playTrack(track, index)}
-              className="cursor-pointer flex"
+              className="cursor-pointer flex items-center justify-between"
             >
-              <span>
-                <motion.span
-                  initial={{ color: "inherit" }} // Initial color (normal track number color)
-                  animate={
-                    globalCurrentTrack &&
-                    globalCurrentTrack.id === track.id &&
-                    isPlaying
-                      ? { color: "var(--ambient)" } // Transition to accent color when playing
-                      : { color: "inherit" } // Normal color when not playing
-                  }
-                  transition={{ duration: 0.3, ease: "easeInOut" }} // Customize the transition duration as needed
-                >
-                  {index + 1}
-                </motion.span>
-              </span>
-              {artistNameRemove(playlist.user.username, track.title)}
+              <div
+                onClick={() => playTrack(track, index)}
+                className="flex-grow"
+              >
+                <span>{index + 1}</span>
+                {artistNameRemove(playlist.user.username, track.title)}
+              </div>
+              <button onClick={() => handleLikeToggle(track)} className="ml-2">
+                {isSongInLibrary(`${track.title}-${playlist.user.username}`) ? (
+                  <IoHeart className="scale-y-[.95] text-red-500" size={24} />
+                ) : (
+                  <IoHeartOutline
+                    className="scale-y-[.95] text-muted-foreground/30"
+                    size={24}
+                  />
+                )}
+              </button>
             </li>
           ))}
         </ul>

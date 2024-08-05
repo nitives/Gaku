@@ -1,9 +1,12 @@
 import Image from "next/image";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { IoHeartOutline, IoHeart } from "react-icons/io5";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
+import { useLibrary } from "@/hooks/useLibrary"; // Adjust the path according to your structure
 
 export const SearchCard = ({
   className,
+  id,
   title,
   artistName,
   image,
@@ -15,6 +18,7 @@ export const SearchCard = ({
   isExplicit,
 }: {
   className?: string;
+  id?: string;
   title?: string;
   artistName?: string;
   image?: string;
@@ -25,6 +29,29 @@ export const SearchCard = ({
   premium?: boolean;
   isExplicit?: boolean;
 }) => {
+  const { addSong, removeSong, isSongInLibrary } = useLibrary();
+  const songId = `${id}`; // Unique identifier for the song
+  const [isFavorited, setIsFavorited] = useState(false);
+
+  useEffect(() => {
+    // Check if the song is already in the library on component mount
+    setIsFavorited(isSongInLibrary(songId));
+  }, [songId, isSongInLibrary]);
+
+  const handleFavoriteClick = () => {
+    if (isFavorited) {
+      removeSong(songId);
+      setIsFavorited(false);
+    } else {
+      addSong({
+        id: songId,
+        title: title || "Unknown Title",
+        artist: artistName || "Unknown Artist",
+      });
+      setIsFavorited(true);
+    }
+  };
+
   return (
     <div className={`${className} w-full py-4 flex items-center gap-4 px-4 `}>
       <div className="min-w-16">
@@ -57,23 +84,32 @@ export const SearchCard = ({
         </div>
       )}
       {track && (
-        <div className="flex flex-col flex-grow">
-          <div className="flex items-center gap-2 w-[70vw] standalone:w-[65vw]">
-            <h1 title={title} className="whitespace-nowrap truncate">
-              {isExplicit ? `${title} 🅴` : title}
-            </h1>
-            {premium === true && (
-              <span
-                title="This content is a preview because of SoundCloud encryption"
-                className="bg-orange-500 p-0.5 text-xs rounded-md"
-              >
-                Go+
-              </span>
+        <>
+          <div className="flex flex-col flex-grow">
+            <div className="flex items-center gap-2 w-[70vw] standalone:w-[65vw]">
+              <h1 title={title} className="whitespace-nowrap truncate">
+                {isExplicit ? `${title} 🅴` : title}
+              </h1>
+              {premium === true && (
+                <span
+                  title="This content is a preview because of SoundCloud encryption"
+                  className="bg-orange-500 p-0.5 text-xs rounded-md"
+                >
+                  Go+
+                </span>
+              )}
+            </div>
+
+            <h2 className="text-muted-foreground">Song · {artistName}</h2>
+          </div>
+          <div onClick={handleFavoriteClick} className="cursor-pointer">
+            {isFavorited ? (
+              <IoHeart className="scale-y-[.95] text-red-500" size={24} />
+            ) : (
+              <IoHeartOutline className="scale-y-[.95]" size={24} />
             )}
           </div>
-
-          <h2 className="text-muted-foreground">Song · {artistName}</h2>
-        </div>
+        </>
       )}
       {playlist && (
         <div>

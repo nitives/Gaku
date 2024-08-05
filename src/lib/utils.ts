@@ -1,8 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-const clientId = "HdNkyvYLhMiAeZEVUCvn8NQOVKjIj9OS";
-
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

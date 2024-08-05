@@ -225,6 +225,7 @@ export default function Home() {
                   className="w-full flex flex-col gap-4 border-b active:bg-white/5 transition-colors duration-100 cursor-pointer"
                 >
                   <SearchCard
+                    id={item.id}
                     isExplicit={item.publisher_metadata?.explicit === true}
                     premium={item.monetization_model === "SUB_HIGH_TIER"}
                     playlist={item.kind === "playlist"}
