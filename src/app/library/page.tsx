@@ -1,13 +1,21 @@
 "use client";
 import { useState } from "react";
 import { useLibrary } from "../../hooks/useLibrary";
-import { Heading, SafeView, SubHeading } from "@/components/mobile/SafeView";
+import {
+  Heading,
+  Input,
+  SafeView,
+  SubHeading,
+} from "@/components/mobile/SafeView";
 import { useAudio } from "@/context/AudioContext";
 import {
+  IoAddCircle,
   IoCheckmark,
   IoCopyOutline,
+  IoCreate,
   IoEyeOffOutline,
   IoEyeOutline,
+  IoKey,
   IoPlay,
 } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
@@ -154,27 +162,46 @@ export default function Library() {
     <>
       <SafeView>
         <Heading>Library (BETA)</Heading>
-        <SubHeading>
-          NOTICE: Queue / Next song doesn&apos;t work currently
+        <SubHeading className="*:text-xs *:leading-5 text-muted-foreground">
+          <span className="py-1 px-1.5 mb-0.5 rounded-md text-foreground bg-destructive">
+            NOTICE
+          </span>{" "}
+          Queue / Next song doesn&apos;t work currently, this is an experimental
+          feature, just like the rest of this app.
         </SubHeading>
         <div>
           {!library ? (
             <div>
-              <button onClick={handleCreateLibrary}>Create Library</button>
+              <div className="standalone:w-full flex gap-2">
+                <button
+                  className="min-w-[7.25rem] max-sm:w-full py-1 px-1 standalone:px-2 standalone:py-2 standalone:mb-2 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 standalone:bg-foreground/5 items-center gap-2"
+                  onClick={handleCreateLibrary}
+                >
+                  <p>Create Library</p>
+                  <IoCreate />
+                </button>
+                <button
+                  className="min-w-[7.25rem] max-sm:w-full py-1 px-1 standalone:px-2 standalone:py-2 standalone:mb-2 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 standalone:bg-foreground/5 items-center gap-2"
+                  onClick={handleImportLibrary}
+                >
+                  <p>Import Library</p>
+                  <IoAddCircle />
+                </button>
+              </div>
               <div>
-                <input
+                <Input
                   type="text"
                   value={importKey}
                   onChange={(e) => setImportKey(e.target.value)}
                   placeholder="Enter library key"
+                  icon={<IoKey className="text-muted-foreground" />}
                 />
-                <button onClick={handleImportLibrary}>Import Library</button>
               </div>
             </div>
           ) : (
             <div>
               <button
-                className="min-w-[7.25rem] py-1 px-1 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-transparent items-center gap-2"
+                className="min-w-[7.25rem] max-sm:w-full py-1 px-1 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-transparent items-center gap-2"
                 onClick={handlePlayAll}
               >
                 <>
@@ -183,9 +210,9 @@ export default function Library() {
                 </>
               </button>
               <div className="grid gap-2">
-                <div className="flex gap-1">
+                <div className="flex gap-1 w-full">
                   <button
-                    className="min-w-[7.25rem] py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-transparent items-center gap-2"
+                    className="min-w-[7.25rem] max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-transparent items-center gap-2"
                     onClick={toggleKeyVisibility}
                   >
                     {isKeyHidden ? (
@@ -201,7 +228,7 @@ export default function Library() {
                     )}
                   </button>
                   <button
-                    className="min-w-[7.25rem] py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-transparent items-center gap-2"
+                    className="min-w-[7.25rem] max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-transparent items-center gap-2"
                     onClick={copyKeyToClipboard}
                   >
                     <p>Copy Key</p>
@@ -217,40 +244,47 @@ export default function Library() {
                       </motion.div>
                     </AnimatePresence>
                   </button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
+                </div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      className="min-w-[7.25rem] bg-destructive text-background dark:text-foreground hover:text-foreground standalone:w-full py-1 px-1 standalone:px-2 standalone:py-2 standalone:mb-2 flex justify-center rounded-xl hover:bg-foreground/5 standalone:bg-foreground/5 items-center gap-2"
+                      onClick={handleImportLibrary}
+                    >
+                      <p>Delete Library</p>
+                      <IoAddCircle />
+                    </button>
+                    {/* <Button
                         className="hover:text-foreground rounded-xl"
                         variant="destructive"
                       >
                         Delete Library
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="!rounded-2xl">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Are you absolutely sure?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. This will permanently
-                          delete your library and remove your data from our
-                          servers.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="hover:text-foreground hover:bg-foreground/5 rounded-xl">
-                          Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          className="rounded-xl"
-                          onClick={handleDeleteLibrary}
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
+                      </Button> */}
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="!rounded-2xl max-md:scale-90">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete your library and remove your data from our
+                        servers.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="hover:text-foreground hover:bg-foreground/5 rounded-xl">
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        className="rounded-xl"
+                        onClick={handleDeleteLibrary}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                 <div className="flex gap-2">
                   <div className="bg-foreground dark:bg-foreground/10 text-green-500 w-fit py-2 px-3 rounded-xl selection:bg-green-500 selection:text-black">
                     <p className="">
