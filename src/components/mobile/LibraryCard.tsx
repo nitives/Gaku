@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { IoHeart, IoHeartOutline } from "react-icons/io5";
 import { Skeleton } from "../ui/skeleton";
 
 export const LibraryCard = ({
@@ -30,7 +29,6 @@ export const LibraryCard = ({
     return <LibraryCardSkeleton />; // or a skeleton loader
   }
 
-  console.log("songData: ", songData);
 
   return (
     <>

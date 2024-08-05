@@ -14,7 +14,7 @@ export default async function handler(
         {
           headers: {
             Host: "api-v2.soundcloud.com",
-            Authorization: "OAuth 2-295088-300743603-2XEAimWph2HxCZ",
+            Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,
           },
         }
       );

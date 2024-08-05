@@ -8,7 +8,12 @@ export default async function handler(
   if (req.method === "GET") {
     try {
       const response = await axios.get("https://api-v2.soundcloud.com/search", {
-        params: req.query,
+        params: {
+          ...req.query,
+          facet: "model",
+          limit: 60,
+          offset: 0,
+        },
         headers: {
           Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,
         },

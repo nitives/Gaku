@@ -80,11 +80,13 @@ export default function Library() {
       if (remainingSongs) {
         setGlobalPlaylist(remainingSongs); // Set the remaining songs as the global playlist
         const firstSong = remainingSongs[0];
+        console.log("firstSong.id 1:", firstSong.id);
 
         try {
           // Fetch the playlist URL using the permalink_url of the first song
 
           // Fetch the song data from API
+          console.log("firstSong.id 2:", firstSong.id);
           const response = await fetch(`/api/track/info/${firstSong.id}`);
           const songData = await response.json();
           const playlistUrl = await fetchPlaylistM3U8(songData.permalink_url);
@@ -172,7 +174,7 @@ export default function Library() {
           ) : (
             <div>
               <button
-                className="min-w-[7.25rem] py-1 px-1 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-black/5 bg-transparent items-center gap-2"
+                className="min-w-[7.25rem] py-1 px-1 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-transparent items-center gap-2"
                 onClick={handlePlayAll}
               >
                 <>
@@ -183,7 +185,7 @@ export default function Library() {
               <div className="grid gap-2">
                 <div className="flex gap-1">
                   <button
-                    className="min-w-[7.25rem] py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-black/5 bg-transparent items-center gap-2"
+                    className="min-w-[7.25rem] py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-transparent items-center gap-2"
                     onClick={toggleKeyVisibility}
                   >
                     {isKeyHidden ? (
@@ -199,7 +201,7 @@ export default function Library() {
                     )}
                   </button>
                   <button
-                    className="min-w-[7.25rem] py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-black/5 bg-transparent items-center gap-2"
+                    className="min-w-[7.25rem] py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-transparent items-center gap-2"
                     onClick={copyKeyToClipboard}
                   >
                     <p>Copy Key</p>
@@ -218,7 +220,7 @@ export default function Library() {
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
-                        className="hover:text-white rounded-xl"
+                        className="hover:text-foreground rounded-xl"
                         variant="destructive"
                       >
                         Delete Library
@@ -236,7 +238,7 @@ export default function Library() {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className="hover:text-black hover:bg-foreground/5 rounded-xl">
+                        <AlertDialogCancel className="hover:text-foreground hover:bg-foreground/5 rounded-xl">
                           Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
@@ -250,7 +252,7 @@ export default function Library() {
                   </AlertDialog>
                 </div>
                 <div className="flex gap-2">
-                  <div className="bg-black text-green-500 w-fit py-2 px-3 rounded-xl selection:bg-green-500 selection:text-black">
+                  <div className="bg-foreground dark:bg-foreground/10 text-green-500 w-fit py-2 px-3 rounded-xl selection:bg-green-500 selection:text-black">
                     <p className="">
                       Library Key |{" "}
                       {isKeyHidden ? (

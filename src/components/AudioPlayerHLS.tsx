@@ -153,8 +153,8 @@ export const AudioPlayerHLS = ({
         duration={duration}
         played={played}
         onSeek={(time) => playerRef.current?.seekTo(time)}
-        title={title || 'Unknown Title'}
-        artist={artist || 'Unknown Artist'}
+        title={title || "Unknown Title"}
+        artist={artist || "Unknown Artist"}
         img={img}
         onNext={onNext}
         onPrevious={handlePrevious}
@@ -235,7 +235,9 @@ const Controls = ({
     setLocalPlayed(time);
   };
 
-  const handleSeekMouseUp = (e: React.MouseEvent<HTMLInputElement> | React.TouchEvent<HTMLInputElement>) => {
+  const handleSeekMouseUp = (
+    e: React.MouseEvent<HTMLInputElement> | React.TouchEvent<HTMLInputElement>
+  ) => {
     const time = parseFloat((e.target as HTMLInputElement).value);
     onSeek(time);
   };
@@ -390,7 +392,7 @@ export const NavbarMiniControls = ({
   return (
     // dark:bg-[#1d1d1d]/50
     <div className="navbar-mini-container">
-      <div className="w-full h-fit mini-control backdrop-blur-lg p-2 rounded-[14px] flex justify-between bg-white/20">
+      <div className="w-full h-fit mini-control backdrop-blur-lg p-2 rounded-[14px] flex justify-between bg-background/20">
         <div className="flex items-center">
           <Image
             className="size-11 rounded-lg"

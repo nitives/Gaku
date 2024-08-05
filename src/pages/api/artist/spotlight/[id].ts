@@ -14,7 +14,7 @@ export default async function handler(
         {
           headers: {
             Host: "api-v2.soundcloud.com",
-            Authorization: "OAuth 2-295088-300743603-2XEAimWph2HxCZ",
+            Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,
           },
         }
       );
@@ -23,7 +23,10 @@ export default async function handler(
     } catch (error) {
       res
         .status(500)
-        .json({ error: "An error occurred while fetching the artist's spotlight tracks" });
+        .json({
+          error:
+            "An error occurred while fetching the artist's spotlight tracks",
+        });
     }
   } else {
     res.setHeader("Allow", ["GET"]);

@@ -2,14 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@media (display-mode: standalone) {
-  body {
-    min-height: calc(100% + env(safe-area-inset-top));
-    padding: env(safe-area-inset-top) env(safe-area-inset-right)
-      env(safe-area-inset-bottom) env(safe-area-inset-left);
-  }
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -40,7 +32,7 @@
     --chart-5: 27 87% 67%;
   }
 
-  /* .dark {
+  .dark {
     --background: 0 0% 0%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
@@ -65,7 +57,7 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-  } */
+  }
 }
 
 @layer base {
@@ -99,6 +91,14 @@
       -ms-user-select: none;
       user-select: none;
     }
+  }
+}
+
+@media (display-mode: standalone) {
+  body {
+    min-height: calc(100% + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 }
 
@@ -229,11 +229,6 @@
 
 .navbar-mobile {
   display: flex;
-  /* background: linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.2) 0%,
-    rgba(0, 0, 0, 0.2) 100%
-  ); */
   background: linear-gradient(
     0deg,
     rgba(255, 255, 255, 0.2) 0%,
@@ -250,13 +245,13 @@
   backdrop-filter: blur(8px);
 }
 
-/* .navbar-mobile:is(.dark *) {
+.navbar-mobile:is(.dark *) {
   background: linear-gradient(
     0deg,
-    rgba(0, 0, 0, 0.2) 0%,
-    rgba(0, 0, 0, 0.2) 100%
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.75) 100%
   );
-} */
+}
 
 /* @media (prefers-color-scheme: dark) {
   .navbar-mobile {
@@ -334,7 +329,7 @@
   mask: linear-gradient(270deg, transparent 35px, black 50px);
   width: 100px;
   height: 100px;
-} 
+}
 
 /* Controls */
 

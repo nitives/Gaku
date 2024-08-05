@@ -29,8 +29,6 @@ export default function Home() {
   const [localPlaylistUrl, setLocalPlaylistUrl] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [localCurrentTrack, setLocalCurrentTrack] = useState<any>(null);
-  // const [cover, setHDCover] = useState<any>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
 
   const handleSearch = async () => {
@@ -71,25 +69,6 @@ export default function Home() {
     setQuery(event.target.value);
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 150) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    console.log("isScrolled:", window.scrollY);
-
-    window.addEventListener("scroll", handleScroll);
-
-    // Cleanup event listener on component unmount
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
   const formatDuration = (duration: number): string => {
     const minutes = Math.floor(duration / 60000);
     const seconds = Math.floor((duration % 60000) / 1000);
@@ -117,9 +96,6 @@ export default function Home() {
           <ColorGen src={cover || localCurrentTrack.artwork_url} />
         )}
         <div className="px-5">
-          {/* <Header title="Search">
-
-          </Header> */}
           <ScrollHeader
             onChange={handleInputChange}
             onKeyDown={(e) => {
@@ -147,66 +123,6 @@ export default function Home() {
             autoFocus={true}
           />
         </div>
-
-        {/* <div className="px-5">
-          <Heading className="mb-0 standalone:top-[6vh] relative">Search</Heading>
-          
-        </div>
-        <div
-          className={`sticky top-[-1px] z-10 px-5 py-4 standalone:pt-[6vh]  ${
-            isScrolled
-              ? "bg-white/5 backdrop-blur-lg border-b"
-              : "bg-transparent"
-          } transition-all duration-300`}
-        >
-          <Input
-            value={query}
-            onChange={handleInputChange}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSearch();
-              }
-            }}
-            placeholder="Search"
-            onSearch={handleSearch}
-          />
-        </div> */}
-
-        {/* <div className="flex gap-2">
-          <input
-            type="search"
-            value={query}
-            onChange={handleInputChange}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSearch();
-              }
-            }}
-            placeholder="Enter search query"
-            className="px-4 py-2 border rounded placeholder:text-muted"
-          />
-          <button
-            onClick={handleSearch}
-            className="px-4 py-2 bg-orange-500 text-white rounded"
-          >
-            Search
-          </button>
-        </div> */}
-        {/* {localPlaylistUrl && localCurrentTrack && (
-          <div className="w-full">
-            <AudioPlayerHLS
-              height="100%"
-              img={cover || localCurrentTrack.artwork_url || ""}
-              title={localCurrentTrack.title}
-              artist={localCurrentTrack.user.username}
-              album={localCurrentTrack.publisher_metadata?.album_title || ""}
-              src={localPlaylistUrl}
-              isExplicit={
-                localCurrentTrack.publisher_metadata?.explicit === true
-              }
-            />
-          </div>
-        )} */}
         {search && (
           <SafeView className="w-full pb-[2rem] !pt-0">
             {search.collection.map((item: any, index: number) => (
@@ -222,7 +138,7 @@ export default function Home() {
                       handleFetchPlaylist(item);
                     }
                   }}
-                  className="w-full flex flex-col gap-4 border-b active:bg-white/5 transition-colors duration-100 cursor-pointer"
+                  className="w-full flex flex-col gap-4 border-b active:bg-background/5 transition-colors duration-100 cursor-pointer"
                 >
                   <SearchCard
                     id={item.id}

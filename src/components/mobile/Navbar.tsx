@@ -35,13 +35,13 @@ export const Navbar = ({
         <Link href={"/"} className="flex flex-col items-center">
           <GoHomeFill
             className={`navbar-icon ${
-              isLinkActive("/") ? "text-ambient" : "text-black/30"
+              isLinkActive("/") ? "text-ambient" : "text-foreground/30"
             }`}
             size={30}
           />
           <span
             className={`navbar-icon-title ${
-              isLinkActive("/") ? "text-ambient" : "text-black/30"
+              isLinkActive("/") ? "text-ambient" : "text-foreground/30"
             }`}
           >
             Home
@@ -50,13 +50,13 @@ export const Navbar = ({
         <Link href={"/search"} className="flex flex-col items-center">
           <IoSearch
             className={`navbar-icon ${
-              isLinkActive("/search") ? "text-ambient" : "text-black/30"
+              isLinkActive("/search") ? "text-ambient" : "text-foreground/30"
             }`}
             size={30}
           />
           <span
             className={`navbar-icon-title ${
-              isLinkActive("/search") ? "text-ambient" : "text-black/30"
+              isLinkActive("/search") ? "text-ambient" : "text-foreground/30"
             }`}
           >
             Search
@@ -65,13 +65,13 @@ export const Navbar = ({
         <Link href={"/library"} className="flex flex-col items-center">
           <IoAlbums
             className={`navbar-icon ${
-              isLinkActive("/library") ? "text-ambient" : "text-black/30"
+              isLinkActive("/library") ? "text-ambient" : "text-foreground/30"
             }`}
             size={30}
           />
           <span
             className={`navbar-icon-title ${
-              isLinkActive("/library") ? "text-ambient" : "text-black/30"
+              isLinkActive("/library") ? "text-ambient" : "text-foreground/30"
             }`}
           >
             Library

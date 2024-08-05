@@ -100,7 +100,7 @@ export const ScrollHeader = ({
     <div
       className={`fixed top-0 left-0 w-full z-50 transition-all opacity-0 pt-8 standalone:pt-12 pb-2 px-5 ${
         isScrolled
-          ? "bg-white/75 backdrop-blur-2xl pt-14 opacity-[1] standalone:pt-[3.6rem]  pb-2 px-5"
+          ? "bg-background/75 backdrop-blur-2xl pt-14 opacity-[1] standalone:pt-[3.6rem]  pb-2 px-5"
           : "bg-transparent py-4"
       } ${className}`}
     >
@@ -154,7 +154,7 @@ export const Header = ({
       <div
         className={`${
           isScrolled
-            ? "fixed top-0 left-0 w-full z-50 bg-black/75 backdrop-blur-2xl pt-10 standalone:pt-16 pb-2"
+            ? "fixed top-0 left-0 w-full z-50 bg-foreground/75 backdrop-blur-2xl pt-10 standalone:pt-16 pb-2"
             : "relative pt-10 pb-4"
         } transition-all`}
       >
@@ -194,7 +194,7 @@ export const Input: React.FC<InputProps> = ({
       <div
         className={`${
           className || ""
-        } bg-black/[0.05] w-full rounded-xl relative flex items-center px-2 gap-2`}
+        } bg-foreground/[0.05] w-full rounded-xl relative flex items-center px-2 gap-2`}
       >
         {icon !== false && (
           <button>
