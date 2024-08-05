@@ -88,6 +88,9 @@ export const AnimatedLyrics = ({
 
   const getLyrics = async (songTitle: string, artistName: string) => {
     const data = await fetchLyrics(songTitle, artistName);
+    if (!data) {
+      return;
+    }
     setLyrics(data.lyrics);
   };
 
