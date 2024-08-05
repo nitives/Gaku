@@ -2,6 +2,7 @@
 import { AudioPlayerHLS } from "@/components/AudioPlayerHLS";
 import { ColorGen } from "@/components/ColorGen";
 import {
+  Header,
   Heading,
   Input,
   SafeView,
@@ -116,7 +117,10 @@ export default function Home() {
           <ColorGen src={cover || localCurrentTrack.artwork_url} />
         )}
         <div className="px-5">
-          <ScrollHeader
+          <Header title="Search">
+
+          </Header>
+          {/* <ScrollHeader
             onChange={handleInputChange}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -141,7 +145,7 @@ export default function Home() {
             onSearch={handleSearch}
             className="mb-5"
             autoFocus={true}
-          />
+          /> */}
         </div>
 
         {/* <div className="px-5">

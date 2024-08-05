@@ -123,6 +123,48 @@ export const ScrollHeader = ({
   );
 };
 
+export const Header = ({
+  title,
+  className = "",
+  children,
+}: {
+  title: string;
+  className?: string;
+  children?: ReactNode;
+}) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 30) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  return (
+    <div className={`${className}`}>
+      <Heading>{title}</Heading>
+      <div
+        className={`${
+          isScrolled
+            ? "fixed top-0 left-0 w-full z-50 bg-black/75 backdrop-blur-2xl pt-10 standalone:pt-16 pb-2"
+            : "relative pt-10 pb-4"
+        } transition-all`}
+      >
+        <Input placeholder="Search" className="" />
+      </div>
+      <div className={`pt-20 ${isScrolled ? "mt-12" : ""}`}>{children}</div>
+    </div>
+  );
+};
+
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   className?: string;
   onSearch?: () => void;

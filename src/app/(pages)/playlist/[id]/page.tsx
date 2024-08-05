@@ -89,12 +89,12 @@ export default function PlaylistPage() {
     }
   };
 
-  // const artistNameRemove = (artistName: string, trackTitle: string): string => {
-  //   // Create a regular expression to match the artist name and a dash
-  //   const regex = new RegExp(`^${artistName}\\s*-\\s*`, "i");
-  //   // Replace the artist name and dash with an empty string
-  //   return trackTitle.replace(regex, "").trim();
-  // };
+  const artistNameRemove = (artistName: string, trackTitle: string): string => {
+    // Create a regular expression to match the artist name and a dash
+    const regex = new RegExp(`^${artistName}\\s*-\\s*`, "i");
+    // Replace the artist name and dash with an empty string
+    return trackTitle.replace(regex, "").trim();
+  };
 
   function formatDate(dateString: string | number | Date, format = "full") {
     const date = new Date(dateString);
@@ -119,7 +119,6 @@ export default function PlaylistPage() {
   useEffect(() => {
     setPageTitle();
   }, [globalCurrentTrack?.title]);
-
 
   if (!playlist) return <PlaylistSkeleton />;
 
@@ -218,8 +217,7 @@ export default function PlaylistPage() {
                   {index + 1}
                 </motion.span>
               </span>
-              {/* {artistNameRemove(playlist.user.username, track.title)} */}
-              {track.title}
+              {artistNameRemove(playlist.user.username, track.title)}
             </li>
           ))}
         </ul>
