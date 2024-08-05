@@ -201,7 +201,7 @@ export default function Library() {
           ) : (
             <div>
               <button
-                className="min-w-[7.25rem] max-sm:w-full py-1 px-1 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-transparent items-center gap-2"
+                className="min-w-[7.25rem] max-sm:w-full py-1 px-1 mb-1 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
                 onClick={handlePlayAll}
               >
                 <>
@@ -212,7 +212,7 @@ export default function Library() {
               <div className="grid gap-2">
                 <div className="flex gap-1 w-full">
                   <button
-                    className="min-w-[7.25rem] max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-transparent items-center gap-2"
+                    className="min-w-[7.25rem] max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
                     onClick={toggleKeyVisibility}
                   >
                     {isKeyHidden ? (
@@ -228,7 +228,7 @@ export default function Library() {
                     )}
                   </button>
                   <button
-                    className="min-w-[7.25rem] max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-transparent items-center gap-2"
+                    className="min-w-[7.25rem] max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
                     onClick={copyKeyToClipboard}
                   >
                     <p>Copy Key</p>
@@ -248,7 +248,7 @@ export default function Library() {
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <button
-                      className="min-w-[7.25rem] bg-destructive text-background dark:text-foreground hover:text-foreground standalone:w-full py-1 px-1 standalone:px-2 standalone:py-2 standalone:mb-2 flex justify-center rounded-xl hover:bg-foreground/5 standalone:bg-foreground/5 items-center gap-2"
+                      className="min-w-[7.25rem] bg-destructive text-background dark:text-foreground hover:text-foreground standalone:w-full py-1 px-1 standalone:px-2 standalone:py-2 standalone:mb-2 flex justify-center rounded-xl hover:bg-foreground/5 items-center gap-2"
                       onClick={handleImportLibrary}
                     >
                       <p>Delete Library</p>
