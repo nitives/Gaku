@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { IoHeart, IoHeartOutline } from "react-icons/io5";
+import { Skeleton } from "../ui/skeleton";
 
 export const LibraryCard = ({
   songId,
@@ -26,7 +27,7 @@ export const LibraryCard = ({
   }, [songId]);
 
   if (!songData) {
-    return <div>Loading...</div>; // or a skeleton loader
+    return <LibraryCardSkeleton />; // or a skeleton loader
   }
 
   console.log("songData: ", songData);
@@ -72,9 +73,7 @@ export const LibraryCard = ({
               </span>
             )} */}
           </div>
-          <h2 className="text-muted-foreground">
-            {songData.user.username}
-          </h2>
+          <h2 className="text-muted-foreground">{songData.user.username}</h2>
         </div>
         {/* <div onClick={handleFavoriteClick} className="cursor-pointer">
           {isFavorited ? (
@@ -83,6 +82,24 @@ export const LibraryCard = ({
             <IoHeartOutline className="scale-y-[.95]" size={24} />
           )}
         </div> */}
+      </div>
+    </>
+  );
+};
+
+export const LibraryCardSkeleton = () => {
+  return (
+    <>
+      <div className="w-full py-4 flex items-center gap-4 px-4 cursor-pointer hover:bg-foreground/5 transition-colors duration-150 rounded-xl">
+        <div className="min-w-16">
+          <Skeleton className="size-16 rounded-lg aspect-square" />
+        </div>
+        <div className="flex flex-col flex-grow gap-1">
+          <div className="flex items-center gap-2 w-[70vw] standalone:w-[65vw]">
+            <Skeleton className="w-[25%] h-[1.75rem]" />
+          </div>
+          <Skeleton className="w-[25%] h-[1.75rem]" />
+        </div>
       </div>
     </>
   );
