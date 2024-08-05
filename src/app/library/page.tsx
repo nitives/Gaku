@@ -215,22 +215,6 @@ export default function Library() {
                       </motion.div>
                     </AnimatePresence>
                   </button>
-                </div>
-                <div className="flex gap-2">
-                  <div className="bg-black text-green-500 w-fit py-2 px-3 rounded-xl selection:bg-green-500 selection:text-black">
-                    <p className="">
-                      Library Key |{" "}
-                      {isKeyHidden ? (
-                        <span className="select-all font-mono">
-                          ********************************
-                        </span>
-                      ) : (
-                        <span className="select-all font-mono">
-                          {library.key}
-                        </span>
-                      )}
-                    </p>
-                  </div>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
@@ -264,6 +248,22 @@ export default function Library() {
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
+                </div>
+                <div className="flex gap-2">
+                  <div className="bg-black text-green-500 w-fit py-2 px-3 rounded-xl selection:bg-green-500 selection:text-black">
+                    <p className="">
+                      Library Key |{" "}
+                      {isKeyHidden ? (
+                        <span className="select-all font-mono">
+                          ********************************
+                        </span>
+                      ) : (
+                        <span className="select-all font-mono">
+                          {library.key}
+                        </span>
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
               <div className="py-4">

@@ -85,29 +85,31 @@ export const SearchCard = ({
       )}
       {track && (
         <>
-          <div className="flex flex-col flex-grow">
-            <div className="flex items-center gap-2 w-[70vw] standalone:w-[65vw]">
-              <h1 title={title} className="whitespace-nowrap truncate">
-                {isExplicit ? `${title} 🅴` : title}
-              </h1>
-              {premium === true && (
-                <span
-                  title="This content is a preview because of SoundCloud encryption"
-                  className="bg-orange-500 p-0.5 text-xs rounded-md"
-                >
-                  Go+
-                </span>
+          <div className="flex items-center gap-2 w-[65vw] standalone:w-[60vw]">
+            <div className="flex flex-col flex-grow">
+              <div className="flex items-center gap-2 w-[55vw] standalone:w-[55vw]">
+                <h1 title={title} className="whitespace-nowrap truncate">
+                  {isExplicit ? `${title} 🅴` : title}
+                </h1>
+                {premium === true && (
+                  <span
+                    title="This content is a preview because of SoundCloud encryption"
+                    className="bg-orange-500 p-0.5 text-xs rounded-md"
+                  >
+                    Go+
+                  </span>
+                )}
+              </div>
+
+              <h2 className="text-muted-foreground">Song · {artistName}</h2>
+            </div>
+            <div onClick={handleFavoriteClick} className="cursor-pointer">
+              {isFavorited ? (
+                <IoHeart className="scale-y-[.95] text-red-500" size={24} />
+              ) : (
+                <IoHeartOutline className="scale-y-[.95]" size={24} />
               )}
             </div>
-
-            <h2 className="text-muted-foreground">Song · {artistName}</h2>
-          </div>
-          <div onClick={handleFavoriteClick} className="cursor-pointer">
-            {isFavorited ? (
-              <IoHeart className="scale-y-[.95] text-red-500" size={24} />
-            ) : (
-              <IoHeartOutline className="scale-y-[.95]" size={24} />
-            )}
           </div>
         </>
       )}
