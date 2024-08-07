@@ -136,7 +136,7 @@ export default function PlaylistPage() {
     setPageTitle();
   }, [globalCurrentTrack?.title]);
 
-  if (playlist) return <PlaylistSkeleton />;
+  if (!playlist) return <PlaylistSkeleton />;
 
   console.log("playlist.tracks:", playlist.tracks);
 
