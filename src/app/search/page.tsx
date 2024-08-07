@@ -86,7 +86,7 @@ export default function Home() {
   };
 
   const navigateToArtist = (item: any) => {
-    router.push(`/artist/${item.id}`);
+    router.push(`/artist/${item.id}/${item.username.toLowerCase().replace(/\s+/g, '-')}`);
   };
 
   return (
@@ -129,18 +129,18 @@ export default function Home() {
               <div key={index} className="w-full flex flex-col gap-4">
                 <div
                   key={index}
-                  onClick={() => {
-                    if (item.kind === "user") {
-                      navigateToArtist(item);
-                    } else if (item.kind === "playlist") {
-                      navigateToAlbum(item);
-                    } else {
-                      handleFetchPlaylist(item);
-                    }
-                  }}
                   className="w-full flex flex-col gap-4 border-b active:bg-background/5 transition-colors duration-100 cursor-pointer"
                 >
                   <SearchCard
+                    onClick={() => {
+                      if (item.kind === "user") {
+                        navigateToArtist(item);
+                      } else if (item.kind === "playlist") {
+                        navigateToAlbum(item);
+                      } else {
+                        handleFetchPlaylist(item);
+                      }
+                    }}
                     id={item.id}
                     isExplicit={item.publisher_metadata?.explicit === true}
                     premium={item.monetization_model === "SUB_HIGH_TIER"}

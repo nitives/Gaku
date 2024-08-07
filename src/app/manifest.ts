@@ -20,6 +20,10 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     background_color: "#ffffff",
     theme_color: "#000000",
+    id: "20240807",
+    lang: "en",
+    orientation: "portrait",
+    categories: ["music"],
     icons: [
       {
         src: `/assets/icons/${selectedTheme}/windows11/SmallTile.scale-100.png`,

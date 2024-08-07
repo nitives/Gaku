@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
+import { SEARCH_PAGE_QUERY_LIMIT, SEARCH_PAGE_QUERY_OFFSET } from "@/lib/constants";
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,8 +12,8 @@ export default async function handler(
         params: {
           ...req.query,
           facet: "model",
-          limit: 60,
-          offset: 0,
+          limit: SEARCH_PAGE_QUERY_LIMIT,
+          offset: SEARCH_PAGE_QUERY_OFFSET,
         },
         headers: {
           Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,

@@ -136,7 +136,7 @@ export default function PlaylistPage() {
     setPageTitle();
   }, [globalCurrentTrack?.title]);
 
-  if (!playlist) return <PlaylistSkeleton />;
+  if (playlist) return <PlaylistSkeleton />;
 
   console.log("playlist.tracks:", playlist.tracks);
 
@@ -168,7 +168,7 @@ export default function PlaylistPage() {
           <div className="flex flex-col items-center justify-center">
             <p className="album:title font-bold text-xl">{playlist.title}</p>
             <Link
-              href={`/artist/${playlist.user.id}`}
+              href={`/artist/${playlist.user.id}/${playlist.user.username.toLowerCase().replace(/\s+/g, '-')}`}
               className="text-[var(--ambient)] text-center cursor-pointer"
             >
               {playlist.user.username}

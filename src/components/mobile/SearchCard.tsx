@@ -16,6 +16,7 @@ export const SearchCard = ({
   verified,
   premium,
   isExplicit,
+  onClick,
 }: {
   className?: string;
   id?: string;
@@ -28,6 +29,7 @@ export const SearchCard = ({
   verified?: boolean;
   premium?: boolean;
   isExplicit?: boolean;
+  onClick?: () => void;
 }) => {
   const { addSong, removeSong, isSongInLibrary } = useLibrary();
   const songId = `${id}`; // Unique identifier for the song
@@ -53,8 +55,11 @@ export const SearchCard = ({
   };
 
   return (
-    <div className={`${className} w-full py-4 flex items-center gap-4 px-4 `}>
-      <div className="min-w-16">
+    <div
+      className={`${className || ""}w-full py-4 flex items-center gap-4 px-4`}
+    >
+      <div onClick={onClick} className="absolute w-[90%] h-20 bg-black/0" />
+      <div>
         <Image
           width={1000}
           height={1000}
@@ -63,7 +68,9 @@ export const SearchCard = ({
             "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"
           }
           alt={title || ""}
-          className={`size-16 ${artist ? "rounded-full" : "rounded-lg"}`}
+          className={`min-w-16 aspect-square size-16 ${
+            artist ? "rounded-full" : "rounded-lg"
+          }`}
           onError={(e) => {
             e.currentTarget.style.background =
               "linear-gradient(to right, #FFA500, #FF4500)";
@@ -85,10 +92,13 @@ export const SearchCard = ({
       )}
       {track && (
         <>
-          <div className="flex items-center gap-2 w-[65vw] standalone:w-[60vw]">
-            <div className="flex flex-col flex-grow">
-              <div className="flex items-center gap-2 w-[55vw] standalone:w-[55vw]">
-                <h1 title={title} className="whitespace-nowrap truncate">
+          <div className="flex items-center justify-between w-full gap-2">
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <h1
+                  title={title}
+                  className="truncate max-w-[75vw] max-sm:max-w-[50vw]"
+                >
                   {isExplicit ? `${title} 🅴` : title}
                 </h1>
                 {premium === true && (
@@ -100,14 +110,16 @@ export const SearchCard = ({
                   </span>
                 )}
               </div>
-
               <h2 className="text-muted-foreground">Song · {artistName}</h2>
             </div>
             <div onClick={handleFavoriteClick} className="cursor-pointer">
               {isFavorited ? (
                 <IoHeart className="scale-y-[.95] text-red-500" size={24} />
               ) : (
-                <IoHeartOutline className="scale-y-[.95]" size={24} />
+                <IoHeartOutline
+                  className="scale-y-[.95] text-muted-foreground/30"
+                  size={24}
+                />
               )}
             </div>
           </div>
@@ -115,7 +127,7 @@ export const SearchCard = ({
       )}
       {playlist && (
         <div>
-          <h1>{title}</h1>
+          <h1 className="truncate max-w-[75vw] max-sm:max-w-[50vw]">{title}</h1>
           <h2 className="text-muted-foreground">Playlist</h2>
         </div>
       )}

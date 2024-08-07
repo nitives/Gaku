@@ -392,7 +392,7 @@ export const NavbarMiniControls = ({
   return (
     // dark:bg-[#1d1d1d]/50
     <div className="navbar-mini-container">
-      <div className="w-full h-fit mini-control backdrop-blur-lg p-2 rounded-[14px] flex justify-between bg-background/20">
+      <div className="w-full h-fit mini-control backdrop-blur-lg p-2 rounded-[14px] flex justify-between bg-background/20 dark:bg-card/75">
         <div className="flex items-center">
           <Image
             className="size-11 rounded-lg"

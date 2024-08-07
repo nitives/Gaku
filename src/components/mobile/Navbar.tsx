@@ -4,6 +4,7 @@ import React from "react";
 import { GoHomeFill } from "react-icons/go";
 import { IoAlbums, IoSearch } from "react-icons/io5";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
 export const Navbar = ({
   volume,
@@ -31,52 +32,58 @@ export const Navbar = ({
 
   return (
     <div className="navbar-mobile-container select-none !z-[100] relative">
-      <nav className="navbar-mobile">
-        <Link href={"/"} className="flex flex-col items-center">
-          <GoHomeFill
-            className={`navbar-icon ${
-              isLinkActive("/") ? "text-ambient" : "text-foreground/30"
-            }`}
-            size={30}
-          />
-          <span
-            className={`navbar-icon-title ${
-              isLinkActive("/") ? "text-ambient" : "text-foreground/30"
-            }`}
-          >
-            Home
-          </span>
-        </Link>
-        <Link href={"/search"} className="flex flex-col items-center">
-          <IoSearch
-            className={`navbar-icon ${
-              isLinkActive("/search") ? "text-ambient" : "text-foreground/30"
-            }`}
-            size={30}
-          />
-          <span
-            className={`navbar-icon-title ${
-              isLinkActive("/search") ? "text-ambient" : "text-foreground/30"
-            }`}
-          >
-            Search
-          </span>
-        </Link>
-        <Link href={"/library"} className="flex flex-col items-center">
-          <IoAlbums
-            className={`navbar-icon ${
-              isLinkActive("/library") ? "text-ambient" : "text-foreground/30"
-            }`}
-            size={30}
-          />
-          <span
-            className={`navbar-icon-title ${
-              isLinkActive("/library") ? "text-ambient" : "text-foreground/30"
-            }`}
-          >
-            Library
-          </span>
-        </Link>
+      <nav className="navbar-mobile bg-background/75">
+        <motion.div whileTap={{ scale: 0.925 }}>
+          <Link href={"/"} className="flex flex-col items-center">
+            <GoHomeFill
+              className={`navbar-icon ${
+                isLinkActive("/") ? "text-ambient" : "text-foreground/30"
+              }`}
+              size={30}
+            />
+            <span
+              className={`navbar-icon-title ${
+                isLinkActive("/") ? "text-ambient" : "text-foreground/30"
+              }`}
+            >
+              Home
+            </span>
+          </Link>
+        </motion.div>
+        <motion.div whileTap={{ scale: 0.925 }}>
+          <Link href={"/search"} className="flex flex-col items-center">
+            <IoSearch
+              className={`navbar-icon ${
+                isLinkActive("/search") ? "text-ambient" : "text-foreground/30"
+              }`}
+              size={30}
+            />
+            <span
+              className={`navbar-icon-title ${
+                isLinkActive("/search") ? "text-ambient" : "text-foreground/30"
+              }`}
+            >
+              Search
+            </span>
+          </Link>
+        </motion.div>
+        <motion.div whileTap={{ scale: 0.925 }}>
+          <Link href={"/library"} className="flex flex-col items-center">
+            <IoAlbums
+              className={`navbar-icon ${
+                isLinkActive("/library") ? "text-ambient" : "text-foreground/30"
+              }`}
+              size={30}
+            />
+            <span
+              className={`navbar-icon-title ${
+                isLinkActive("/library") ? "text-ambient" : "text-foreground/30"
+              }`}
+            >
+              Library
+            </span>
+          </Link>
+        </motion.div>
       </nav>
     </div>
   );

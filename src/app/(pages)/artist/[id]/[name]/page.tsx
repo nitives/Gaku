@@ -3,21 +3,28 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import {
+  BackButton,
   Heading,
   SafeView,
   ScrollContainer,
   SubHeading,
 } from "@/components/mobile/SafeView";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
+import { useAudio } from "@/context/AudioContext";
+import { fetchPlaylistM3U8 } from "@/lib/utils";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function PlaylistPage() {
+  const { setCurrentTrack, setPlaylistUrl, setIsPlaying, setHDCover } =
+    useAudio();
   const params = useParams();
   const id = params?.id as string;
   const [artist, setArtist] = useState<any>(null);
   const [spotlight, setSpotlight] = useState<any>(null);
   const [recent, setRecent] = useState<any>(null);
   const [song, setSongData] = useState<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (id) {
@@ -55,10 +62,99 @@ export default function PlaylistPage() {
     setSpotlight(data);
   };
 
+  const playSong = async (item: any) => {
+    if (item.kind === "playlist") {
+      router.push(`/playlist/${item.id}`);
+    } else {
+      const playlistUrl = await fetchPlaylistM3U8(item.permalink_url);
+      setCurrentTrack(item);
+      setPlaylistUrl(playlistUrl);
+      setIsPlaying(true);
+      setHDCover(item.artwork_url || item.user.avatar_url);
+    }
+  };
+
   return (
     <>
+      <header className="w-full sm:h-fit h-[25vh] flex artist-header flex-col sm:aspect-[4.77/1] sm:rounded-b-2xl sm:border-b border-border relative overflow-hidden">
+        <div className="absolute justify-start items-end flex p-4 translate-x-[0%] z-20 bg-red-500/0 w-full h-full">
+          <BackButton className="absolute pt-10 standalone:pt-4 top-[0] left-[1.25rem] text-white/10 active:text-white/50 hover:text-white/50" />
+          <div className="flex flex-col text-white">
+            {artist?.verified === true && (
+              <div className="flex gap-1 items-center">
+                <span className="top-0.5">
+                  <RiVerifiedBadgeFill className="text-[#699fff]" />
+                </span>
+                <p className="drop-shadow-2xl text-sm select-none">
+                  Verified Artist
+                </p>
+              </div>
+            )}
+            <h1 className="drop-shadow-lg font-bold sm:text-6xl text-4xl">
+              {artist?.username}
+            </h1>
+          </div>
+        </div>
+        <Image
+          className="size-full relative z-10 object-cover select-none"
+          width={960}
+          height={200}
+          src={artist?.visuals?.visuals?.[0]?.visual_url || artist?.avatar_url}
+          alt={artist?.username}
+        />
+      </header>
       <SafeView>
-        <Dialog>
+        <SubHeading>Spotlight</SubHeading>
+        <div className="-mx-5">
+          <ScrollContainer className="px-5 pt-2 w-full">
+            {spotlight?.collection.map((song: any, index: number) => (
+              <div
+                key={index}
+                className="flex flex-col gap-1 cursor-pointer"
+                onClick={() => playSong(song)}
+              >
+                <div
+                  title={song?.title}
+                  className="size-40 border border-border/50 shadow-md rounded-xl overflow-hidden bg-border/15"
+                >
+                  <Image
+                    className="size-full rounded-xl scale-[.999]"
+                    width={200}
+                    height={200}
+                    src={song?.artwork_url || song?.tracks?.[0]?.artwork_url}
+                    alt={song?.title}
+                    draggable={false}
+                  />
+                </div>
+                <span className="block">
+                  <span className="flex items-center gap-1">
+                    <p
+                      title={`${song?.title} ${
+                        song?.publisher_metadata?.explicit === true ? "🅴" : ""
+                      }`}
+                      className="text-sm truncate w-40 space-y-4"
+                    >
+                      {song?.title}
+                      {song?.publisher_metadata?.explicit === true && (
+                        <span className="text-muted-foreground pl-1">🅴</span>
+                      )}
+                    </p>
+                  </span>
+                  <p
+                    className="text-xs text-muted-foreground"
+                    title={new Date(song.display_date).toLocaleDateString(
+                      "en-US",
+                      { year: "numeric", month: "long", day: "numeric" }
+                    )}
+                  >
+                    {new Date(song.display_date).getFullYear()}
+                  </p>
+                </span>
+              </div>
+            ))}
+          </ScrollContainer>
+        </div>
+        {/* <Dialog>
           <DialogTrigger>
             <header className="w-full h-fit flex flex-col rounded-xl border-2 max-md:border overflow-hidden">
               <Image
@@ -250,7 +346,7 @@ export default function PlaylistPage() {
               </span>
             </div>
           ))}
-        </ScrollContainer>
+        </ScrollContainer> */}
       </SafeView>
     </>
   );

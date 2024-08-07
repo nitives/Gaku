@@ -151,14 +151,16 @@
   background: radial-gradient(
     circle,
     var(--ambient) 0%,
-    hsl(var(--background) / 1) 50%
+    hsl(var(--background) / 1) 100%
   );
-  transform: scaleX(2);
+  /* transform: scaleX(1); */
+  scale: 1 70%;
   width: 100svw;
   height: 100vh;
   top: 0;
   opacity: 1;
   position: relative;
+  mask: linear-gradient(180deg, black, black, transparent);
   &:after {
     content: "";
     position: absolute;
@@ -182,7 +184,7 @@
       var(--ambient) 0%,
       hsl(var(--background) / 1) 90%
     );
-    transform: scaleX(1);
+    scale: 100% 1;
   }
 }
 
@@ -229,28 +231,20 @@
 
 .navbar-mobile {
   display: flex;
-  background: linear-gradient(
+  /* background: linear-gradient(
     0deg,
     rgba(255, 255, 255, 0.2) 0%,
     rgba(255, 255, 255, 0.2) 100%
-  );
+  ); */
   /* -webkit-backdrop-filter: blur(30px);
   backdrop-filter: blur(30px); */
   align-items: center;
   z-index: 50;
   width: 100%;
-  padding: 40px 15px 20px 15px;
+  padding: 60px 15px 20px 15px;
   justify-content: space-between;
-  mask: linear-gradient(0deg, black, black, transparent);
+  mask: linear-gradient(0deg, black 0%, black 35%, transparent 100%);
   backdrop-filter: blur(8px);
-}
-
-.navbar-mobile:is(.dark *) {
-  background: linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.75) 0%,
-    rgba(0, 0, 0, 0.75) 100%
-  );
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -282,11 +276,6 @@
     padding: 30px;
     padding-top: 90px;
     backdrop-filter: blur(30px);
-    background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.2) 0%,
-      rgba(255, 255, 255, 0.2) 100%
-    );
     /* background: linear-gradient(
       0deg,
       rgba(0, 0, 0, 0.2) 75%,
@@ -399,3 +388,20 @@
   transition: transform 0.2s var(--appleEase), opacity 0.35s var(--appleEase),
     filter 0.35s var(--appleEase);
 } */
+
+@media (min-width: 640px) {
+  .artist-header {
+    box-shadow: 0px 0px 0px 1px hsla(214, 0%, 27%, 0.04),
+      0px 1px 0px -0.5px hsla(220, 0%, 22%, 0.04),
+      0px 3px 3px -1.5px hsla(221, 0%, 22%, 0.04),
+      0px 6px 6px -3px hsla(221, 0%, 22%, 0.04),
+      0px 12px 12px -6px hsla(214, 0%, 27%, 0.04),
+      0px 24px 24px -12px hsla(214, 0%, 27%, 0.04);
+  }
+}
+
+@media not all and (min-width: 640px) {
+  .artist-header img {
+    mask: linear-gradient(180deg, black 0%, black 75%, transparent 99%);
+  }
+}
