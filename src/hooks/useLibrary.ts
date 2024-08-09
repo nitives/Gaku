@@ -66,8 +66,8 @@ export function useLibrary() {
     setLibrary(newLibrary);
   };
 
-  const updateLibraryName = (name: string) => {
-    if (library) {
+  const updateLibraryName = (key: string, name: string) => {
+    if (library && library.key === key) {
       const updatedLibrary = { ...library, name };
       setLibrary(updatedLibrary);
     }
