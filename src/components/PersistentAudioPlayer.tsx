@@ -28,7 +28,7 @@ export const PersistentAudioPlayer = () => {
   if (!playlistUrl || !currentTrack) return null;
 
   return (
-    <div className="pb-[20rem] z-50">
+    <div className="pb-[20rem] z-[200] absolute">
       <AudioPlayerHLS
         height="100%"
         img={cover || currentTrack.artwork_url || ""}

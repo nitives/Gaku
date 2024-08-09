@@ -2,18 +2,31 @@
   background: rgba(0, 0, 0, 0.001);
   mask-image: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0) 10%,
+    rgba(0, 0, 0, 0) 0.5%,
     rgba(0, 0, 0, 1) 15%,
     rgba(0, 0, 0, 1) 95%,
     rgba(0, 0, 0, 0) 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0) 10%,
-    rgba(0, 0, 0, 1) 15%,
-    rgba(0, 0, 0, 1) 95%,
+    rgba(0, 0, 0, 0) 0.5%,
+    rgb(0, 0, 0) 15%,
+    rgb(0, 0, 0) 95%,
     rgba(0, 0, 0, 0) 100%
   );
+}
+
+.lyrics-container {
+  color: rgba(255, 255, 255, 0.4);
+  width: 100%;
+  height: 60vh; /* Adjust the height as needed */
+  overflow-y: auto; /* Ensure only this div scrolls */
+  display: flex;
+  scroll-behavior: smooth;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start; /* Align the lyrics to the start */
+  /* background-color: rgba(0, 0, 0, 0.5);  */
 }
 
 .lyrics-view .lyric-line {
@@ -38,7 +51,8 @@
 }
 
 .lyrics-view .lyric-line.active {
-  color: var(--ambient);
+  /* color: var(--ambient); */
+  color: rgba(255, 255, 255, 1);
   opacity: 1;
   transform: scale(1);
   filter: unset;

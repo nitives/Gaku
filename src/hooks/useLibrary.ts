@@ -10,6 +10,7 @@ interface Song {
 
 interface LibraryData {
   key: string;
+  name?: string; // Optional name field
   songs: Song[];
 }
 
@@ -17,10 +18,37 @@ export function useLibrary() {
   const [library, setLibrary] = useState<LibraryData | null>(null);
 
   useEffect(() => {
-    const storedLibrary = localStorage.getItem("userLibrary");
-    if (storedLibrary) {
-      setLibrary(JSON.parse(storedLibrary));
-    }
+    // Check the database first
+    const syncLibraryWithLocalStorage = async () => {
+      try {
+        const response = await fetch("/api/library/sync", {
+          method: "GET",
+        });
+
+        if (response.ok) {
+          const dbLibrary = await response.json();
+          if (dbLibrary) {
+            setLibrary(dbLibrary); // Use database data if available
+            localStorage.setItem("userLibrary", JSON.stringify(dbLibrary));
+          } else {
+            const storedLibrary = localStorage.getItem("userLibrary");
+            if (storedLibrary) {
+              const localLibrary = JSON.parse(storedLibrary);
+              setLibrary(localLibrary);
+              syncLibraryWithDatabase(localLibrary); // Sync to DB if not present
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching library from database:", error);
+        const storedLibrary = localStorage.getItem("userLibrary");
+        if (storedLibrary) {
+          setLibrary(JSON.parse(storedLibrary));
+        }
+      }
+    };
+
+    syncLibraryWithLocalStorage();
   }, []);
 
   useEffect(() => {
@@ -36,6 +64,13 @@ export function useLibrary() {
       songs: [],
     };
     setLibrary(newLibrary);
+  };
+
+  const updateLibraryName = (name: string) => {
+    if (library) {
+      const updatedLibrary = { ...library, name };
+      setLibrary(updatedLibrary);
+    }
   };
 
   const addSong = (song: Omit<Song, "addedAt">) => {
@@ -104,6 +139,7 @@ export function useLibrary() {
   return {
     library,
     createLibrary,
+    updateLibraryName,
     addSong,
     removeSong,
     importLibrary,

@@ -7,8 +7,9 @@ import React, {
 } from "react";
 import { IoSearch } from "react-icons/io5";
 import { useRouter } from "next/navigation";
-import { IoIosArrowBack } from "react-icons/io";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 interface SafeViewProps {
   children?: ReactNode;
@@ -18,7 +19,7 @@ interface SafeViewProps {
 export const SafeView: React.FC<SafeViewProps> = ({ children, className }) => {
   return (
     <div
-      className={`${className} pt-8 standalone:pt-2 pb-40 px-5 min-w-screen min-h-screen select-none`}
+      className={`${className} pt-8 standalone:pt-16 pb-40 px-5 min-w-screen min-h-screen select-none`}
     >
       {children ? children : <p>No content available</p>}
     </div>
@@ -43,21 +44,44 @@ export const SubHeading = ({
   children,
   subtitle,
   className,
+  link,
 }: {
   children: ReactNode;
   subtitle?: string;
   className?: string;
+  link?: string;
 }) => {
   return (
     <div className={`${className}`}>
-      <h1 className="text-2xl font-bold">
-        {children ? children : <p>Home</p>}
+      <h1 className="text-2xl font-bold flex items-center gap-2">
+        {link ? (
+          <motion.button
+            whileHover={{
+              scale: 0.95,
+              translateX: -5,
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+            }}
+            transition={{ duration: 0.125, ease: "easeInOut" }}
+          >
+            <Link href={link}>
+              <div className="flex items-center gap-2">
+                {children}
+                <IoIosArrowForward
+                  className="text-muted-foreground"
+                  size={24}
+                />
+              </div>
+            </Link>
+          </motion.button>
+        ) : (
+          children
+        )}
       </h1>
-      {subtitle ? (
+      {subtitle && (
         <h4 className="text-sm text-muted-foreground">
           <p>{subtitle}</p>
         </h4>
-      ) : null}
+      )}
     </div>
   );
 };
@@ -247,10 +271,11 @@ export const BackButton = ({ className }: { className?: string }) => {
   };
   return (
     <motion.button
-      whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+      initial={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+      whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
       whileTap={{
-        scale: 0.85,
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        scale: 0.9,
+        backgroundColor: "rgba(255, 255, 255, 0.15)",
       }}
       transition={{ duration: 0.125, ease: "easeInOut" }}
       // className="flex flex-col items-center rounded-full p-2"

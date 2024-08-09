@@ -1,0 +1,127 @@
+:root {
+  --slider-track-color: hsla(0, 0%, 80%, 0.1);
+  --slider-fill-color: hsla(
+    0,
+    0%,
+    100%,
+    0.8
+  ); /* default green, change as needed */
+  --slider-hover-color: rgba(255, 255, 255, 0.5);
+  --slider-thumb-color: #ffffff; /* default green, change as needed */
+  --volume-value: 0%;
+  --seek-value: 0%;
+}
+
+.apple-slider {
+  align-items: center;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 0.5rem;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(
+    to right,
+    var(--slider-fill-color) 0%,
+    var(--slider-fill-color) var(--value),
+    var(--slider-track-color) var(--value),
+    var(--slider-track-color) 100%
+  );
+  border-radius: 0.5rem;
+  outline: none;
+  transition: backdrop-filter 0.5s 1s ease-in-out;
+  transition: opacity 0.5s 1s ease-in-out;
+  cursor: pointer;
+}
+
+.apple-slider:hover {
+  opacity: 1;
+  backdrop-filter: blur(10px);
+}
+
+.apple-slider::-webkit-slider-thumb {
+  opacity: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0.1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--slider-thumb-color);
+  cursor: pointer;
+  position: relative;
+  z-index: 1; /* Ensure the thumb is above the track */
+}
+
+.apple-slider::-moz-range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--slider-thumb-color);
+  cursor: pointer;
+  position: relative;
+  z-index: 1; /* Ensure the thumb is above the track */
+}
+
+.apple-slider::-ms-thumb {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--slider-thumb-color);
+  cursor: pointer;
+  position: relative;
+  z-index: 1; /* Ensure the thumb is above the track */
+}
+
+.apple-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 1rem;
+  border-radius: 0.5rem;
+}
+
+.apple-slider::-moz-range-track {
+  width: 100%;
+  height: 1rem;
+  border-radius: 0.5rem;
+}
+
+.apple-slider::-ms-track {
+  width: 100%;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background: transparent; /* Needed to override the default styles */
+  border-color: transparent;
+  color: transparent;
+}
+
+.apple-slider::-ms-fill-lower {
+  background: var(--slider-track-color);
+  border-radius: 0.5rem;
+}
+
+.apple-slider::-ms-fill-upper {
+  background: var(--slider-track-color);
+  border-radius: 0.5rem;
+}
+
+.volume-slider {
+  background: linear-gradient(
+    to right,
+    var(--slider-fill-color) 0%,
+    var(--slider-fill-color) var(--volume-value),
+    var(--slider-track-color) var(--volume-value),
+    var(--slider-track-color) 100%
+  );
+}
+
+.seek-slider {
+  background: linear-gradient(
+    to right,
+    var(--slider-fill-color) 0%,
+    var(--slider-fill-color) var(--seek-value),
+    var(--slider-track-color) var(--seek-value),
+    var(--slider-track-color) 100%
+  );
+}

@@ -39,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className="dark" lang="en">
+    <html lang="en">
       <head>
         <link
           rel="apple-touch-startup-image"
@@ -247,14 +247,14 @@ export default function RootLayout({
       <body className={"SFPro"}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
           <AudioProvider>
+            <PersistentAudioPlayer />
             {children}
             <Navbar />
-            <PersistentAudioPlayer />
             <Toaster
               position="top-center"
               toastOptions={{

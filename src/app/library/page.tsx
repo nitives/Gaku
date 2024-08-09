@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLibrary } from "../../hooks/useLibrary";
 import {
   Heading,
@@ -17,6 +17,9 @@ import {
   IoEyeOutline,
   IoKey,
   IoPlay,
+  IoPencil,
+  IoSaveOutline,
+  IoTrash,
 } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -44,14 +47,25 @@ export default function Library() {
     setGlobalPlaylist,
     setHDCover,
   } = useAudio();
-  const { library, createLibrary, importLibrary } = useLibrary();
+  const { library, createLibrary, importLibrary, updateLibraryName } =
+    useLibrary();
   const { setPlaylistUrl, setCurrentTrack, setIsPlaying } = useAudio();
   const [importKey, setImportKey] = useState("");
   const [isKeyHidden, setIsKeyHidden] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
+  const [libraryName, setLibraryName] = useState("");
+  const [canNameLibrary, setCanNameLibrary] = useState(false);
+
+  useEffect(() => {
+    if (library) {
+      setCanNameLibrary(true);
+      setLibraryName(library.name || ""); // Set initial library name if it exists
+    }
+  }, [library]);
 
   const handleCreateLibrary = () => {
     createLibrary();
+    setCanNameLibrary(true);
     toast.success("Library created and synced");
   };
 
@@ -67,10 +81,23 @@ export default function Library() {
         toast.error("Library key not found.");
       } else {
         setImportKey("");
+        setCanNameLibrary(true);
+        setLibraryName(response.name || "");
         toast.success("Library imported successfully");
       }
     } catch (error) {
       toast.error("Error importing library");
+    }
+  };
+
+  const handleSaveLibraryName = async () => {
+    if (library && libraryName.trim()) {
+      try {
+        await updateLibraryName(library.key, libraryName.trim());
+        toast.success("Library name saved successfully");
+      } catch (error) {
+        toast.error("Error saving library name");
+      }
     }
   };
 
@@ -200,6 +227,27 @@ export default function Library() {
             </div>
           ) : (
             <div>
+              {canNameLibrary && (
+                <>
+                  <SubHeading>{libraryName || " "}</SubHeading>
+                  <div className="flex gap-2 w-full mb-1">
+                    <Input
+                      type="text"
+                      value={libraryName}
+                      onChange={(e) => setLibraryName(e.target.value)}
+                      placeholder="Enter library name"
+                      icon={<IoPencil className="text-muted-foreground" />}
+                    />
+                    <button
+                      className="min-w-[7.25rem] transition-all duration-150 max-sm:w-full py-1 px-1 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
+                      onClick={handleSaveLibraryName}
+                    >
+                      <p>Save</p>
+                      <IoSaveOutline />
+                    </button>
+                  </div>
+                </>
+              )}
               <button
                 className="min-w-[7.25rem] transition-all duration-150 max-sm:w-full py-1 px-1 mb-1 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
                 onClick={handlePlayAll}
@@ -252,7 +300,7 @@ export default function Library() {
                       onClick={handleImportLibrary}
                     >
                       <p>Delete Library</p>
-                      <IoAddCircle />
+                      <IoTrash />
                     </button>
                     {/* <Button
                         className="hover:text-foreground rounded-xl"

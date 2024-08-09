@@ -241,10 +241,10 @@
   align-items: center;
   z-index: 50;
   width: 100%;
-  padding: 60px 15px 20px 15px;
+  padding: 40px 15px 20px 15px;
   justify-content: space-between;
-  mask: linear-gradient(0deg, black 0%, black 35%, transparent 100%);
-  backdrop-filter: blur(8px);
+  mask: linear-gradient(0deg, black 60%, transparent 100%);
+  backdrop-filter: blur(20px);
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -269,6 +269,7 @@
   bottom: 5rem;
   padding: 0.5rem 1rem;
   display: flex;
+  left: 0;
 }
 
 @media (display-mode: standalone) {
@@ -341,18 +342,6 @@
 
 :root {
   --appleEase: cubic-bezier(0.42, 0, 0.58, 1);
-}
-
-.lyrics-container {
-  width: 95%;
-  height: 60vh; /* Adjust the height as needed */
-  overflow-y: auto; /* Ensure only this div scrolls */
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start; /* Align the lyrics to the start */
-  /* background-color: rgba(0, 0, 0, 0.5);  */
 }
 
 /* .not-active-lyric {

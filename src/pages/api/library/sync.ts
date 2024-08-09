@@ -7,53 +7,52 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method === "POST") {
-    const { key, songs } = req.body;
+  const { method } = req;
 
-    try {
-      const library = await prisma.library.upsert({
-        where: { key },
-        update: { songs: JSON.stringify(songs) },
-        create: { key, songs: JSON.stringify(songs) },
-      });
-
-      res.status(200).json(library);
-    } catch (error) {
-      res.status(500).json({ error: "Error syncing library" });
-    }
-  } else if (req.method === "GET") {
-    const { key } = req.query;
-
-    try {
-      const library = await prisma.library.findUnique({
-        where: { key: key as string },
-      });
-
-      if (library) {
-        res.status(200).json({
-          key: library.key,
-          songs: JSON.parse(library.songs),
+  switch (method) {
+    case "GET":
+      const { key } = req.query;
+      try {
+        console.log("Key:", key);
+        const library = await prisma.library.findUnique({
+          where: { key: key as string },
         });
-      } else {
-        res.status(404).json({ error: "Library not found" });
+        console.log("library done");
+        if (library) {
+          res.status(200).json({
+            key: library.key,
+            name: library.name,
+            songs: JSON.parse(library.songs),
+          });
+          console.log("library done 2");
+        } else {
+          res.status(200).json(null); // No library found
+          console.log("library else");
+        }
+      } catch (error) {
+        console.log("library error");
+        res.status(500).json({ error: "Error fetching library" });
       }
-    } catch (error) {
-      res.status(500).json({ error: "Error fetching library" });
-    }
-  } else if (req.method === "DELETE") {
-    const { key } = req.query;
+      break;
 
-    try {
-      await prisma.library.delete({
-        where: { key: key as string },
-      });
+    case "POST":
+      const { key: postKey, name, songs } = req.body;
 
-      res.status(200).json({ message: "Library deleted successfully" });
-    } catch (error) {
-      res.status(500).json({ error: "Error deleting library" });
-    }
-  } else {
-    res.setHeader("Allow", ["POST", "GET", "DELETE"]);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+      try {
+        const library = await prisma.library.upsert({
+          where: { key: postKey },
+          update: { name, songs: JSON.stringify(songs) },
+          create: { key: postKey, name, songs: JSON.stringify(songs) },
+        });
+
+        res.status(200).json(library);
+      } catch (error) {
+        res.status(500).json({ error: "Error syncing library" });
+      }
+      break;
+
+    default:
+      res.setHeader("Allow", ["GET", "POST"]);
+      res.status(405).end(`Method ${method} Not Allowed`);
   }
 }

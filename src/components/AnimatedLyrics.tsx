@@ -64,7 +64,7 @@ const LyricDots = () => (
 );
 
 interface LyricLine {
-  startTimeMs: string; // Keep this as string since that's how it comes from the API
+  startTimeMs: string;
   words: string;
 }
 
@@ -83,6 +83,7 @@ export const AnimatedLyrics = ({
 }) => {
   const [currentLine, setCurrentLine] = useState<LyricLine | null>(null);
   const currentLineRef = useRef<HTMLParagraphElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null); // reference to the lyrics container
   const [lyrics, setLyrics] = useState<{ lines: LyricLine[] }>({ lines: [] });
   const [showDots, setShowDots] = useState(false);
 
@@ -117,10 +118,9 @@ export const AnimatedLyrics = ({
 
       if (currentLineIndex !== -1) {
         setCurrentLine(lyrics.lines[currentLineIndex]);
-        setShowDots(false); // Hide dots when a lyric line is active
+        setShowDots(false);
       } else {
         setCurrentLine(null);
-        // Show dots if we're before the first lyric or in a gap between lyrics
         const firstLineStartTime = Number(lyrics.lines[0].startTimeMs);
         const isBeforeFirstLyric = adjustedTimestamp < firstLineStartTime;
         const isInGap = lyrics.lines.every((line, index) => {
@@ -138,10 +138,18 @@ export const AnimatedLyrics = ({
   }, [localPlayed, delay, lyrics]);
 
   useEffect(() => {
-    if (currentLineRef.current) {
-      currentLineRef.current.scrollIntoView({
+    if (currentLineRef.current && containerRef.current) {
+      const lyricsContainer = containerRef.current;
+      const lineTop = currentLineRef.current.offsetTop;
+      const containerScroll = lyricsContainer.scrollTop;
+      const containerHeight = lyricsContainer.clientHeight;
+      const lineHeight = currentLineRef.current.clientHeight;
+
+      const scrollPosition = lineTop - containerHeight / 2 + lineHeight / 2;
+
+      lyricsContainer.scrollTo({
+        top: scrollPosition,
         behavior: "smooth",
-        block: "center",
       });
     }
   }, [currentLine]);
@@ -161,14 +169,14 @@ export const AnimatedLyrics = ({
 
   return (
     <div
-      className="lyrics-container rounded-2xl !mx-2"
-      style={{ overflowY: "auto", height: "60vh" }}
+      className="lyrics-container"
+      style={{ overflowY: "auto", height: "55vh" }}
+      ref={containerRef} // attach the containerRef to the lyrics-container
     >
       <div
-        className="lyrics-view pt-20"
+        className="lyrics-view"
         style={{
-          paddingTop: "40px",
-          padding: "20px",
+          // paddingTop: "40px",
           height: "100%",
           display: "flex",
           flexDirection: "column",

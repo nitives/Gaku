@@ -32,7 +32,7 @@ export const Navbar = ({
 
   return (
     <div className="navbar-mobile-container select-none !z-[100] relative">
-      <nav className="navbar-mobile bg-background/75">
+      <nav className="navbar-mobile bg-background/15">
         <motion.div whileTap={{ scale: 0.925 }}>
           <Link href={"/"} className="flex flex-col items-center">
             <GoHomeFill

@@ -64,7 +64,6 @@
 
 @media (display-mode: standalone) {
   .music-cards {
-    width: 109%;
-    right: 4vw;
+    margin-inline: -1.25rem;
   }
 }
