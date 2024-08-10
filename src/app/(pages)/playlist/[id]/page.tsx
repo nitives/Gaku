@@ -15,6 +15,7 @@ import { useAudio } from "@/context/AudioContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PlaylistSkeleton } from "@/components/skeletons/PlaylistSkeleton";
 import { useLibrary } from "@/hooks/useLibrary";
+import { PausedIcon, PlayingIcon } from "@/components/Icons/PlayingIcon";
 
 export default function PlaylistPage() {
   const {
@@ -168,7 +169,9 @@ export default function PlaylistPage() {
           <div className="flex flex-col items-center justify-center">
             <p className="album:title font-bold text-xl">{playlist.title}</p>
             <Link
-              href={`/artist/${playlist.user.id}/${playlist.user.username.toLowerCase().replace(/\s+/g, '-')}`}
+              href={`/artist/${playlist.user.id}/${playlist.user.username
+                .toLowerCase()
+                .replace(/\s+/g, "-")}`}
               className="text-[var(--ambient)] text-center cursor-pointer"
             >
               {playlist.user.username}
@@ -219,9 +222,17 @@ export default function PlaylistPage() {
             >
               <div
                 onClick={() => playTrack(track, index)}
-                className="flex-grow"
+                className="flex items-center"
               >
-                <span>{index + 1}</span>
+                {globalCurrentTrack && globalCurrentTrack.id === track.id ? (
+                  isPlaying ? (
+                    <PlayingIcon className="" size={18} />
+                  ) : (
+                    <PausedIcon className="color-[var(--ambient)]" size={18} />
+                  )
+                ) : (
+                  <span>{index + 1}</span>
+                )}
                 {artistNameRemove(playlist.user.username, track.title)}
               </div>
               <button onClick={() => handleLikeToggle(track)} className="ml-2">

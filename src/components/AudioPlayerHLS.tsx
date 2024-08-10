@@ -784,9 +784,9 @@ export const NavbarMiniControls = ({
   onExpand?: () => void;
 }) => {
   return (
-    <div className="navbar-mini-container" onClick={onExpand}>
+    <div className="navbar-mini-container">
       <div className="w-full h-fit mini-control backdrop-blur-lg p-2 rounded-[14px] flex justify-between bg-background/20 dark:bg-card/75">
-        <div className="flex items-center">
+        <div onClick={onExpand} className="flex items-center w-full">
           <Image
             className="size-11 rounded-lg"
             src={img || ""}

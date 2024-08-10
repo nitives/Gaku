@@ -1,0 +1,39 @@
+@keyframes rect1 {
+    50% {
+      height: 30px;
+      transform: translateY(-4px);
+    }
+  }
+  
+  @keyframes rect2 {
+    50% {
+      height: 22px;
+      transform: translateY(4px);
+    }
+  }
+  
+  @keyframes rect3 {
+    50% {
+      height: 30px;
+      transform: translateY(-4px);
+    }
+  }
+  
+  .playing-icon-1 {
+    animation-name: rect1;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+  }
+  
+  .playing-icon-2 {
+    animation-name: rect2;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+  }
+  
+  .playing-icon-3 {
+    animation-name: rect3;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+  }
+  
