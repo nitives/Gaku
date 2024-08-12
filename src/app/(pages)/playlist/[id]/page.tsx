@@ -109,8 +109,14 @@ export default function PlaylistPage() {
   const artistNameRemove = (artistName: string, trackTitle: string): string => {
     // Create a regular expression to match the artist name and a dash
     const regex = new RegExp(`^${artistName}\\s*-\\s*`, "i");
-    // Replace the artist name and dash with an empty string
-    return trackTitle.replace(regex, "").trim();
+    // Check if the artist name is in the title
+    if (regex.test(trackTitle)) {
+      // Replace the artist name and dash with an empty string
+      return trackTitle.replace(regex, "").trim();
+    } else {
+      // If the artist name is not in the title, return the original title
+      return trackTitle;
+    }
   };
 
   function formatDate(dateString: string | number | Date, format = "full") {
