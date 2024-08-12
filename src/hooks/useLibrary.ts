@@ -63,6 +63,12 @@ export function useLibrary() {
       key: generateLibraryKey(),
       songs: [],
     };
+    console.log(
+      "createLibrary | syncLibraryWithDatabase STARTING:",
+      newLibrary
+    );
+    syncLibraryWithDatabase(newLibrary);
+    console.log("createLibrary | syncLibraryWithDatabase RAN:", newLibrary);
     setLibrary(newLibrary);
   };
 
