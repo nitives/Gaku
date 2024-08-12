@@ -47,8 +47,15 @@ export default function Library() {
     setGlobalPlaylist,
     setHDCover,
   } = useAudio();
-  const { library, createLibrary, importLibrary, updateLibraryName } =
-    useLibrary();
+  const {
+    library,
+    setLibrary,
+    createLibrary,
+    importLibrary,
+    updateLibraryName,
+    globalLibraryKey,
+  } = useLibrary();
+
   const { setPlaylistUrl, setCurrentTrack, setIsPlaying } = useAudio();
   const [importKey, setImportKey] = useState("");
   const [isKeyHidden, setIsKeyHidden] = useState(true);
@@ -57,11 +64,24 @@ export default function Library() {
   const [canNameLibrary, setCanNameLibrary] = useState(false);
 
   useEffect(() => {
-    if (library) {
-      setCanNameLibrary(true);
-      setLibraryName(library.name || ""); // Set initial library name if it exists
+    if (globalLibraryKey) {
+      fetchLibraryData(globalLibraryKey);
     }
-  }, [library]);
+  }, [globalLibraryKey]);
+
+  const fetchLibraryData = async (key: string) => {
+    try {
+      const response = await fetch(`/api/library/sync?key=${key}`);
+      if (response.ok) {
+        const data = await response.json();
+        setLibrary(data);
+        setLibraryName(data.name || "");
+        setCanNameLibrary(true);
+      }
+    } catch (error) {
+      console.error("Error fetching library data:", error);
+    }
+  };
 
   const handleCreateLibrary = () => {
     createLibrary();
@@ -113,25 +133,20 @@ export default function Library() {
     if (songIndex !== undefined && songIndex >= 0) {
       const remainingSongs = library?.songs.slice(songIndex);
       if (remainingSongs) {
-        setGlobalPlaylist(remainingSongs); // Set the remaining songs as the global playlist
+        setGlobalPlaylist(remainingSongs);
         const firstSong = remainingSongs[0];
         console.log("firstSong.id 1:", firstSong.id);
 
         try {
-          // Fetch the playlist URL using the permalink_url of the first song
-
-          // Fetch the song data from API
           console.log("firstSong.id 2:", firstSong.id);
           const response = await fetch(`/api/track/info/${firstSong.id}`);
           const songData = await response.json();
           const playlistUrl = await fetchPlaylistM3U8(songData.permalink_url);
 
-          // Set the current track and the playlist URL
           setCurrentTrack(songData);
           setPlaylistUrl(playlistUrl);
           setIsPlaying(true);
 
-          // Optionally, fetch and set the cover image if needed
           if (songData.permalink_url) {
             fetchCover(songData.permalink_url);
           }
@@ -167,14 +182,20 @@ export default function Library() {
   };
 
   const handleDeleteLibrary = async () => {
-    if (library) {
+    if (globalLibraryKey) {
       try {
-        const response = await fetch(`/api/library/sync?key=${library.key}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(
+          `/api/library/sync?key=${globalLibraryKey}`,
+          {
+            method: "DELETE",
+          }
+        );
         if (response.ok) {
           toast.success("Library deleted successfully");
-          localStorage.removeItem("GAKU_userLibrary");
+          localStorage.removeItem("GAKU_libraryKey");
+          setLibrary(null);
+          setLibraryName("");
+          setCanNameLibrary(false);
         } else {
           toast.error("Error deleting library");
         }
@@ -184,6 +205,32 @@ export default function Library() {
       }
     }
   };
+
+  // const handleImportLibrary = () => {
+  //   console.log("handleImportLibrary");
+  // }
+
+  // const handleCreateLibrary = () => {
+  //   console.log("handleCreateLibrary");
+  // }
+
+  // const handleDeleteLibrary = () => {
+  //   console.log("handleDeleteLibrary");
+  // }
+
+  // const copyKeyToClipboard = () => {
+  //   console.log("copyKeyToClipboard");
+  // }
+
+  // const toggleKeyVisibility = () => {
+  //   console.log("toggleKeyVisibility");
+  // }
+
+  // const handlePlayAll = () => {
+  //   console.log("handlePlayAll");
+  // }
+
+  // const library = true
 
   return (
     <>
@@ -295,10 +342,7 @@ export default function Library() {
                 </div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <button
-                      className="min-w-[7.25rem] transition-all duration-150 bg-destructive hover:bg-destructive/90 text-background dark:text-foreground hover:text-foreground standalone:w-full py-1 px-1 standalone:px-2 standalone:py-2 standalone:mb-2 flex justify-center rounded-xl items-center gap-2"
-                      onClick={handleImportLibrary}
-                    >
+                    <button className="min-w-[7.25rem] transition-all duration-150 bg-destructive hover:bg-destructive/90 text-background dark:text-foreground hover:text-foreground standalone:w-full py-1 px-1 standalone:px-2 standalone:py-2 standalone:mb-2 flex justify-center rounded-xl items-center gap-2">
                       <p>Delete Library</p>
                       <IoTrash />
                     </button>

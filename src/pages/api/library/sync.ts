@@ -12,10 +12,16 @@ export default async function handler(
   switch (method) {
     case "GET":
       const { key } = req.query;
+
+      if (!key || typeof key !== "string") {
+        console.log("Invalid key:", key);
+        return res.status(400).json({ error: "Invalid key provided" });
+      }
+
       try {
         console.log("Key:", key);
         const library = await prisma.library.findUnique({
-          where: { key: key as string },
+          where: { key: key },
         });
         console.log("library done");
         if (library) {
@@ -51,8 +57,25 @@ export default async function handler(
       }
       break;
 
+    case "DELETE":
+      const { key: deleteKey } = req.query;
+
+      if (!deleteKey || typeof deleteKey !== "string") {
+        return res.status(400).json({ error: "Invalid key provided" });
+      }
+
+      try {
+        await prisma.library.delete({
+          where: { key: deleteKey },
+        });
+        res.status(200).json({ message: "Library deleted successfully" });
+      } catch (error) {
+        res.status(500).json({ error: "Error deleting library" });
+      }
+      break;
+
     default:
-      res.setHeader("Allow", ["GET", "POST"]);
+      res.setHeader("Allow", ["GET", "POST", "DELETE"]);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
 }

@@ -10,65 +10,43 @@ interface Song {
 
 interface LibraryData {
   key: string;
-  name?: string; // Optional name field
+  name?: string;
   songs: Song[];
 }
 
 export function useLibrary() {
   const [library, setLibrary] = useState<LibraryData | null>(null);
+  const [globalLibraryKey, setGlobalLibraryKey] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check the database first
-    const syncLibraryWithLocalStorage = async () => {
-      try {
-        const response = await fetch("/api/library/sync", {
-          method: "GET",
-        });
-
-        if (response.ok) {
-          const dbLibrary = await response.json();
-          if (dbLibrary) {
-            setLibrary(dbLibrary); // Use database data if available
-            localStorage.setItem("GAKU_userLibrary", JSON.stringify(dbLibrary));
-          } else {
-            const storedLibrary = localStorage.getItem("GAKU_userLibrary");
-            if (storedLibrary) {
-              const localLibrary = JSON.parse(storedLibrary);
-              setLibrary(localLibrary);
-              syncLibraryWithDatabase(localLibrary); // Sync to DB if not present
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching library from database:", error);
-        const storedLibrary = localStorage.getItem("GAKU_userLibrary");
-        if (storedLibrary) {
-          setLibrary(JSON.parse(storedLibrary));
-        }
-      }
-    };
-
-    syncLibraryWithLocalStorage();
-  }, [library]);
-
-  useEffect(() => {
-    if (library) {
-      localStorage.setItem("GAKU_userLibrary", JSON.stringify(library));
-      syncLibraryWithDatabase(library); // Sync with the database whenever the library changes
+    const storedKey = localStorage.getItem("GAKU_libraryKey");
+    if (storedKey) {
+      setGlobalLibraryKey(storedKey);
+      fetchLibrary(storedKey);
     }
-  }, [library]);
+  }, []);
+
+  const fetchLibrary = async (key: string) => {
+    try {
+      const response = await fetch(`/api/library/sync?key=${key}`);
+      if (response.ok) {
+        const data = await response.json();
+        setLibrary(data);
+      }
+    } catch (error) {
+      console.error("Error fetching library:", error);
+    }
+  };
 
   const createLibrary = () => {
+    const newKey = generateLibraryKey();
+    localStorage.setItem("GAKU_libraryKey", newKey);
+    setGlobalLibraryKey(newKey);
     const newLibrary: LibraryData = {
-      key: generateLibraryKey(),
+      key: newKey,
       songs: [],
     };
-    console.log(
-      "createLibrary | syncLibraryWithDatabase STARTING:",
-      newLibrary
-    );
     syncLibraryWithDatabase(newLibrary);
-    console.log("createLibrary | syncLibraryWithDatabase RAN:", newLibrary);
     setLibrary(newLibrary);
   };
 
@@ -76,6 +54,7 @@ export function useLibrary() {
     if (library && library.key === key) {
       const updatedLibrary = { ...library, name };
       setLibrary(updatedLibrary);
+      syncLibraryWithDatabase(updatedLibrary);
     } else {
       console.error("Library not found for the given key.");
     }
@@ -91,6 +70,7 @@ export function useLibrary() {
         ],
       };
       setLibrary(updatedLibrary);
+      syncLibraryWithDatabase(updatedLibrary);
     } else {
       console.error("Failed to add song: Library not found.");
     }
@@ -103,6 +83,7 @@ export function useLibrary() {
         songs: library.songs.filter((song) => song.id !== songId),
       };
       setLibrary(updatedLibrary);
+      syncLibraryWithDatabase(updatedLibrary);
     } else {
       console.error("Failed to remove song: Library not found.");
     }
@@ -116,19 +97,19 @@ export function useLibrary() {
     try {
       const response = await fetch(`/api/library/sync?key=${key}`);
       if (response.ok) {
-        console.log("response.ok:", response.ok, response);
         const data = await response.json();
         setLibrary(data);
-        localStorage.setItem("GAKU_userLibrary", JSON.stringify(data));
-        return data; // Return the data to indicate success
+        localStorage.setItem("GAKU_libraryKey", key);
+        setGlobalLibraryKey(key);
+        return data;
       } else if (response.status === 404) {
-        return { error: "Library not found" }; // Handle case when library is not found
+        return { error: "Library not found" };
       } else {
         throw new Error("Failed to import library");
       }
     } catch (error) {
       console.error("Error importing library:", error);
-      return { error: "Error importing library" }; // Return error for further handling
+      return { error: "Error importing library" };
     }
   };
 
@@ -151,11 +132,13 @@ export function useLibrary() {
 
   return {
     library,
+    setLibrary,
     createLibrary,
     updateLibraryName,
     addSong,
     removeSong,
     importLibrary,
     isSongInLibrary,
+    globalLibraryKey,
   };
 }
