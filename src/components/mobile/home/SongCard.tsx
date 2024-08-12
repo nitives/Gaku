@@ -37,6 +37,8 @@ export const SongCard = ({ src, title, artist }: SongCard) => {
             alt={title || "Title"}
             width={500}
             height={500}
+            draggable={false}
+            unoptimized={true}
           />
           <div className="p-2 text-center">
             <p className="font-bold">{title || "Title"}</p>

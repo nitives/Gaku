@@ -101,6 +101,7 @@ export default function PlaylistPage() {
           height={200}
           src={artist?.visuals?.visuals?.[0]?.visual_url || artist?.avatar_url}
           alt={artist?.username}
+          unoptimized={true}
         />
       </header>
       <SafeView>
@@ -124,6 +125,7 @@ export default function PlaylistPage() {
                     src={song?.artwork_url || song?.tracks?.[0]?.artwork_url}
                     alt={song?.title}
                     draggable={false}
+                    unoptimized={true}
                   />
                 </div>
                 <span className="block">

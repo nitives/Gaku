@@ -28,6 +28,8 @@ export const ImageBlur = ({
         src={src}
         alt="Blurred Background 1"
         layout="fill"
+        draggable={false}
+        unoptimized={true}
       />
       <Image
         style={imageStyle}
@@ -35,6 +37,8 @@ export const ImageBlur = ({
         src={src}
         alt="Blurred Background 2"
         layout="fill"
+        draggable={false}
+        unoptimized={true}
       />
       <Image
         style={{ ...imageStyle, opacity: 0.05 }}
@@ -42,6 +46,8 @@ export const ImageBlur = ({
         src={src}
         alt="Blurred Background 3"
         layout="fill"
+        draggable={false}
+        unoptimized={true}
       />
       <div className="relative z-10">{children}</div>
     </div>

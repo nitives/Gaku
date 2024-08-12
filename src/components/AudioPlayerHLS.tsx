@@ -391,6 +391,8 @@ const ExpandedPlayerControls = ({
                   alt={title || ""}
                   width={336}
                   height={336}
+                  draggable={false}
+                  unoptimized={true}
                 />
               </motion.div>
               {showLyrics && (
@@ -793,6 +795,8 @@ export const NavbarMiniControls = ({
             alt={title || ""}
             width={200}
             height={200}
+            unoptimized={true}
+            draggable={false}
           />
           <TitleOverflowAnimator>{title}</TitleOverflowAnimator>
         </div>

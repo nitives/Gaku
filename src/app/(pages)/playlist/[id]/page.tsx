@@ -162,6 +162,7 @@ export default function PlaylistPage() {
               height={300}
               className="album-cover-img"
               draggable={false}
+              unoptimized={true}
             />
             <div className="album-border" />
           </div>

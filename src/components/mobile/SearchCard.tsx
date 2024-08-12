@@ -77,6 +77,8 @@ export const SearchCard = ({
             e.currentTarget.src =
               "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"; // 1x1 transparent gif
           }}
+          draggable={false}
+          unoptimized={true}
         />
       </div>
       {artist && (

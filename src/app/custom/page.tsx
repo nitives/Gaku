@@ -41,6 +41,7 @@ export default function Home() {
               alt={`Logo ${index + 1}`}
               width={100}
               height={100}
+              unoptimized={true}
             />
           ))}
         </div>
