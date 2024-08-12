@@ -29,9 +29,9 @@ export function useLibrary() {
           const dbLibrary = await response.json();
           if (dbLibrary) {
             setLibrary(dbLibrary); // Use database data if available
-            localStorage.setItem("userLibrary", JSON.stringify(dbLibrary));
+            localStorage.setItem("GAKU_userLibrary", JSON.stringify(dbLibrary));
           } else {
-            const storedLibrary = localStorage.getItem("userLibrary");
+            const storedLibrary = localStorage.getItem("GAKU_userLibrary");
             if (storedLibrary) {
               const localLibrary = JSON.parse(storedLibrary);
               setLibrary(localLibrary);
@@ -41,7 +41,7 @@ export function useLibrary() {
         }
       } catch (error) {
         console.error("Error fetching library from database:", error);
-        const storedLibrary = localStorage.getItem("userLibrary");
+        const storedLibrary = localStorage.getItem("GAKU_userLibrary");
         if (storedLibrary) {
           setLibrary(JSON.parse(storedLibrary));
         }
@@ -49,11 +49,11 @@ export function useLibrary() {
     };
 
     syncLibraryWithLocalStorage();
-  }, []);
+  }, [library]);
 
   useEffect(() => {
     if (library) {
-      localStorage.setItem("userLibrary", JSON.stringify(library));
+      localStorage.setItem("GAKU_userLibrary", JSON.stringify(library));
       syncLibraryWithDatabase(library); // Sync with the database whenever the library changes
     }
   }, [library]);
@@ -70,6 +70,8 @@ export function useLibrary() {
     if (library && library.key === key) {
       const updatedLibrary = { ...library, name };
       setLibrary(updatedLibrary);
+    } else {
+      console.error("Library not found for the given key.");
     }
   };
 
@@ -83,6 +85,8 @@ export function useLibrary() {
         ],
       };
       setLibrary(updatedLibrary);
+    } else {
+      console.error("Failed to add song: Library not found.");
     }
   };
 
@@ -93,6 +97,8 @@ export function useLibrary() {
         songs: library.songs.filter((song) => song.id !== songId),
       };
       setLibrary(updatedLibrary);
+    } else {
+      console.error("Failed to remove song: Library not found.");
     }
   };
 
@@ -104,9 +110,10 @@ export function useLibrary() {
     try {
       const response = await fetch(`/api/library/sync?key=${key}`);
       if (response.ok) {
+        console.log("response.ok:", response.ok, response);
         const data = await response.json();
         setLibrary(data);
-        localStorage.setItem("userLibrary", JSON.stringify(data));
+        localStorage.setItem("GAKU_userLibrary", JSON.stringify(data));
         return data; // Return the data to indicate success
       } else if (response.status === 404) {
         return { error: "Library not found" }; // Handle case when library is not found

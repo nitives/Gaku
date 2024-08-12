@@ -174,7 +174,7 @@ export default function Library() {
         });
         if (response.ok) {
           toast.success("Library deleted successfully");
-          localStorage.removeItem("userLibrary");
+          localStorage.removeItem("GAKU_userLibrary");
         } else {
           toast.error("Error deleting library");
         }
