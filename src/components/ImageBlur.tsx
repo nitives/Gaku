@@ -42,7 +42,7 @@ export const ImageBlur = ({
       />
       <Image
         style={{ ...imageStyle, opacity: 0.05 }}
-        className="absolute inset-0 w-full h-full object-cover scale-150 filter animate-ping"
+        className="absolute inset-0 w-full h-full object-cover scale-150 opacity-0 filter animate-ping"
         src={src}
         alt="Blurred Background 3"
         layout="fill"
