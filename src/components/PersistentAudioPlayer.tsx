@@ -18,12 +18,12 @@ export const PersistentAudioPlayer = () => {
     }
   }, [currentTrack]);
 
-  const artistNameRemove = (artistName: string, trackTitle: string): string => {
-    // Create a regular expression to match the artist name and a dash
-    const regex = new RegExp(`^${artistName}\\s*-\\s*`, "i");
-    // Replace the artist name and dash with an empty string
-    return trackTitle.replace(regex, "").trim();
-  };
+  // const artistNameRemove = (artistName: string, trackTitle: string): string => {
+  //   // Create a regular expression to match the artist name and a dash
+  //   const regex = new RegExp(`^${artistName}\\s*-\\s*`, "i");
+  //   // Replace the artist name and dash with an empty string
+  //   return trackTitle.replace(regex, "").trim();
+  // };
 
   if (!playlistUrl || !currentTrack) return null;
 
