@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PlaylistSkeleton } from "@/components/skeletons/PlaylistSkeleton";
 import { useLibrary } from "@/hooks/useLibrary";
 import { PausedIcon, PlayingIcon } from "@/components/Icons/PlayingIcon";
+import AnimatedCover from "@/components/AnimatedCover";
 
 export default function PlaylistPage() {
   const {
@@ -34,7 +35,7 @@ export default function PlaylistPage() {
   const id = params?.id as string;
   const [playlist, setPlaylist] = useState<any>(null);
   const { addSong, removeSong, isSongInLibrary } = useLibrary();
-  const [isFavorited, setIsFavorited] = useState(false);
+  const [apple, setAppleData] = useState<any>(null);
 
   const handleLikeToggle = (track: any) => {
     const songId = `${track.title}-${playlist.user.username}`;
@@ -66,6 +67,7 @@ export default function PlaylistPage() {
     if (data.permalink_url) {
       console.log("fetchPlaylist to fetchCover -", data.permalink_url);
       fetchCover(data.permalink_url);
+      fetchAppleKitData(data.title);
     }
   };
 
@@ -83,6 +85,17 @@ export default function PlaylistPage() {
     setGlobalPlaylistUrl(url);
     setGlobalCurrentTrack({ ...track, index });
     setIsPlaying(true);
+  };
+
+  const fetchAppleKitData = async (songTitle: string) => {
+    try {
+      console.log("fetchAppleKitData | songTitle:", songTitle);
+      const response = await fetch(`/api/apple/song/${songTitle}`);
+      const data = await response.json();
+      setAppleData(data);
+    } catch (error) {
+      console.error("Error fetching Apple Music data:", error);
+    }
   };
 
   const playNextTrack = () => {
@@ -146,6 +159,11 @@ export default function PlaylistPage() {
   if (!playlist) return <PlaylistSkeleton />;
 
   console.log("playlist.tracks:", playlist.tracks);
+  console.log("Apple Data:", apple);
+  console.log(
+    "Ani COVER:",
+    apple?.data[0]?.attributes?.editorialVideo?.motionDetailSquare
+  );
 
   return (
     <>
@@ -155,21 +173,42 @@ export default function PlaylistPage() {
 
         <div className="flex flex-col items-center justify-center gap-1 bg-blend-overlay pt-4">
           <div className="album-container album-shadow">
-            <Image
-              src={
-                cover ||
-                playlist?.tracks[0].artwork_url ||
-                globalCurrentTrack?.artwork_url ||
-                ""
-              }
-              alt={`${playlist.title} Album Cover`}
-              title={`${playlist.title} Album Cover`}
-              width={300}
-              height={300}
-              className="album-cover-img"
-              draggable={false}
-              unoptimized={true}
-            />
+            {apple?.data[0]?.attributes?.editorialVideo?.motionDetailSquare ? (
+              <div className="rounded-[16px] overflow-hidden">
+                <AnimatedCover
+                  hlsUrl={
+                    apple.data[0].attributes.editorialVideo.motionDetailSquare
+                      .video
+                  }
+                />
+              </div>
+            ) : (
+              // <video
+              //   src={
+              //     apple.data[0].attributes.editorialVideo.motionDetailSquare
+              //       .video
+              //   }
+              //   autoPlay
+              //   loop
+              //   muted
+              //   className="album-cover-img aspect-square"
+              // />
+              <Image
+                src={
+                  cover ||
+                  playlist?.tracks[0].artwork_url ||
+                  globalCurrentTrack?.artwork_url ||
+                  ""
+                }
+                alt={`${playlist.title} Album Cover`}
+                title={`${playlist.title} Album Cover`}
+                width={300}
+                height={300}
+                className="album-cover-img"
+                draggable={false}
+                unoptimized={true}
+              />
+            )}
             <div className="album-border" />
           </div>
 

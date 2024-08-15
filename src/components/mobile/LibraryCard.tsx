@@ -60,7 +60,7 @@ export const LibraryCard = ({
         <div className="flex flex-col flex-grow">
           <div className="flex items-center gap-2 w-[70vw] standalone:w-[65vw]">
             <h1 title={songData.title} className="whitespace-nowrap truncate">
-              {songData.publisher_metadata.explicit
+              {songData.publisher_metadata?.explicit
                 ? `${songData.title} 🅴`
                 : songData.title}
             </h1>
