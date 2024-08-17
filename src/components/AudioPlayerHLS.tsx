@@ -249,6 +249,14 @@ const ExpandedPlayerControls = ({
   const [localPlayed, setLocalPlayed] = useState(played * duration);
   const [showLyrics, setShowLyrics] = useState(false);
 
+  // Load current volume to slider visual on first load
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--volume-value",
+      `${volume * 100}%`
+    );
+  }, [volume]);
+
   useEffect(() => {
     const percentagePlayed = played * 100;
     document.documentElement.style.setProperty(
