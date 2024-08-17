@@ -4,11 +4,19 @@ import { useAudio } from "@/context/AudioContext";
 import { useEffect } from "react";
 
 export const PersistentAudioPlayer = () => {
-  const { currentTrack, playlistUrl, cover, playNextTrack, playPreviousTrack, isPlaying } = useAudio();
+  const {
+    currentTrack,
+    playlistUrl,
+    cover,
+    playNextTrack,
+    playPreviousTrack,
+    isPlaying,
+  } = useAudio();
 
   useEffect(() => {
     const setPageTitle = async () => {
-      const fixedTitle = artistNameRemove(currentTrack.user.username, currentTrack.title)
+      // const fixedTitle = artistNameRemove(currentTrack.user.username, currentTrack.title)
+      const fixedTitle = currentTrack.title;
       const title = fixedTitle ? `${fixedTitle}` : "Gaku";
       document.title = title;
     };
@@ -32,14 +40,15 @@ export const PersistentAudioPlayer = () => {
       <AudioPlayerHLS
         height="100%"
         img={cover || currentTrack.artwork_url || ""}
-        title={artistNameRemove(currentTrack.user.username, currentTrack.title)}
-        artist={currentTrack.user.username}
+        // title={artistNameRemove(currentTrack.user.username, currentTrack.title)}
+        title={currentTrack.title}
+        artist={currentTrack.user?.username}
         album={currentTrack.publisher_metadata?.album_title || ""}
         src={playlistUrl}
         isExplicit={currentTrack.publisher_metadata?.explicit === true}
         onNext={playNextTrack}
         onEnded={playNextTrack}
-        onPrevious={playPreviousTrack}  // Automatically play the next track when the current one ends
+        onPrevious={playPreviousTrack} // Automatically play the next track when the current one ends
       />
     </div>
   );

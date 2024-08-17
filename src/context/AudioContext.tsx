@@ -51,8 +51,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
       );
       if (currentIndex < playlist.length - 1) {
         const nextTrack = playlist[currentIndex + 1];
+        console.log("Next track:", nextTrack);
         setCurrentTrack(nextTrack);
-        setPlaylistUrl(await fetchPlaylistM3U8(nextTrack.permalink_url)); // Update the URL to play the next track
+        const response = await fetch(`/api/track/info/${nextTrack.id}`);
+        const nextTrackData = await response.json();
+        setPlaylistUrl(await fetchPlaylistM3U8(nextTrackData.permalink_url)); // Update the URL to play the next track
       }
     }
   };
@@ -65,7 +68,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
       if (currentIndex > 0) {
         const previousTrack = playlist[currentIndex - 1];
         setCurrentTrack(previousTrack);
-        setPlaylistUrl(await fetchPlaylistM3U8(previousTrack.permalink_url)); // Update the URL to play the previous track
+        const response = await fetch(`/api/track/info/${previousTrack.id}`);
+        const previousTrackData = await response.json();
+        setPlaylistUrl(
+          await fetchPlaylistM3U8(previousTrackData.permalink_url)
+        ); // Update the URL to play the previous track
       }
     }
   };
