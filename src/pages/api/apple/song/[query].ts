@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 
 const APPLE_AUTH =
-  "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ.eyJpc3MiOiJBTVBXZWJQbGF5IiwiaWF0IjoxNzE2NTk3MDM1LCJleHAiOjE3MjM4NTQ2MzUsInJvb3RfaHR0cHNfb3JpZ2luIjpbImFwcGxlLmNvbSJdfQ.SekUtyaU8onE-rVZBQLyyo80yb474ps144vwgPzzdPIET2XTtukLTqMc6mGjz1H8BYgA3cjQFJbO5258yJsRUg";
+  "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ.eyJpc3MiOiJBTVBXZWJQbGF5IiwiaWF0IjoxNzIzMjI3ODE0LCJleHAiOjE3MzA0ODU0MTQsInJvb3RfaHR0cHNfb3JpZ2luIjpbImFwcGxlLmNvbSJdfQ.40bdtZpneAK2cBUHRvWroL5TGI5LZ0JcLR2AQ1_S8GTa0FbgbPOiJ4jGUVom_22VLOColdwf_vG7LSGP03yKeQ";
 
 export default async function handler(
   req: NextApiRequest,
