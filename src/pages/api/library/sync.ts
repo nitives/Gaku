@@ -19,21 +19,21 @@ export default async function handler(
       }
 
       try {
-        console.log("Key:", key);
+        // console.log("Key:", key);
         const library = await prisma.library.findUnique({
           where: { key: key },
         });
-        console.log("library done");
+        // console.log("library done");
         if (library) {
           res.status(200).json({
             key: library.key,
             name: library.name,
             songs: JSON.parse(library.songs),
           });
-          console.log("library done 2");
+          // console.log("library done 2");
         } else {
           res.status(200).json(null); // No library found
-          console.log("library else");
+          console.log("Library not found");
         }
       } catch (error) {
         console.log("library error");

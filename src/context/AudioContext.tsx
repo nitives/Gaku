@@ -45,6 +45,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
       playlist[playlist.findIndex((track) => track.id === currentTrack.id) + 1]
     );
     console.log("Playlist length:", playlist.length);
+    console.log("----------------------------");
     if (currentTrack && playlist.length > 0) {
       const currentIndex = playlist.findIndex(
         (track) => track.id === currentTrack.id
@@ -55,7 +56,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
         setCurrentTrack(nextTrack);
         const response = await fetch(`/api/track/info/${nextTrack.id}`);
         const nextTrackData = await response.json();
+        console.log("Next track data:", nextTrackData);
         setPlaylistUrl(await fetchPlaylistM3U8(nextTrackData.permalink_url)); // Update the URL to play the next track
+        setHDCover(nextTrackData.artwork_url);
       }
     }
   };

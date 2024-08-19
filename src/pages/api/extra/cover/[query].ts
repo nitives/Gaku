@@ -21,36 +21,36 @@ export default async function handler(
   }
 
   try {
-    console.log("Scraping started");
+    // console.log("Scraping started");
 
     // Fetch the HTML from the SoundCloud page
     const response = await axios.get(queryString);
-    console.log("Response received!");
+    // console.log("Response received!");
 
     // Parse the HTML using JSDOM
     const dom = new JSDOM(response.data);
     const document = dom.window.document;
 
-    console.log("Document Initialized!");
+    // console.log("Document Initialized!");
 
     // Find the meta tag with property `og:image`
     const metaTag = document.querySelector('meta[property="og:image"]');
 
     if (metaTag) {
-      console.log("Meta tag found!", metaTag);
+      // console.log("Meta tag found!", metaTag);
 
       // Extract the content attribute which contains the image URL
       const imageUrl = metaTag.getAttribute("content");
 
       if (imageUrl) {
-        console.log("Image URL extracted!", imageUrl);
+        // console.log("Image URL extracted!", imageUrl);
         // Return the image URL as JSON
         return res.status(200).json({ imageUrl });
       } else {
-        console.log("Image URL not found in the meta tag content!");
+        // console.log("Image URL not found in the meta tag content!");
       }
     } else {
-      console.log("Meta tag with og:image not found!");
+      // console.log("Meta tag with og:image not found!");
     }
 
     // If the meta tag or URL is not found, return a 404 error

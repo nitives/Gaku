@@ -57,12 +57,14 @@ export default function PlaylistPage() {
   }, [id]);
 
   console.log("playing:", globalCurrentTrack, isPlaying);
+  console.log("playlist:", playlist);
 
   const fetchPlaylist = async (playlistId: string) => {
     const response = await fetch(`/api/playlist/${playlistId}`);
     const data = await response.json();
     console.log("fetchPlaylist | data: ", data);
-    setPlaylist(data);
+    const updatedPlaylist = playlist.slice(1); // Remove the first song which is the current
+    setPlaylist(updatedPlaylist);
     setGlobalPlaylist(data.tracks); // Ensure this matches the function name in your context
     if (data.permalink_url) {
       console.log("fetchPlaylist to fetchCover -", data.permalink_url);
@@ -183,16 +185,6 @@ export default function PlaylistPage() {
                 />
               </div>
             ) : (
-              // <video
-              //   src={
-              //     apple.data[0].attributes.editorialVideo.motionDetailSquare
-              //       .video
-              //   }
-              //   autoPlay
-              //   loop
-              //   muted
-              //   className="album-cover-img aspect-square"
-              // />
               <Image
                 src={
                   cover ||
