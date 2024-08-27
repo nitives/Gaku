@@ -59,7 +59,6 @@ export const SubHeading = ({
             whileHover={{
               scale: 0.95,
               translateX: -5,
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
             }}
             transition={{ duration: 0.125, ease: "easeInOut" }}
           >
