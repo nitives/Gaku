@@ -12,7 +12,6 @@ import { Lossless } from "@/components/Icons/Lossless";
 import "../../../../styles/album.css";
 import Link from "next/link";
 import { useAudio } from "@/context/AudioContext";
-import { Skeleton } from "@/components/ui/skeleton";
 import { PlaylistSkeleton } from "@/components/skeletons/PlaylistSkeleton";
 import { useLibrary } from "@/hooks/useLibrary";
 import { PausedIcon, PlayingIcon } from "@/components/Icons/PlayingIcon";
@@ -278,9 +277,11 @@ export default function PlaylistPage() {
                   exit={{ opacity: 0 }}
                   className="w-full justify-center flex pt-3"
                 >
-                  <p className="font-normal text-sm text-muted-foreground dark:text-muted-foreground/50 text-center flex items-center justify-center">
-                    {apple?.data[0].attributes.editorialNotes.short}
-                  </p>
+                  {apple?.data[0].attributes.editorialNotes.short && (
+                    <p className="font-normal text-sm text-muted-foreground dark:text-muted-foreground/50 text-center flex items-center justify-center">
+                      {apple?.data[0].attributes.editorialNotes.short}
+                    </p>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

@@ -6,7 +6,7 @@ export const PlaylistSkeleton = () => {
     <SafeView className="z-10 relative">
       <BackButton />
       <div className="flex flex-col items-center justify-center gap-1 bg-blend-overlay pt-4">
-        <div className="album-container album-shadow ">
+        <div className="album-container album-shadow">
           {/* Album Cover Skeleton */}
           <Skeleton className="w-[300px] h-[300px] rounded-2xl" />
           <div className="album-border" />

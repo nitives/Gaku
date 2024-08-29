@@ -439,7 +439,7 @@ const ExpandedPlayerControls = ({
                     className="pb-4"
                   >
                     <span className="right-[0.625rem] relative font-semibold text-white/90">
-                      <TitleOverflowAnimator>{title}</TitleOverflowAnimator>
+                      <TitleOverflowAnimator className='!w-[90vw]'>{title}</TitleOverflowAnimator>
                     </span>
                     <p className="text-white/50 text-sm">{artist}</p>
                   </motion.div>

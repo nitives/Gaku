@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { IoHeartOutline, IoHeart } from "react-icons/io5";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { useLibrary } from "@/hooks/useLibrary"; // Adjust the path according to your structure
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const SearchCard = ({
   className,
@@ -82,14 +83,19 @@ export const SearchCard = ({
         />
       </div>
       {artist && (
-        <div>
-          <h1>{title}</h1>
-          <h2 className="text-muted-foreground">Artist</h2>
-          {verified === true && (
-            <span className="text-muted-foreground">
-              <RiVerifiedBadgeFill className="text-[#699fff]" />
-            </span>
-          )}
+        <div className="flex items-center justify-between w-full gap-2">
+          <div>
+            <h1>{title}</h1>
+            <h2 className="text-muted-foreground">Artist</h2>
+            {verified === true && (
+              <span className="text-muted-foreground">
+                <RiVerifiedBadgeFill className="text-[#699fff]" />
+              </span>
+            )}
+          </div>
+          <div>
+            <ChevronRight size={24} className="text-muted-foreground/30" />
+          </div>
         </div>
       )}
       {track && (
@@ -128,9 +134,16 @@ export const SearchCard = ({
         </>
       )}
       {playlist && (
-        <div>
-          <h1 className="truncate max-w-[75vw] max-sm:max-w-[50vw]">{title}</h1>
-          <h2 className="text-muted-foreground">Playlist</h2>
+        <div className="flex items-center justify-between w-full gap-2">
+          <div>
+            <h1 className="truncate max-w-[75vw] max-sm:max-w-[50vw]">
+              {title}
+            </h1>
+            <h2 className="text-muted-foreground">Playlist</h2>
+          </div>
+          <div>
+            <ChevronRight size={24} className="text-muted-foreground/30" />
+          </div>
         </div>
       )}
     </div>

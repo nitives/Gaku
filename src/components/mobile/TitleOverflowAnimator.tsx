@@ -73,9 +73,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import "../../styles/TitleOverflowAnimator.css";
 
-export const TitleOverflowAnimator: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const TitleOverflowAnimator: React.FC<{
+  children: React.ReactNode;
+  className?: string | null;
+}> = ({ children, className }) => {
   const child = useRef<HTMLSpanElement>(null);
   const [contentWidth, setContentWidth] = useState(0);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -118,7 +119,7 @@ export const TitleOverflowAnimator: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <div className="marquee-container">
+    <div className={`marquee-container ${className}`}>
       <motion.div
         className="marquee-content"
         variants={marqueeVariants}

@@ -249,7 +249,6 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="light"
           enableSystem
-          disableTransitionOnChange
         >
           <AudioProvider>
             <PersistentAudioPlayer />

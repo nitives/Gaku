@@ -235,13 +235,25 @@ export default function Library() {
   return (
     <>
       <SafeView>
-        <Heading>Library (BETA)</Heading>
-        <SubHeading className="*:text-xs *:leading-5 text-muted-foreground mb-2">
-          <span className="py-1 px-1.5 mb-0.5 rounded-md text-foreground bg-destructive">
-            NOTICE
-          </span>{" "}
-          Queue / Next song doesn&apos;t work currently, this is an experimental
-          feature, just like the rest of this app.
+        <Heading>
+          <div className="flex items-start gap-1">
+            Library{" "}
+            <span className="px-1 !text-xs mb-0.5 w-fit rounded-sm text-background bg-accent">
+              BETA
+            </span>
+          </div>
+        </Heading>
+        <SubHeading className="*:text-xs *:leading-5 mb-2">
+          <div className="flex py-1 px-2 font-normal bg-destructive/15 border-destructive border rounded-xl">
+            <span className="absolute flex size-2.5 left-[1.2rem] top-[5.5rem]">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive"></span>
+              <span className="relative inline-flex rounded-full size-2.5 bg-destructive"></span>
+            </span>
+            <p>
+              Some features may not work as intended, the library is an
+              experimental feature, just like the rest of this app.
+            </p>
+          </div>
         </SubHeading>
         <div>
           {!library ? (
