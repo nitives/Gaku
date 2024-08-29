@@ -27,7 +27,7 @@ export default async function handler(
         throw new Error("HLS transcoding not found");
       }
 
-      // Step 4: Get HLS playlist URL
+      // Step 4: Get HLS playlist URL 
       const hlsUrl = `${hlsTranscoding.url}?client_id=${process.env.SOUNDCLOUD_CLIENT_ID}`;
       const hlsResponse = await axios.get(hlsUrl);
       const playlistUrl = hlsResponse.data.url;
