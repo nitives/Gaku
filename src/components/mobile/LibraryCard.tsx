@@ -36,7 +36,7 @@ export const LibraryCard = ({
     <>
       <div
         onClick={onClick}
-        className="w-full py-[1.25px] flex items-center gap-3 cursor-pointer hover:bg-foreground/5 standalone:active:bg-foreground/5 transition-colors duration-150"
+        className="w-full py-[1.5px] flex items-center gap-3 cursor-pointer hover:bg-foreground/5 standalone:active:bg-foreground/5 transition-colors duration-150"
       >
         <div className="size-12">
           <div className="album-container album-shadow !w-12 !mb-0">
@@ -81,7 +81,7 @@ export const LibraryCard = ({
 export const LibraryCardSkeleton = () => {
   return (
     <>
-      <div className="w-full py-[1.25px] flex items-center gap-3 cursor-pointer transition-colors duration-150">
+      <div className="w-full py-[1.5px] flex items-center gap-3 cursor-pointer transition-colors duration-150">
         <div className="min-w-12">
           <Skeleton className="size-12 rounded-md aspect-square" />
         </div>
