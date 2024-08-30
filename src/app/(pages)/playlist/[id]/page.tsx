@@ -270,20 +270,18 @@ export default function PlaylistPage() {
               </motion.button>
             </div>
             <AnimatePresence>
-              {apple?.data[0].attributes && (
+              {apple?.data[0].attributes?.editorialNotes?.short ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   className="w-full justify-center flex pt-3"
                 >
-                  {apple?.data[0].attributes.editorialNotes.short && (
-                    <p className="font-normal text-sm text-muted-foreground dark:text-muted-foreground/50 text-center flex items-center justify-center">
-                      {apple?.data[0].attributes.editorialNotes.short}
-                    </p>
-                  )}
+                  <p className="font-normal text-sm text-muted-foreground dark:text-muted-foreground/50 text-center flex items-center justify-center">
+                    {apple?.data[0].attributes.editorialNotes.short}
+                  </p>
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
           </div>
         </div>
@@ -302,7 +300,10 @@ export default function PlaylistPage() {
                   isPlaying ? (
                     <PlayingIcon className="" size={18} />
                   ) : (
-                    <PausedIcon className="color-[var(--ambient)] transition-all duration-300" size={18} />
+                    <PausedIcon
+                      className="color-[var(--ambient)] transition-all duration-300"
+                      size={18}
+                    />
                   )
                 ) : (
                   <span>{index + 1}</span>
