@@ -36,10 +36,10 @@ export const LibraryCard = ({
     <>
       <div
         onClick={onClick}
-        className="w-full py-1 flex items-center gap-4 cursor-pointer hover:bg-foreground/5 standalone:active:bg-foreground/5 transition-colors duration-150"
+        className="w-full py-[1.25px] flex items-center gap-3 cursor-pointer hover:bg-foreground/5 standalone:active:bg-foreground/5 transition-colors duration-150"
       >
-        <div className="size-16">
-          <div className="album-container album-shadow !w-16 !mb-0">
+        <div className="size-12">
+          <div className="album-container album-shadow !w-12 !mb-0">
             <Image
               width={1000}
               height={1000}
@@ -48,7 +48,7 @@ export const LibraryCard = ({
                 "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"
               }
               alt={songData.title || ""}
-              className="size-16 rounded-md"
+              className="size-12 rounded-md"
               onError={(e) => {
                 e.currentTarget.style.background =
                   "linear-gradient(to right, #FFA500, #FF4500)";
@@ -61,15 +61,17 @@ export const LibraryCard = ({
             <div className="album-border !border-[0.5px] !border-white/50 !rounded-md" />
           </div>
         </div>
-        <div className="flex flex-col flex-grow gap-1 justify-between w-[70vw] standalone:w-[65vw]">
+        <div className="flex flex-col flex-grow justify-center w-[70vw] standalone:w-[65vw]">
           <div className="flex items-center gap-1.5">
-            <p className="truncate">{songData.title}</p>
+            <p className="truncate text-base leading-[1.25rem]">
+              {songData.title}
+            </p>
             {isExplicit && <p className="opacity-50 scale-110">🅴</p>}
           </div>
-          <p className="text-muted-foreground truncate">
+          <p className="text-sm text-muted-foreground truncate">
             {songData.user.username}
           </p>
-          <div className="w-[77%] h-[1px] bg-muted-foreground/10 absolute translate-y-[3.8rem]" />
+          <div className="w-[77%] h-[1px] bg-muted-foreground/10 absolute translate-y-[1.75rem]" />
         </div>
       </div>
     </>
