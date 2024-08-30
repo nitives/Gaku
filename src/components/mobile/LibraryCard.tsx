@@ -81,15 +81,15 @@ export const LibraryCard = ({
 export const LibraryCardSkeleton = () => {
   return (
     <>
-      <div className="w-full py-1 flex items-center gap-4 cursor-pointer hover:bg-foreground/5 transition-colors duration-150 rounded-xl">
-        <div className="min-w-16">
-          <Skeleton className="size-16 rounded-md aspect-square" />
+      <div className="w-full py-[1.25px] flex items-center gap-3 cursor-pointer transition-colors duration-150">
+        <div className="min-w-12">
+          <Skeleton className="size-12 rounded-md aspect-square" />
         </div>
         <div className="flex flex-col flex-grow gap-1 justify-between w-[70vw] standalone:w-[65vw]">
           <div className="flex items-center gap-2 w-[70vw] standalone:w-[65vw]">
-            <Skeleton className="w-[25%] h-[1.75rem]" />
+            <Skeleton className="w-[25vw] h-[1rem]" />
           </div>
-          <Skeleton className="w-[25%] h-[1.75rem]" />
+          <Skeleton className="w-[15vw] h-[1rem]" />
         </div>
       </div>
     </>
