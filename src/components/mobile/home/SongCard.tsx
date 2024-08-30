@@ -2,11 +2,15 @@ import React from "react";
 import Image from "next/image";
 import { ImageBlur } from "@/components/ImageBlur";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "next/navigation";
 
 interface SongCard {
-  src: string;
+  img: string;
   title: string;
   artist: string;
+  id?: string;
+  kind?: string;
+  onClick?: () => void;
 }
 
 const SongCardSkeleton = () => {
@@ -25,15 +29,30 @@ const SongCardSkeleton = () => {
   );
 };
 
-export const SongCard = ({ src, title, artist }: SongCard) => {
-  if (!src && !title && !artist) return <SongCardSkeleton />;
+export const SongCard = ({
+  onClick,
+  img,
+  title,
+  artist,
+  id,
+  kind,
+}: SongCard) => {
+  // const router = useRouter();
+  // const navigateToTrack = (id: string | undefined) => {
+  //   if (id && kind) {
+  //     router.push(`/${kind}/${id}`);
+  //   } else {
+  //     router.push(`/`);
+  //   }
+  // };
+  if (!img && !title && !artist) return <SongCardSkeleton />;
   return (
-    <div className="min-w-[15rem] min-h-[20rem]">
+    <div onClick={onClick} className="min-w-[15rem] min-h-[19.5rem]">
       <div className="text-white rounded-2xl overflow-hidden">
-        <ImageBlur blur="120" className="min-h-[20.5rem]" src={src}>
+        <ImageBlur blur="120" className="min-h-[19.5rem]" src={img}>
           <Image
             className="border-b border-border/50 aspect-square"
-            src={src}
+            src={img}
             alt={title || "Title"}
             width={500}
             height={500}

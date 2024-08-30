@@ -245,10 +245,6 @@ export default function Library() {
         </Heading>
         <SubHeading className="*:text-xs *:leading-5 mb-2">
           <div className="flex py-1 px-2 font-normal bg-destructive/15 border-destructive border rounded-xl">
-            <span className="absolute flex size-2.5 left-[1.2rem] top-[5.5rem]">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive"></span>
-              <span className="relative inline-flex rounded-full size-2.5 bg-destructive"></span>
-            </span>
             <p>
               Some features may not work as intended, the library is an
               experimental feature, just like the rest of this app.
