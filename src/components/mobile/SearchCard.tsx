@@ -4,6 +4,7 @@ import { IoHeartOutline, IoHeart } from "react-icons/io5";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { useLibrary } from "@/hooks/useLibrary"; // Adjust the path according to your structure
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export const SearchCard = ({
   className,
@@ -35,6 +36,7 @@ export const SearchCard = ({
   const { addSong, removeSong, isSongInLibrary } = useLibrary();
   const songId = `${id}`; // Unique identifier for the song
   const [isFavorited, setIsFavorited] = useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
     // Check if the song is already in the library on component mount
@@ -66,7 +68,9 @@ export const SearchCard = ({
           height={1000}
           src={
             image ||
-            "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"
+            (theme === "light"
+              ? "/assets/placeholders/missing_song_light.png"
+              : "/assets/placeholders/missing_song_dark.png")
           }
           alt={title || ""}
           className={`min-w-16 aspect-square size-16 ${

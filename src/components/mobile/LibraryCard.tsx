@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Skeleton } from "../ui/skeleton";
 import "../../styles/album.css";
+import { useTheme } from "next-themes";
 
 export const LibraryCard = ({
   songId,
@@ -13,6 +14,7 @@ export const LibraryCard = ({
   isExplicit?: boolean;
 }) => {
   const [songData, setSongData] = useState<any>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchSongData = async () => {
@@ -45,7 +47,9 @@ export const LibraryCard = ({
               height={1000}
               src={
                 songData.artwork_url ||
-                "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"
+                (theme === "light"
+                  ? "/assets/placeholders/missing_song_light.png"
+                  : "/assets/placeholders/missing_song_dark.png")
               }
               alt={songData.title || ""}
               className="size-12 rounded-md"
@@ -77,7 +81,6 @@ export const LibraryCard = ({
     </>
   );
 };
-
 export const LibraryCardSkeleton = () => {
   return (
     <>
