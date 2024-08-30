@@ -127,6 +127,8 @@
 
 .text-ambient {
   color: var(--ambient);
+  transition: all;
+  transition-duration: 0.5s;
 }
 
 /* Page */

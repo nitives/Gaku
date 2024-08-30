@@ -224,7 +224,7 @@ export default function PlaylistPage() {
               href={`/artist/${playlist.user.id}/${playlist.user.username
                 .toLowerCase()
                 .replace(/\s+/g, "-")}`}
-              className="text-[var(--ambient)] text-center cursor-pointer"
+              className="text-[var(--ambient)] transition-colors duration-300 text-center cursor-pointer"
             >
               {playlist.user.username}
             </Link>
@@ -252,7 +252,7 @@ export default function PlaylistPage() {
                   backgroundColor: "rgba(255, 255, 255, 0.1)",
                 }}
                 onClick={() => playTrack(playlist.tracks[0], 0)}
-                className="flex justify-center items-center gap-[1px] w-full text-[var(--ambient)] bg-[hsl(var(--foreground)/0.025)] border border-[hsl(var(--foreground)/0.05)] py-3 rounded-2xl cursor-pointer interact-buttons"
+                className="flex justify-center items-center gap-[1px] w-full text-[var(--ambient)] transition-colors duration-300 bg-[hsl(var(--foreground)/0.025)] border border-[hsl(var(--foreground)/0.05)] py-3 rounded-2xl cursor-pointer interact-buttons"
               >
                 <IoPlay size={20} />
                 Play
@@ -263,7 +263,7 @@ export default function PlaylistPage() {
                   backgroundColor: "rgba(255, 255, 255, 0.1)",
                 }}
                 onClick={shufflePlaylist} // Handle the next button click
-                className="flex justify-center items-center gap-[1px] w-full text-[var(--ambient)] bg-[hsl(var(--foreground)/0.025)] border border-[hsl(var(--foreground)/0.05)] py-3 rounded-2xl cursor-pointer interact-buttons"
+                className="flex justify-center items-center gap-[1px] w-full text-[var(--ambient)] transition-colors duration-300 bg-[hsl(var(--foreground)/0.025)] border border-[hsl(var(--foreground)/0.05)] py-3 rounded-2xl cursor-pointer interact-buttons"
               >
                 <IoShuffle size={20} />
                 Shuffle
@@ -302,7 +302,7 @@ export default function PlaylistPage() {
                   isPlaying ? (
                     <PlayingIcon className="" size={18} />
                   ) : (
-                    <PausedIcon className="color-[var(--ambient)]" size={18} />
+                    <PausedIcon className="color-[var(--ambient)] transition-all duration-300" size={18} />
                   )
                 ) : (
                   <span>{index + 1}</span>
