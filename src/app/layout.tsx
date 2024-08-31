@@ -251,11 +251,13 @@ export default function RootLayout({
             {children}
             <Navbar />
             <Toaster
-              position="top-center"
+              position="bottom-center"
               toastOptions={{
                 style: {
                   padding: "16px",
                   borderRadius: "16px",
+                  background: "#0c0c0c",
+                  color: "#fff",
                 },
                 success: {
                   duration: 3000,

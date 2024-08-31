@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLibrary } from "../../hooks/useLibrary";
 import {
   Heading,
@@ -62,12 +62,20 @@ export default function Library() {
   const [isCopied, setIsCopied] = useState(false);
   const [libraryName, setLibraryName] = useState("");
   const [canNameLibrary, setCanNameLibrary] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (globalLibraryKey) {
       fetchLibraryData(globalLibraryKey);
     }
   }, [globalLibraryKey]);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
 
   const fetchLibraryData = async (key: string) => {
     try {
@@ -206,31 +214,11 @@ export default function Library() {
     }
   };
 
-  // const handleImportLibrary = () => {
-  //   console.log("handleImportLibrary");
-  // }
-
-  // const handleCreateLibrary = () => {
-  //   console.log("handleCreateLibrary");
-  // }
-
-  // const handleDeleteLibrary = () => {
-  //   console.log("handleDeleteLibrary");
-  // }
-
-  // const copyKeyToClipboard = () => {
-  //   console.log("copyKeyToClipboard");
-  // }
-
-  // const toggleKeyVisibility = () => {
-  //   console.log("toggleKeyVisibility");
-  // }
-
-  // const handlePlayAll = () => {
-  //   console.log("handlePlayAll");
-  // }
-
-  // const library = true
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSaveLibraryName();
+    }
+  };
 
   return (
     <>
@@ -284,22 +272,29 @@ export default function Library() {
             <div>
               {canNameLibrary && (
                 <>
-                  <SubHeading>{libraryName || " "}</SubHeading>
-                  <div className="flex gap-2 w-full mb-1">
-                    <Input
-                      type="text"
-                      value={libraryName}
-                      onChange={(e) => setLibraryName(e.target.value)}
-                      placeholder="Enter library name"
-                      icon={<IoPencil className="text-muted-foreground" />}
-                    />
-                    <button
-                      className="min-w-[7.25rem] transition-all duration-150 max-sm:w-full py-1 px-1 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
-                      onClick={handleSaveLibraryName}
+                  <div className="flex items-center gap-2 mb-2">
+                    {isEditing ? (
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        value={libraryName}
+                        onChange={(e) => setLibraryName(e.target.value)}
+                        onBlur={handleSaveLibraryName}
+                        onKeyDown={handleKeyDown}
+                        className="bg-transparent border-none focus:outline-none text-2xl font-bold"
+                        autoFocus
+                      />
+                    ) : (
+                      <SubHeading onClick={() => setIsEditing(true)}>
+                        {libraryName || "Untitled Library"}
+                      </SubHeading>
+                    )}
+                    {/* <button
+                      onClick={() => setIsEditing(!isEditing)}
+                      className="text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      <p>Save</p>
-                      <IoSaveOutline />
-                    </button>
+                      <IoPencil size={16} />
+                    </button> */}
                   </div>
                 </>
               )}

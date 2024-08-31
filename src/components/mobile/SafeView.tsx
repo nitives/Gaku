@@ -45,14 +45,16 @@ export const SubHeading = ({
   subtitle,
   className,
   link,
+  onClick,
 }: {
   children: ReactNode;
   subtitle?: string;
   className?: string;
   link?: string;
+  onClick?: () => void;
 }) => {
   return (
-    <div className={`${className}`}>
+    <div onClick={onClick} className={`${className}`}>
       <h1 className="text-2xl font-bold flex items-center gap-2">
         {link ? (
           <motion.button

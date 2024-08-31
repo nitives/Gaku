@@ -35,6 +35,13 @@ export const PersistentAudioPlayer = () => {
 
   if (!playlistUrl || !currentTrack) return null;
 
+  // console.log("PersistentAudioPlayer");
+  // console.log("PersistentAudioPlayer | currentTrack:", currentTrack);
+  // console.log(
+  //   "PersistentAudioPlayer | currentTrack Username:",
+  //   currentTrack.user.username
+  // );
+
   return (
     <div className="pb-[20rem] z-[200] absolute">
       <AudioPlayerHLS
@@ -42,7 +49,7 @@ export const PersistentAudioPlayer = () => {
         img={cover || currentTrack.artwork_url || ""}
         // title={artistNameRemove(currentTrack.user.username, currentTrack.title)}
         title={currentTrack.title}
-        artist={currentTrack.user?.username}
+        artist={currentTrack.user?.username || currentTrack.artist}
         album={currentTrack.publisher_metadata?.album_title || ""}
         src={playlistUrl}
         isExplicit={currentTrack.publisher_metadata?.explicit === true}

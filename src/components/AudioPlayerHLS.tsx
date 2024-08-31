@@ -20,6 +20,7 @@ import "../styles/overlay.css";
 import "../styles/playercontrols.css";
 import { ImageBlur } from "./ImageBlur";
 import { BubbleChat, XMark } from "react-ios-icons";
+import { useTheme } from "next-themes";
 
 export const AudioPlayerHLS = ({
   src,
@@ -248,6 +249,8 @@ const ExpandedPlayerControls = ({
 }) => {
   const [localPlayed, setLocalPlayed] = useState(played * duration);
   const [showLyrics, setShowLyrics] = useState(false);
+  const [previousVolume, setPreviousVolume] = useState(volume);
+  const { theme } = useTheme();
 
   // Load current volume to slider visual on first load
   useEffect(() => {
@@ -275,6 +278,7 @@ const ExpandedPlayerControls = ({
   }, []);
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMuted(false);
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
     document.documentElement.style.setProperty(
@@ -284,7 +288,14 @@ const ExpandedPlayerControls = ({
   };
 
   const handleMute = () => {
-    setMuted(!muted);
+    if (muted) {
+      setMuted(false);
+      setVolume(previousVolume);
+    } else {
+      setPreviousVolume(volume);
+      setMuted(true);
+      setVolume(0);
+    }
   };
 
   const handlePlayPause = () => {
@@ -395,7 +406,12 @@ const ExpandedPlayerControls = ({
               >
                 <Image
                   className="rounded-lg w-full h-full object-cover"
-                  src={img || ""}
+                  src={
+                    img ||
+                    (theme === "light"
+                      ? "/assets/placeholders/missing_song_light.png"
+                      : "/assets/placeholders/missing_song_dark.png")
+                  }
                   alt={title || ""}
                   width={336}
                   height={336}
@@ -439,7 +455,9 @@ const ExpandedPlayerControls = ({
                     className="pb-4"
                   >
                     <span className="right-[0.625rem] relative font-semibold text-white/90">
-                      <TitleOverflowAnimator className='!w-[90vw]'>{title}</TitleOverflowAnimator>
+                      <TitleOverflowAnimator className="!w-[90vw]">
+                        {title}
+                      </TitleOverflowAnimator>
                     </span>
                     <p className="text-white/50 text-sm">{artist}</p>
                   </motion.div>
@@ -479,9 +497,14 @@ const ExpandedPlayerControls = ({
                   <IoPlayBack size={40} />
                 </motion.button>
                 <motion.button
+                  whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
                   onClick={handlePlayPause}
-                  whileTap={{ scale: 0.85 }}
+                  whileTap={{
+                    scale: 0.85,
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  }}
                   transition={{ duration: 0.1, ease: "easeInOut" }}
+                  className="flex flex-col items-center rounded-full p-2"
                 >
                   {playing ? <IoPause size={40} /> : <IoPlay size={40} />}
                 </motion.button>
@@ -500,12 +523,23 @@ const ExpandedPlayerControls = ({
               </div>
               {!isStandalone && (
                 <div className="flex items-center gap-2 w-full text-white">
-                  <motion.button
+                  {/* <motion.button
                     whileTap={{ scale: 0.85 }}
                     transition={{ duration: 0.1, ease: "easeInOut" }}
                     onClick={handleMute}
                   >
                     <IoVolumeOff size={30} />
+                  </motion.button> */}
+                  <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    transition={{ duration: 0.1, ease: "easeInOut" }}
+                    onClick={handleMute}
+                  >
+                    {muted ? (
+                      <IoVolumeMute size={30} />
+                    ) : (
+                      <IoVolumeMedium size={30} />
+                    )}
                   </motion.button>
 
                   <motion.input
@@ -519,18 +553,6 @@ const ExpandedPlayerControls = ({
                     value={volume}
                     onChange={handleVolumeChange}
                   />
-
-                  <motion.button
-                    whileTap={{ scale: 0.85 }}
-                    transition={{ duration: 0.1, ease: "easeInOut" }}
-                    onClick={handleMute}
-                  >
-                    {muted ? (
-                      <IoVolumeMute size={30} />
-                    ) : (
-                      <IoVolumeMedium size={30} />
-                    )}
-                  </motion.button>
                 </div>
               )}
               <div className="w-full flex justify-between py-2 h-10">
@@ -793,14 +815,20 @@ export const NavbarMiniControls = ({
   onNext?: () => void;
   onExpand?: () => void;
 }) => {
+  const { theme } = useTheme();
   return (
     <div className="navbar-mini-container">
       <div className="w-full h-fit mini-control backdrop-blur-lg p-2 rounded-[14px] flex justify-between bg-background/20 dark:bg-card/75">
         <div onClick={onExpand} className="flex items-center w-full">
           <Image
             className="size-11 rounded-lg"
-            src={img || ""}
-            alt={title || ""}
+            src={
+              img ||
+              (theme === "light"
+                ? "/assets/placeholders/missing_song_light.png"
+                : "/assets/placeholders/missing_song_dark.png")
+            }
+            alt={title || "Missing Image"}
             width={200}
             height={200}
             unoptimized={true}

@@ -13,7 +13,7 @@ type AudioContextType = {
   setHDCover: (cover: any) => void;
   playNextTrack: () => void;
   playPreviousTrack: () => void;
-  setGlobalPlaylist: (tracks: any[]) => void; // Add this line to set the playlist
+  setGlobalPlaylist: (tracks: any[]) => void;
 };
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -31,25 +31,25 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     setPlaylist(tracks);
   };
 
+  const fetchCover = async (query: string) => {
+    const url = encodeURIComponent(query);
+    const response = await fetch(`/api/extra/cover/${url}`);
+    console.log("fetchCover | response:", response);
+    const data = await response.json();
+    console.log("fetchCover | Query:", query, "img:", data);
+    setHDCover(data.imageUrl);
+  };
+
   const playNextTrack = async () => {
     console.log("Playing next track...");
     console.log("Current track:", currentTrack);
     console.log("Playlist:", playlist);
     console.log("Playlist URL:", playlistUrl);
-    console.log(
-      "Current index:",
-      playlist.findIndex((track) => track.id === currentTrack.id)
-    );
-    console.log(
-      "Next track:",
-      playlist[playlist.findIndex((track) => track.id === currentTrack.id) + 1]
-    );
-    console.log("Playlist length:", playlist.length);
-    console.log("----------------------------");
     if (currentTrack && playlist.length > 0) {
       const currentIndex = playlist.findIndex(
         (track) => track.id === currentTrack.id
       );
+      console.log("Current index:", currentIndex);
       if (currentIndex < playlist.length - 1) {
         const nextTrack = playlist[currentIndex + 1];
         console.log("Next track:", nextTrack);
@@ -57,27 +57,49 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
         const response = await fetch(`/api/track/info/${nextTrack.id}`);
         const nextTrackData = await response.json();
         console.log("Next track data:", nextTrackData);
-        setPlaylistUrl(await fetchPlaylistM3U8(nextTrackData.permalink_url)); // Update the URL to play the next track
-        setHDCover(nextTrackData.artwork_url);
+        setPlaylistUrl(await fetchPlaylistM3U8(nextTrackData.permalink_url));
+
+        // Fetch HD cover
+        await fetchCover(nextTrackData.permalink_url);
+      } else {
+        console.log("Reached end of playlist");
       }
+    } else {
+      console.log("No current track or empty playlist");
     }
+    console.log("----------------------------");
   };
 
   const playPreviousTrack = async () => {
+    console.log("Playing previous track...");
+    console.log("Current track:", currentTrack);
+    console.log("Playlist:", playlist);
+    console.log("Playlist URL:", playlistUrl);
     if (currentTrack && playlist.length > 0) {
       const currentIndex = playlist.findIndex(
         (track) => track.id === currentTrack.id
       );
+      console.log("Current index:", currentIndex);
       if (currentIndex > 0) {
         const previousTrack = playlist[currentIndex - 1];
+        console.log("Previous track:", previousTrack);
         setCurrentTrack(previousTrack);
         const response = await fetch(`/api/track/info/${previousTrack.id}`);
         const previousTrackData = await response.json();
+        console.log("Previous track data:", previousTrackData);
         setPlaylistUrl(
           await fetchPlaylistM3U8(previousTrackData.permalink_url)
-        ); // Update the URL to play the previous track
+        );
+
+        // Fetch HD cover
+        await fetchCover(previousTrackData.permalink_url);
+      } else {
+        console.log("Reached beginning of playlist");
       }
+    } else {
+      console.log("No current track or empty playlist");
     }
+    console.log("----------------------------");
   };
 
   return (
@@ -93,7 +115,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
         setHDCover,
         playNextTrack,
         playPreviousTrack,
-        setGlobalPlaylist, // Add this to the context value
+        setGlobalPlaylist,
       }}
     >
       {children}
