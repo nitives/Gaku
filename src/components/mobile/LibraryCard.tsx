@@ -3,15 +3,19 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "../ui/skeleton";
 import "../../styles/album.css";
 import { useTheme } from "next-themes";
+import Loader from "react-loaders";
+import "loaders.css";
 
 export const LibraryCard = ({
   songId,
   onClick,
   isExplicit,
+  isPlaying,
 }: {
   songId: string;
   onClick: () => void;
   isExplicit?: boolean;
+  isPlaying?: boolean;
 }) => {
   const [songData, setSongData] = useState<any>(null);
   const { theme } = useTheme();
@@ -42,6 +46,15 @@ export const LibraryCard = ({
       >
         <div className="size-12">
           <div className="album-container album-shadow !w-12 !mb-0">
+            {isPlaying && (
+              <div className="size-full bg-black/50 absolute rounded-md flex items-center justify-center">
+                <Loader
+                  innerClassName="scale-[0.4] *:!bg-white"
+                  type="line-scale-pulse-out"
+                  active
+                />
+              </div>
+            )}
             <Image
               width={1000}
               height={1000}

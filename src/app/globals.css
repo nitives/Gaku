@@ -131,6 +131,10 @@
   transition-duration: 0.5s;
 }
 
+input[type="range"] {
+  transition: all 0.1s ease;
+}
+
 /* Page */
 
 .page {

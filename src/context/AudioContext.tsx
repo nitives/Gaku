@@ -21,7 +21,7 @@ const AudioContext = createContext<AudioContextType | undefined>(undefined);
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [currentTrack, setCurrentTrack] = useState<any>(null);
+  const [currentTrack, setCurrentTrack] = useState<any>('');
   const [playlistUrl, setPlaylistUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [cover, setHDCover] = useState<any>(null);

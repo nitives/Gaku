@@ -56,7 +56,8 @@ export default function Library() {
     globalLibraryKey,
   } = useLibrary();
 
-  const { setPlaylistUrl, setCurrentTrack, setIsPlaying } = useAudio();
+  const { setPlaylistUrl, setCurrentTrack, setIsPlaying, currentTrack } =
+    useAudio();
   const [importKey, setImportKey] = useState("");
   const [isKeyHidden, setIsKeyHidden] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
@@ -64,6 +65,7 @@ export default function Library() {
   const [canNameLibrary, setCanNameLibrary] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [playingId, setPlayingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (globalLibraryKey) {
@@ -76,6 +78,12 @@ export default function Library() {
       inputRef.current.focus();
     }
   }, [isEditing]);
+
+  useEffect(() => {
+    if (currentTrack) {
+      setPlayingId(currentTrack.id);
+    }
+  }, [currentTrack]);
 
   const fetchLibraryData = async (key: string) => {
     try {
@@ -298,17 +306,17 @@ export default function Library() {
                   </div>
                 </>
               )}
-              <button
-                className="min-w-[7.25rem] transition-all duration-150 max-sm:w-full py-1 px-1 mb-1 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
-                onClick={handlePlayAll}
-              >
-                <>
-                  <p>Play All</p>
-                  <IoPlay />
-                </>
-              </button>
               <div className="grid gap-2">
                 <div className="flex gap-1 w-full">
+                  <button
+                    className="min-w-fit transition-all duration-150 max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
+                    onClick={handlePlayAll}
+                  >
+                    <>
+                      <p>Play All</p>
+                      <IoPlay />
+                    </>
+                  </button>
                   <button
                     className="min-w-[7.25rem] transition-all duration-150 max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
                     onClick={toggleKeyVisibility}
@@ -404,6 +412,7 @@ export default function Library() {
                       key={song.id}
                       songId={song.id}
                       onClick={() => handlePlaySong(song.id)}
+                      isPlaying={playingId == song.id}
                     />
                   ))}
                 </ul>

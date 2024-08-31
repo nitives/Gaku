@@ -490,7 +490,7 @@ const ExpandedPlayerControls = ({
                     scale: 0.85,
                     backgroundColor: "rgba(255, 255, 255, 0.1)",
                   }}
-                  transition={{ duration: 0.125, ease: "easeInOut" }}
+                  transition={{ duration: 0.1, ease: "easeInOut" }}
                   onClick={onPrevious}
                   className="flex flex-col items-center rounded-full p-2"
                 >
@@ -514,7 +514,7 @@ const ExpandedPlayerControls = ({
                     scale: 0.85,
                     backgroundColor: "rgba(255, 255, 255, 0.1)",
                   }}
-                  transition={{ duration: 0.125, ease: "easeInOut" }}
+                  transition={{ duration: 0.1, ease: "easeInOut" }}
                   onClick={onNext}
                   className="flex flex-col items-center rounded-full p-2"
                 >
