@@ -127,9 +127,11 @@ export default function Library() {
   };
 
   const handleSaveLibraryName = async () => {
-    if (library && libraryName.trim()) {
+    if (library) {
+      const nameToSave = libraryName.trim() || "My Library";
       try {
-        await updateLibraryName(library.key, libraryName.trim());
+        await updateLibraryName(library.key, nameToSave);
+        setLibraryName(nameToSave);
         toast.success("Library name saved successfully");
       } catch (error) {
         toast.error("Error saving library name");
@@ -225,6 +227,10 @@ export default function Library() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSaveLibraryName();
+      setIsEditing(false);
+      if (inputRef.current) {
+        inputRef.current.blur();
+      }
     }
   };
 
@@ -289,7 +295,8 @@ export default function Library() {
                         onChange={(e) => setLibraryName(e.target.value)}
                         onBlur={handleSaveLibraryName}
                         onKeyDown={handleKeyDown}
-                        className="bg-transparent border-none focus:outline-none text-2xl font-bold"
+                        placeholder="My Library"
+                        className="bg-transparent border-none focus:outline-none text-2xl font-bold placeholder:text-foreground/50"
                         autoFocus
                       />
                     ) : (
