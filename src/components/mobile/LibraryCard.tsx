@@ -31,7 +31,7 @@ export const LibraryCard = ({
   }, [songId]);
 
   if (!songData) {
-    return <LibraryCardSkeleton />; // or a skeleton loader
+    return <LibraryCardSkeleton />;
   }
 
   return (
