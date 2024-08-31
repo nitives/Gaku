@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 
-const clientID = "lPP5wRG1UkRxNZhnYd7OVc4umoqzySTZ";
+const clientID = process.env.SOUNDCLOUD_CLIENT_ID;
 
 export default async function handler(
   req: NextApiRequest,

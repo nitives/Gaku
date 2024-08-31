@@ -58,6 +58,23 @@ export async function fetchPlaylistM3U8(trackUrl: string) {
   }
 }
 
+export async function fetchUserData(trackUrl: string) {
+  try {
+    const response = await fetch(
+      `/api/soundcloud/user/userData?profileUrl=${encodeURIComponent(
+        trackUrl
+      )}`
+    );
+    console.log("fetchUserData | response:", response);
+    if (!response.ok) throw new Error("Failed to fetch users data");
+    const data = await response.json();
+    console.log("API fetchUserData | data:", data);
+    return data.playlistUrl;
+  } catch (error) {
+    console.error("Error fetching users data | fetchUserData:", error);
+  }
+}
+
 export async function fetchLyrics(title: string, artist: string) {
   try {
     const response = await fetch(

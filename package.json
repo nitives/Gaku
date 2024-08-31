@@ -37,7 +37,8 @@
     "react-player": "^2.16.0",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
-    "tailwindcss-displaymodes": "^1.0.8"
+    "tailwindcss-displaymodes": "^1.0.8",
+    "vaul": "^0.9.1"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.7",

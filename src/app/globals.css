@@ -290,7 +290,7 @@ input[type="range"] {
     ); */
   }
   .navbar-icon-title {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 500;
   }
   .navbar-mini-container {
@@ -400,3 +400,25 @@ input[type="range"] {
     mask: linear-gradient(180deg, black 0%, black 75%, transparent 99%);
   }
 }
+
+/* Album Animated */
+
+.album-animated-blur {
+  backdrop-filter: blur(15px);
+  mask: linear-gradient(0deg, black 0%, black 75%, transparent 99%);
+}
+
+/* .animated-video-container {
+  background-color: var(--apple-animated-bg-color);
+  & div {
+    mask-image: linear-gradient(
+      to left,
+      rgba(0, 0, 0, 0) 42%,
+      rgb(0, 0, 0) 45%,
+      rgb(0, 0, 0) 55%,
+      rgba(0, 0, 0, 0) 58%
+    );
+  }
+} */
+
+/* Album Animated - END */

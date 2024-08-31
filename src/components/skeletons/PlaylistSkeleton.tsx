@@ -3,12 +3,11 @@ import { BackButton, SafeView } from "../mobile/SafeView";
 
 export const PlaylistSkeleton = () => {
   return (
-    <SafeView className="z-10 relative">
-      <BackButton />
+    <SafeView backButton className="z-10 relative">
       <div className="flex flex-col items-center justify-center gap-1 bg-blend-overlay pt-4">
         <div className="album-container album-shadow">
           {/* Album Cover Skeleton */}
-          <Skeleton className="w-[300px] h-[300px] rounded-2xl" />
+          <Skeleton className="w-[235px] h-[235px] rounded-2xl" />
           <div className="album-border" />
         </div>
 

@@ -14,21 +14,33 @@ import Link from "next/link";
 interface SafeViewProps {
   children?: ReactNode;
   className?: string;
+  backButton?: boolean;
 }
 
-export const SafeView: React.FC<SafeViewProps> = ({ children, className }) => {
+export const SafeView: React.FC<SafeViewProps> = ({
+  children,
+  className = "",
+  backButton,
+}) => {
   return (
-    <div
-      className={`${className} pt-8 standalone:pt-16 pb-40 px-5 min-w-screen min-h-screen select-none`}
-    >
-      {children ? children : <p>No content available</p>}
-    </div>
+    <>
+      {backButton ? (
+        <div className="z-50 relative pt-5 standalone:pt-0">
+          <BackButton />
+        </div>
+      ) : null}
+      <div
+        className={`${className} pt-8 standalone:pt-12 pb-40 px-5 min-w-screen min-h-screen select-none`}
+      >
+        {children ? children : <p>No content available</p>}
+      </div>
+    </>
   );
 };
 
 export const Heading = ({
   children,
-  className,
+  className = "",
 }: {
   children: ReactNode;
   className?: string;
@@ -43,7 +55,7 @@ export const Heading = ({
 export const SubHeading = ({
   children,
   subtitle,
-  className,
+  className = "",
   link,
   onClick,
 }: {
@@ -272,18 +284,15 @@ export const BackButton = ({ className }: { className?: string }) => {
   };
   return (
     <motion.button
-      initial={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
-      whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
       whileTap={{
         scale: 0.9,
         backgroundColor: "rgba(255, 255, 255, 0.15)",
       }}
       transition={{ duration: 0.125, ease: "easeInOut" }}
-      // className="flex flex-col items-center rounded-full p-2"
       onClick={handleBack}
-      className={`${className} flex items-center space-x-2 p-2 cursor-pointer rounded-[50%] sm:bg-[#c7c7c75c] sm:hover:bg-[#ffffff40] transition-colors ease-out`}
+      className={`${className} flex items-center space-x-2 p-2 max-sm:pl-0 cursor-pointer rounded-[50%] bg-[#00000000] hover:bg-[#00000000] sm:bg-[#c7c7c75c] sm:hover:bg-[#ffffff40] transition-colors ease-out`}
     >
-      <IoIosArrowBack size={24} />
+      <IoIosArrowBack size={30} />
       <span className="sr-only">Back</span>
     </motion.button>
   );

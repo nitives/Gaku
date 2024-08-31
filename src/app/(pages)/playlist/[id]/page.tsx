@@ -15,7 +15,8 @@ import { useAudio } from "@/context/AudioContext";
 import { PlaylistSkeleton } from "@/components/skeletons/PlaylistSkeleton";
 import { useLibrary } from "@/hooks/useLibrary";
 import { PausedIcon, PlayingIcon } from "@/components/Icons/PlayingIcon";
-import AnimatedCover from "@/components/AnimatedCover";
+import AnimatedCover, { AnimatedCoverFull } from "@/components/AnimatedCover";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 export default function PlaylistPage() {
   const {
@@ -57,6 +58,7 @@ export default function PlaylistPage() {
 
   console.log("playing:", globalCurrentTrack, isPlaying);
   console.log("playlist:", playlist);
+  const isDesktop = useMediaQuery("(min-width: 484px)");
 
   const fetchPlaylist = async (playlistID: string) => {
     const response = await fetch(`/api/playlist/${playlistID}`);
@@ -172,6 +174,18 @@ export default function PlaylistPage() {
     setPageTitle();
   }, [globalCurrentTrack?.title]);
 
+  useEffect(() => {
+    const bgColor =
+      apple?.data[0]?.attributes?.editorialVideo?.motionDetailSquare
+        ?.previewFrame?.bgColor;
+    if (bgColor) {
+      document.documentElement.style.setProperty(
+        "--apple-animated-bg-color",
+        `#${bgColor}`
+      );
+    }
+  }, [apple]);
+
   if (!playlist) return <PlaylistSkeleton />;
 
   console.log("playlist.tracks:", playlist.tracks);
@@ -180,25 +194,74 @@ export default function PlaylistPage() {
     "Ani COVER:",
     apple?.data[0]?.attributes?.editorialVideo?.motionDetailSquare
   );
+  console.log(
+    "Album Cover bgColor:",
+    apple?.data[0].attributes?.editorialVideo?.motionDetailSquare.previewFrame
+      .bgColor
+  );
+
+  const animated = !!apple?.data[0]?.attributes?.editorialVideo;
 
   return (
     <>
-      <SafeView className="z-10 relative">
+      <SafeView backButton className="z-10 relative !pt-0 !px-0">
         {cover && <ColorGen src={cover || playlist?.tracks[0].artwork_url} />}
-        <BackButton />
+        <div className="flex flex-col items-center justify-center gap-1 bg-blend-overlay pt-4 max-sm:pt-1">
+          {animated ? (
+            <>
+              {!isDesktop ? (
+                <>
+                  <AnimatedCoverFull
+                    hlsUrl={
+                      apple.data[0].attributes.editorialVideo.motionDetailSquare
+                        .video
+                    }
+                  />
+                </>
+              ) : (
+                <>
+                  <div className="album-container album-shadow">
+                    <div className="rounded-[16px] overflow-hidden">
+                      <AnimatedCover
+                        hlsUrl={
+                          apple.data[0].attributes.editorialVideo
+                            .motionDetailSquare.video
+                        }
+                      />
+                    </div>
+                    <div className="album-border" />
+                  </div>
+                </>
+              )}
 
-        <div className="flex flex-col items-center justify-center gap-1 bg-blend-overlay pt-4">
-          <div className="album-container album-shadow">
-            {apple?.data[0]?.attributes?.editorialVideo?.motionDetailSquare ? (
-              <div className="rounded-[16px] overflow-hidden">
-                <AnimatedCover
-                  hlsUrl={
-                    apple.data[0].attributes.editorialVideo.motionDetailSquare
-                      .video
+              {/* <AnimatedCoverFull
+                hlsUrl={
+                  apple.data[0].attributes.editorialVideo.motionDetailSquare
+                    .video
+                }
+              /> */}
+              {/* <div className="album-container opacity-0 album-shadow">
+                <Image
+                  src={
+                    cover ||
+                    playlist?.tracks[0].artwork_url ||
+                    globalCurrentTrack?.artwork_url ||
+                    ""
                   }
+                  alt={`${playlist.title} Album Cover`}
+                  title={`${playlist.title} Album Cover`}
+                  width={300}
+                  height={300}
+                  className="album-cover-img"
+                  draggable={false}
+                  unoptimized={true}
                 />
-              </div>
-            ) : (
+
+                <div className="album-border" />
+              </div> */}
+            </>
+          ) : (
+            <div className="album-container album-shadow">
               <Image
                 src={
                   cover ||
@@ -214,117 +277,154 @@ export default function PlaylistPage() {
                 draggable={false}
                 unoptimized={true}
               />
-            )}
-            <div className="album-border" />
-          </div>
 
-          <div className="flex flex-col items-center justify-center">
-            <p className="album:title font-bold text-xl">{playlist.title}</p>
-            <Link
-              href={`/artist/${playlist.user.id}/${playlist.user.username
-                .toLowerCase()
-                .replace(/\s+/g, "-")}`}
-              className="text-[var(--ambient)] transition-colors duration-300 text-center cursor-pointer"
-            >
-              {playlist.user.username}
-            </Link>
-            <div className="flex flex-col text-xs items-center justify-center">
-              <p className="font-normal text-sm text-muted-foreground dark:text-muted-foreground/50 text-center w-56 flex items-center justify-center gap-1">
-                <span className="whitespace-nowrap">
-                  {apple?.data[0]?.attributes?.genreNames?.[0] ??
-                    playlist.genre}
-                </span>
-                ·
-                <span title={formatDate(playlist.created_at)}>
-                  {formatDate(playlist.created_at, "year")}
-                </span>
-                ·
-                <Lossless className="fill-muted-foreground dark:fill-muted-foreground/50 font-normal" />
+              <div className="album-border" />
+            </div>
+          )}
+          <div className="px-5 w-full">
+            <div className="flex flex-col items-center justify-center">
+              <p className="album:title font-medium text-xl">
+                {playlist.title}
               </p>
-            </div>
-          </div>
-
-          <div className="pb-5 pt-2 w-full">
-            <div className="flex justify-between items-start gap-5">
-              <motion.button
-                whileTap={{
-                  scale: 0.95,
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                }}
-                onClick={() => playTrack(playlist.tracks[0], 0)}
-                className="flex justify-center items-center gap-[1px] w-full text-[var(--ambient)] transition-colors duration-300 bg-[hsl(var(--foreground)/0.025)] border border-[hsl(var(--foreground)/0.05)] py-3 rounded-2xl cursor-pointer interact-buttons"
+              <Link
+                href={`/artist/${playlist.user.id}/${playlist.user.username
+                  .toLowerCase()
+                  .replace(/\s+/g, "-")}`}
+                className={`${
+                  animated ? "text-white/90" : "text-[var(--ambient)]"
+                }  transition-colors duration-300 text-center cursor-pointer text-xl`}
               >
-                <IoPlay size={20} />
-                Play
-              </motion.button>
-              <motion.button
-                whileTap={{
-                  scale: 0.95,
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                }}
-                onClick={shufflePlaylist} // Handle the next button click
-                className="flex justify-center items-center gap-[1px] w-full text-[var(--ambient)] transition-colors duration-300 bg-[hsl(var(--foreground)/0.025)] border border-[hsl(var(--foreground)/0.05)] py-3 rounded-2xl cursor-pointer interact-buttons"
-              >
-                <IoShuffle size={20} />
-                Shuffle
-              </motion.button>
-            </div>
-            <AnimatePresence>
-              {apple?.data[0].attributes?.editorialNotes?.short ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="w-full justify-center flex pt-3"
+                {playlist.user.username}
+              </Link>
+              <div className="flex flex-col text-xs items-center justify-center mt-2 font-medium">
+                <p
+                  className={` ${
+                    animated
+                      ? "text-white/75"
+                      : "text-muted-foreground dark:text-muted-foreground/50"
+                  } text-[0.875rem] text-center w-56 flex items-center justify-center gap-1`}
                 >
-                  <p className="font-normal text-sm text-muted-foreground dark:text-muted-foreground/50 text-center flex items-center justify-center">
-                    {apple?.data[0].attributes.editorialNotes.short}
-                  </p>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        <ul className="music-cards">
-          {playlist.tracks.map((track: any, index: number) => (
-            <li
-              key={track.id}
-              className="cursor-pointer flex items-center justify-between"
-            >
-              <div
-                onClick={() => playTrack(track, index)}
-                className="flex items-center"
-              >
-                {globalCurrentTrack && globalCurrentTrack.id === track.id ? (
-                  isPlaying ? (
-                    <PlayingIcon className="" size={18} />
-                  ) : (
-                    <PausedIcon
-                      className="color-[var(--ambient)] transition-all duration-300"
-                      size={18}
-                    />
-                  )
-                ) : (
-                  <span>{index + 1}</span>
-                )}
-                {artistNameRemove(playlist.user.username, track.title)}
-              </div>
-              <button onClick={() => handleLikeToggle(track)} className="ml-2">
-                {isSongInLibrary(`${track.title}-${playlist.user.username}`) ? (
-                  <IoHeart className="scale-y-[.95] text-red-500" size={24} />
-                ) : (
-                  <IoHeartOutline
-                    className="scale-y-[.95] text-muted-foreground/30"
-                    size={24}
+                  <span className="whitespace-nowrap">
+                    {apple?.data[0]?.attributes?.genreNames?.[0] ??
+                      playlist.genre}
+                  </span>
+                  ·
+                  <span title={formatDate(playlist.created_at)}>
+                    {formatDate(playlist.created_at, "year")}
+                  </span>
+                  ·
+                  <Lossless
+                    className={`${
+                      animated
+                        ? "fill-white/75"
+                        : "fill-muted-foreground dark:fill-muted-foreground/50"
+                    }`}
                   />
-                )}
-              </button>
-            </li>
-          ))}
-        </ul>
+                </p>
+              </div>
+            </div>
+
+            <div className="pb-5 pt-4 w-full">
+              <div className="flex justify-between items-start gap-5">
+                <motion.button
+                  whileTap={{
+                    scale: 0.95,
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  }}
+                  onClick={() => playTrack(playlist.tracks[0], 0)}
+                  className={`flex justify-center items-center gap-[1px] w-full transition-colors duration-300 ${
+                    animated
+                      ? "bg-white/20 backdrop-blur-md text-white"
+                      : "bg-[hsl(var(--foreground)/0.025)] border border-[hsl(var(--foreground)/0.05)] text-[var(--ambient)]"
+                  } py-3.5 rounded-2xl cursor-pointer interact-buttons`}
+                >
+                  <IoPlay size={20} />
+                  Play
+                </motion.button>
+                <motion.button
+                  whileTap={{
+                    scale: 0.95,
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  }}
+                  onClick={shufflePlaylist} // Handle the next button click
+                  className={`flex justify-center items-center gap-[1px] w-full transition-colors duration-300 ${
+                    animated
+                      ? "bg-white/20 backdrop-blur-md text-white"
+                      : "bg-[hsl(var(--foreground)/0.025)] border border-[hsl(var(--foreground)/0.05)] text-[var(--ambient)]"
+                  } py-3.5 rounded-2xl cursor-pointer interact-buttons`}
+                >
+                  <IoShuffle size={20} />
+                  Shuffle
+                </motion.button>
+              </div>
+              <AnimatePresence>
+                {apple?.data[0].attributes?.editorialNotes?.short ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="w-full justify-center flex pt-3"
+                  >
+                    <p
+                      className={`${
+                        animated
+                          ? "text-white/55"
+                          : "text-muted-foreground dark:text-muted-foreground/50"
+                      } text-sm font-[450] flex items-center justify-center`}
+                    >
+                      {apple?.data[0].attributes.editorialNotes.short}
+                    </p>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          <ul className="music-cards w-full">
+            {playlist.tracks.map((track: any, index: number) => (
+              <li
+                key={track.id}
+                className="cursor-pointer flex items-center justify-between"
+              >
+                <div
+                  onClick={() => playTrack(track, index)}
+                  className="flex items-center"
+                >
+                  {globalCurrentTrack && globalCurrentTrack.id === track.id ? (
+                    isPlaying ? (
+                      <PlayingIcon className="" size={18} />
+                    ) : (
+                      <PausedIcon
+                        className="color-[var(--ambient)] transition-all duration-300"
+                        size={18}
+                      />
+                    )
+                  ) : (
+                    <span>{index + 1}</span>
+                  )}
+                  {artistNameRemove(playlist.user.username, track.title)}
+                </div>
+                <button
+                  onClick={() => handleLikeToggle(track)}
+                  className="ml-2"
+                >
+                  {isSongInLibrary(
+                    `${track.title}-${playlist.user.username}`
+                  ) ? (
+                    <IoHeart className="scale-y-[.95] text-red-500" size={24} />
+                  ) : (
+                    <IoHeartOutline
+                      className="scale-y-[.95] text-muted-foreground/30"
+                      size={24}
+                    />
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       </SafeView>
-      <motion.div
+      {/* <motion.div
         className="min-h-screen min-w-screen opacity-50 flex justify-center absolute items-center z-[1] top-[-35rem]"
         initial={{ opacity: 0 }}
         animate={{ opacity: isPlaying ? 1 : 0 }}
@@ -332,7 +432,7 @@ export default function PlaylistPage() {
         key="ambient-bg-animation" // key ensures the animation triggers when added
       >
         <div className="ambient-bg" />
-      </motion.div>
+      </motion.div> */}
     </>
   );
 }

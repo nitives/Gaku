@@ -53,7 +53,7 @@ export const Navbar = ({
         <motion.div whileTap={{ scale: 0.925 }}>
           <Link href={"/search"} className="flex flex-col items-center">
             <IoSearch
-              className={`navbar-icon ${
+              className={`navbar-icon ${ 
                 isLinkActive("/search") ? "text-ambient" : "text-foreground/30"
               }`}
               size={30}
