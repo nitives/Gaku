@@ -34,7 +34,7 @@ export const AnimatedCoverFull: React.FC<AnimatedCoverProps> = ({ hlsUrl }) => {
               playing={true}
               loop={true}
               muted={true}
-              height={'25rem'}
+              height={"25rem"}
               controls={false}
               playsinline={true}
               style={{ aspectRatio: "1/1" }}
