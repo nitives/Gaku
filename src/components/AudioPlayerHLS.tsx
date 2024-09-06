@@ -395,7 +395,7 @@ const ExpandedPlayerControls = ({
                 <motion.div
                   onClick={() => showLyrics && toggleLyrics()}
                   layout="position"
-                  className="pointer-events-auto max-w-[25rem] aspect-square"
+                  className="pointer-events-auto max-w-[25rem] aspect-square !h-auto"
                   transition={{ duration: 0.5, type: "spring" }}
                   animate={
                     !showLyrics
