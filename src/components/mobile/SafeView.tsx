@@ -290,7 +290,7 @@ export const BackButton = ({ className }: { className?: string }) => {
       }}
       transition={{ duration: 0.125, ease: "easeInOut" }}
       onClick={handleBack}
-      className={`${className} flex items-center space-x-2 p-2 max-sm:pl-0 cursor-pointer rounded-[50%] bg-[#00000000] hover:bg-[#00000000] sm:bg-[#c7c7c75c] sm:hover:bg-[#ffffff40] transition-colors ease-out`}
+      className={`${className} flex items-center space-x-2 p-2 max-sm:pl-0 cursor-pointer rounded-[50%] sm:hover:bg-[rgba(255,255,255,0.1)] sm:ml-4 transition-colors ease-out`}
     >
       <IoIosArrowBack size={30} />
       <span className="sr-only">Back</span>

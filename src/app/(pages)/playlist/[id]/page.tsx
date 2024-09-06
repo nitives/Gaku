@@ -36,6 +36,7 @@ export default function PlaylistPage() {
   const [playlist, setPlaylist] = useState<any>(null);
   const { addSong, removeSong, isSongInLibrary } = useLibrary();
   const [apple, setAppleData] = useState<any>(null);
+  const [animated, setAnimatedVideo] = useState(false);
 
   const handleLikeToggle = (track: any) => {
     const songId = `${track.title}-${playlist.user.username}`;
@@ -55,6 +56,14 @@ export default function PlaylistPage() {
       fetchPlaylist(id);
     }
   }, [id]);
+
+  useEffect(() => {
+    if (apple?.data[0]?.attributes?.editorialVideo) {
+      setAnimatedVideo(apple.data[0].attributes.editorialVideo);
+    } else {
+      setAnimatedVideo(false);
+    }
+  }, [apple]);
 
   console.log("playing:", globalCurrentTrack, isPlaying);
   console.log("playlist:", playlist);
@@ -184,23 +193,34 @@ export default function PlaylistPage() {
         `#${bgColor}`
       );
     }
-  }, [apple]);
+  }, [animated]);
 
   if (!playlist) return <PlaylistSkeleton />;
 
   console.log("playlist.tracks:", playlist.tracks);
-  console.log("Apple Data:", apple);
-  console.log(
-    "Ani COVER:",
-    apple?.data[0]?.attributes?.editorialVideo?.motionDetailSquare
-  );
-  console.log(
-    "Album Cover bgColor:",
-    apple?.data[0].attributes?.editorialVideo?.motionDetailSquare.previewFrame
-      .bgColor
-  );
 
-  const animated = !!apple?.data[0]?.attributes?.editorialVideo;
+  if (apple?.data) {
+    console.log("MusicKit Data:", apple);
+    if (apple?.data[0]?.attributes?.editorialVideo) {
+      console.log("MusicKit Attributes:", apple);
+      console.log(
+        "MusicKit | editorialVideo:",
+        apple?.data[0]?.attributes?.editorialVideo?.motionDetailSquare
+      );
+      console.log(
+        "MusicKit | editorialVideo.bgColor:",
+        apple?.data[0].attributes?.editorialVideo?.motionDetailSquare
+          .previewFrame.bgColor
+      );  
+    } else {
+      console.log("MusicKit | No editorialVideo:", apple);
+    }
+  } else {
+    console.log("No MusicKit Data");
+    console.log("animated:", animated);
+  }
+
+  // const animated = apple?.data[0]?.attributes?.editorialVideo;
 
   return (
     <>
@@ -291,7 +311,7 @@ export default function PlaylistPage() {
                   .toLowerCase()
                   .replace(/\s+/g, "-")}`}
                 className={`${
-                  animated ? "text-white/90" : "text-[var(--ambient)]"
+                  animated && !isDesktop ? "text-white/90" : "text-[var(--ambient)]"
                 }  transition-colors duration-300 text-center cursor-pointer text-xl`}
               >
                 {playlist.user.username}
@@ -299,15 +319,17 @@ export default function PlaylistPage() {
               <div className="flex flex-col text-xs items-center justify-center mt-2 font-medium">
                 <p
                   className={` ${
-                    animated
+                    animated && !isDesktop
                       ? "text-white/75"
                       : "text-muted-foreground dark:text-muted-foreground/50"
                   } text-[0.875rem] text-center w-56 flex items-center justify-center gap-1`}
                 >
-                  <span className="whitespace-nowrap">
-                    {apple?.data[0]?.attributes?.genreNames?.[0] ??
-                      playlist.genre}
-                  </span>
+                  {animated && (
+                    <span className="whitespace-nowrap">
+                      {apple?.data[0]?.attributes?.genreNames?.[0] ??
+                        playlist.genre}
+                    </span>
+                  )}
                   ·
                   <span title={formatDate(playlist.created_at)}>
                     {formatDate(playlist.created_at, "year")}
@@ -315,7 +337,7 @@ export default function PlaylistPage() {
                   ·
                   <Lossless
                     className={`${
-                      animated
+                      animated && !isDesktop
                         ? "fill-white/75"
                         : "fill-muted-foreground dark:fill-muted-foreground/50"
                     }`}
@@ -333,7 +355,7 @@ export default function PlaylistPage() {
                   }}
                   onClick={() => playTrack(playlist.tracks[0], 0)}
                   className={`flex justify-center items-center gap-[1px] w-full transition-colors duration-300 ${
-                    animated
+                    animated && !isDesktop
                       ? "bg-white/20 backdrop-blur-md text-white"
                       : "bg-[hsl(var(--foreground)/0.025)] border border-[hsl(var(--foreground)/0.05)] text-[var(--ambient)]"
                   } py-3.5 rounded-2xl cursor-pointer interact-buttons`}
@@ -348,7 +370,7 @@ export default function PlaylistPage() {
                   }}
                   onClick={shufflePlaylist} // Handle the next button click
                   className={`flex justify-center items-center gap-[1px] w-full transition-colors duration-300 ${
-                    animated
+                    animated && !isDesktop
                       ? "bg-white/20 backdrop-blur-md text-white"
                       : "bg-[hsl(var(--foreground)/0.025)] border border-[hsl(var(--foreground)/0.05)] text-[var(--ambient)]"
                   } py-3.5 rounded-2xl cursor-pointer interact-buttons`}
@@ -358,7 +380,7 @@ export default function PlaylistPage() {
                 </motion.button>
               </div>
               <AnimatePresence>
-                {apple?.data[0].attributes?.editorialNotes?.short ? (
+                {animated ? (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -367,7 +389,7 @@ export default function PlaylistPage() {
                   >
                     <p
                       className={`${
-                        animated
+                        animated && !isDesktop
                           ? "text-white/55"
                           : "text-muted-foreground dark:text-muted-foreground/50"
                       } text-sm font-[450] flex items-center justify-center`}

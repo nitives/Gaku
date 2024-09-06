@@ -380,237 +380,206 @@ const ExpandedPlayerControls = ({
             className="w-full"
             opacity={playing ? 1 : 0.1}
           >
-            <div>
+            <motion.div
+              layout="position"
+              layoutId="cover"
+              animate={!showLyrics ? { height: "450px" } : { height: "100px" }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className={`flex items-center text-white z-50 relative transition-all duration-300 ${
+                !showLyrics ? "justify-center" : ""
+              }`}
+            >
               <motion.div
                 layout="position"
-                layoutId="cover"
-                // animate={!showLyrics ? { height: "450px" } : { height: "100px" }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className={`flex text-white z-50 transition-all duration-300 w-full pointer-events-none ${
+                animate={
                   !showLyrics
-                    ? "justify-center items-center h-[50vh] relative pt-20"
-                    : "h-[50vh] absolute"
-                }`}
+                    ? {
+                        width: "336px",
+                        height: "336px",
+                        scale: playing ? 1 : 0.9,
+                      }
+                    : {
+                        width: "56px",
+                        height: "56px",
+                        scale: playing ? 1 : 1,
+                      }
+                }
               >
-                <motion.div
-                  onClick={() => showLyrics && toggleLyrics()}
-                  layout="position"
-                  className="pointer-events-auto max-w-[25rem] aspect-square"
-                  transition={{ duration: 0.5, type: "spring" }}
-                  animate={
-                    !showLyrics
-                      ? {
-                          width: "75vw",
-                          // height: "20rem",
-                          // y: "5rem",
-                          scale: playing ? 1 : 0.9,
-                        }
-                      : {
-                          width: "3.5rem",
-                          height: "3.5rem",
-                          // y: "0rem",
-                          scale: playing ? 1 : 1,
-                        }
+                <Image
+                  className="rounded-lg w-full h-full object-cover"
+                  src={
+                    img ||
+                    (theme === "light"
+                      ? "/assets/placeholders/missing_song_light.png"
+                      : "/assets/placeholders/missing_song_dark.png")
                   }
+                  alt={title || ""}
+                  width={336}
+                  height={336}
+                  draggable={false}
+                  unoptimized={true}
+                />
+              </motion.div>
+              {showLyrics && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  layout="position"
                 >
-                  <Image
-                    layout="position"
-                    className="rounded-lg w-full h-full object-cover"
-                    src={
-                      img ||
-                      (theme === "light"
-                        ? "/assets/placeholders/missing_song_light.png"
-                        : "/assets/placeholders/missing_song_dark.png")
-                    }
-                    alt={title || ""}
-                    width={336}
-                    height={336}
-                    draggable={false}
-                    unoptimized={true}
-                  />
+                  <span className="font-semibold text-white/90">
+                    <TitleOverflowAnimator>{title}</TitleOverflowAnimator>
+                  </span>
+                  <p className="pl-2.5 text-white/50 text-sm">{artist}</p>
                 </motion.div>
-
-                {showLyrics && (
+              )}
+            </motion.div>
+            {showLyrics && (
+              <AnimatedLyrics
+                artistName={artist}
+                songTitle={title}
+                onSeek={(time) => playerRef.current?.seekTo(time)}
+                delay={1}
+                localPlayed={localPlayed}
+              />
+            )}
+            <div id="controls">
+              <div className="w-full">
+                {!showLyrics && (
                   <motion.div
-                    initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-                    transition={{ duration: 0.5, type: "spring" }}
+                    initial={{ opacity: 0 }}
+                    animate={{
+                      opacity: 1,
+                    }}
+                    exit={{ opacity: 0 }}
                     layout="position"
+                    className="pb-4"
                   >
-                    <span className="font-semibold text-white/90">
-                      <TitleOverflowAnimator>{title}</TitleOverflowAnimator>
+                    <span className="right-[0.625rem] relative font-semibold text-white/90">
+                      <TitleOverflowAnimator className="!w-[90vw]">
+                        {title}
+                      </TitleOverflowAnimator>
                     </span>
-                    <p className="pl-2.5 text-white/50 text-sm">{artist}</p>
+                    <p className="text-white/50 text-sm">{artist}</p>
                   </motion.div>
                 )}
-              </motion.div>
-              <div
-                className={`w-full ${
-                  showLyrics
-                    ? "h-[10vh] max-sm:h-[5vh]"
-                    : "h-[15vh] max-sm:h-[10vh]"
-                }`}
-              />
+                <div className="items-center flex w-full pb-1">
+                  <motion.input
+                    whileHover={{ scaleY: 1.5 }}
+                    whileTap={{ scaleY: 0.995 }}
+                    className="apple-slider seek-slider"
+                    type="range"
+                    min={0}
+                    max={duration}
+                    step="any"
+                    value={localPlayed}
+                    onChange={handleSeekChange}
+                    onMouseUp={handleSeekMouseUp}
+                    onTouchEnd={handleSeekMouseUp}
+                  />
+                </div>
+                <div className="w-full justify-between flex text-white/50">
+                  <span>{formatTime(localPlayed)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
+              </div>
 
-              {showLyrics && (
-                <div className="h-[55vh]">
-                  <AnimatedLyrics
-                    artistName={artist}
-                    songTitle={title}
-                    onSeek={(time) => playerRef.current?.seekTo(time)}
-                    delay={1}
-                    localPlayed={localPlayed}
+              <div className="flex items-center w-full justify-center text-white">
+                <motion.button
+                  whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                  whileTap={{
+                    scale: 0.85,
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  }}
+                  transition={{ duration: 0.1, ease: "easeInOut" }}
+                  onClick={onPrevious}
+                  className="flex flex-col items-center rounded-full p-2"
+                >
+                  <IoPlayBack size={40} />
+                </motion.button>
+                <motion.button
+                  whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                  onClick={handlePlayPause}
+                  whileTap={{
+                    scale: 0.85,
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  }}
+                  transition={{ duration: 0.1, ease: "easeInOut" }}
+                  className="flex flex-col items-center rounded-full p-2"
+                >
+                  {playing ? <IoPause size={40} /> : <IoPlay size={40} />}
+                </motion.button>
+                <motion.button
+                  whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                  whileTap={{
+                    scale: 0.85,
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  }}
+                  transition={{ duration: 0.1, ease: "easeInOut" }}
+                  onClick={onNext}
+                  className="flex flex-col items-center rounded-full p-2"
+                >
+                  <IoPlayForward size={40} />
+                </motion.button>
+              </div>
+              {!isStandalone && (
+                <div className="flex items-center gap-2 w-full text-white">
+                  {/* <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    transition={{ duration: 0.1, ease: "easeInOut" }}
+                    onClick={handleMute}
+                  >
+                    <IoVolumeOff size={30} />
+                  </motion.button> */}
+                  <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    transition={{ duration: 0.1, ease: "easeInOut" }}
+                    onClick={handleMute}
+                  >
+                    {muted ? (
+                      <IoVolumeMute size={30} />
+                    ) : (
+                      <IoVolumeMedium size={30} />
+                    )}
+                  </motion.button>
+
+                  <motion.input
+                    whileHover={{ scaleY: 1.5 }}
+                    whileTap={{ scaleY: 0.995 }}
+                    className="apple-slider volume-slider"
+                    type="range"
+                    min={0}
+                    max={1}
+                    step="any"
+                    value={volume}
+                    onChange={handleVolumeChange}
                   />
                 </div>
               )}
-
-              <motion.div
-                transition={{ duration: 0.5 }}
-                layout="position"
-                id="controls"
-                className={`${showLyrics ? "pt-[3.75rem]" : "pt-[0rem]"}`}
-              >
-                <div className="w-full">
-                  {!showLyrics && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -25, filter: "blur(10px)" }}
-                      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                      exit={{ opacity: 0, y: -25, filter: "blur(10px)" }}
-                      transition={{ duration: 0.5, type: "spring" }}
-                      layout="position"
-                      className="pb-4"
-                    >
-                      <span className="right-[0.625rem] relative font-semibold text-white/90">
-                        <TitleOverflowAnimator className="!w-[90vw]">
-                          {title}
-                        </TitleOverflowAnimator>
-                      </span>
-                      <p className="text-white/50 text-sm">{artist}</p>
-                    </motion.div>
-                  )}
-                  <div className="items-center flex w-full pb-1">
-                    <motion.input
-                      whileHover={{ scaleY: 1.5 }}
-                      whileTap={{ scaleY: 0.995 }}
-                      className="apple-slider seek-slider"
-                      type="range"
-                      min={0}
-                      max={duration}
-                      step="any"
-                      value={localPlayed}
-                      onChange={handleSeekChange}
-                      onMouseUp={handleSeekMouseUp}
-                      onTouchEnd={handleSeekMouseUp}
-                    />
-                  </div>
-                  <div className="w-full justify-between flex text-white/50">
-                    <span>{formatTime(localPlayed)}</span>
-                    <span>{formatTime(duration)}</span>
-                  </div>
-                </div>
-                <div className="flex items-center w-full justify-center text-white">
-                  <motion.button
-                    whileHover={{
-                      backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    }}
-                    whileTap={{
-                      scale: 0.85,
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    }}
-                    transition={{ duration: 0.1, ease: "easeInOut" }}
-                    onClick={onPrevious}
-                    className="flex flex-col items-center rounded-full p-2"
-                  >
-                    <IoPlayBack size={40} />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{
-                      backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    }}
-                    onClick={handlePlayPause}
-                    whileTap={{
-                      scale: 0.85,
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    }}
-                    transition={{ duration: 0.1, ease: "easeInOut" }}
-                    className="flex flex-col items-center rounded-full p-2"
-                  >
-                    {playing ? <IoPause size={40} /> : <IoPlay size={40} />}
-                  </motion.button>
-                  <motion.button
-                    whileHover={{
-                      backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    }}
-                    whileTap={{
-                      scale: 0.85,
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    }}
-                    transition={{ duration: 0.1, ease: "easeInOut" }}
-                    onClick={onNext}
-                    className="flex flex-col items-center rounded-full p-2"
-                  >
-                    <IoPlayForward size={40} />
-                  </motion.button>
-                </div>
-                {!isStandalone && (
-                  <div className="flex items-center gap-2 w-full text-white">
-                    {/* <motion.button
-                      whileTap={{ scale: 0.85 }}
-                      transition={{ duration: 0.1, ease: "easeInOut" }}
-                      onClick={handleMute}
-                    >
-                      <IoVolumeOff size={30} />
-                    </motion.button> */}
-                    <motion.button
-                      whileTap={{ scale: 0.85 }}
-                      transition={{ duration: 0.1, ease: "easeInOut" }}
-                      onClick={handleMute}
-                    >
-                      {muted ? (
-                        <IoVolumeMute size={30} />
-                      ) : (
-                        <IoVolumeMedium size={30} />
-                      )}
-                    </motion.button>
-                    <motion.input
-                      whileHover={{ scaleY: 1.5 }}
-                      whileTap={{ scaleY: 0.995 }}
-                      className="apple-slider volume-slider"
-                      type="range"
-                      min={0}
-                      max={1}
-                      step="any"
-                      value={volume}
-                      onChange={handleVolumeChange}
-                    />
-                  </div>
-                )}
-                <div className="w-full flex justify-between py-2 h-10">
-                  <motion.button
-                    onClick={toggleLyrics}
-                    whileTap={{ scale: 0.85 }}
-                    transition={{ duration: 0.1, ease: "easeInOut" }}
-                  >
-                    <BubbleChat
-                      className={`transition-all duration-300 ${
-                        showLyrics
-                          ? "text-white/75 stroke-white/75"
-                          : "text-white/10 stroke-white/10"
-                      }`}
-                      type="multiple"
-                      withMark="text"
-                    />
-                  </motion.button>
-                  <motion.button
-                    onClick={onBack}
-                    whileTap={{ scale: 0.85 }}
-                    transition={{ duration: 0.1, ease: "easeInOut" }}
-                  >
-                    <XMark className="fill-white/10 text-white/10 stroke-white/10" />
-                  </motion.button>
-                </div>
-              </motion.div>
+              <div className="w-full flex justify-between py-2 h-10">
+                <motion.button
+                  onClick={toggleLyrics}
+                  whileTap={{ scale: 0.85 }}
+                  transition={{ duration: 0.1, ease: "easeInOut" }}
+                >
+                  <BubbleChat
+                    className={`transition-all duration-300 ${
+                      showLyrics
+                        ? "text-white/75 stroke-white/75"
+                        : "text-white/10 stroke-white/10"
+                    }`}
+                    type="multiple"
+                    withMark="text"
+                  />
+                </motion.button>
+                <motion.button
+                  onClick={onBack}
+                  whileTap={{ scale: 0.85 }}
+                  transition={{ duration: 0.1, ease: "easeInOut" }}
+                >
+                  <XMark className="fill-white/10 text-white/10 stroke-white/10" />
+                </motion.button>
+              </div>
             </div>
           </ImageBlur>
         </motion.div>

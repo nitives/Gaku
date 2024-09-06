@@ -42,7 +42,7 @@ export const LibraryCard = ({
     <>
       <div
         onClick={onClick}
-        className="w-full py-[1.5px] flex items-center gap-3 cursor-pointer hover:bg-foreground/5 standalone:active:bg-foreground/5 transition-colors duration-150"
+        className="w-full py-[1.5px] pl-5 flex items-center gap-3 cursor-pointer desktop-hover-library-card standalone:active:bg-foreground/5 transition-colors duration-150 standalone:duration-300"
       >
         <div className="size-12">
           <div className="album-container album-shadow !w-12 !mb-0">
@@ -78,7 +78,7 @@ export const LibraryCard = ({
             <div className="album-border !border-[0.5px] !border-white/50 !rounded-md" />
           </div>
         </div>
-        <div className="flex flex-col flex-grow justify-center w-[70vw] standalone:w-[65vw]">
+        <div className="flex flex-col flex-grow justify-center w-[70vw] standalone:w-[65vw] border-b border-border/80  h-12 pr-5">
           <div className="flex items-center gap-1.5">
             <p className="truncate text-base leading-[1.25rem]">
               {songData.title}
@@ -88,7 +88,7 @@ export const LibraryCard = ({
           <p className="text-sm text-muted-foreground truncate">
             {songData.user.username}
           </p>
-          <div className="w-[77%] h-[1px] bg-muted-foreground/10 absolute translate-y-[1.75rem]" />
+          {/* <div className="w-[77%] h-[1px] bg-muted-foreground/10 absolute translate-y-[1.75rem]" /> */}
         </div>
       </div>
     </>
@@ -97,12 +97,12 @@ export const LibraryCard = ({
 export const LibraryCardSkeleton = () => {
   return (
     <>
-      <div className="w-full py-[1.5px] flex items-center gap-3 cursor-pointer transition-colors duration-150">
+      <div className="w-full py-[1.5px] pl-5 flex items-center gap-3 cursor-pointer desktop-hover-library-card standalone:active:bg-foreground/5 transition-colors duration-150 standalone:duration-300">
         <div className="min-w-12">
           <Skeleton className="size-12 rounded-md aspect-square" />
         </div>
-        <div className="flex flex-col flex-grow gap-1 justify-between w-[70vw] standalone:w-[65vw]">
-          <div className="flex items-center gap-2 w-[70vw] standalone:w-[65vw]">
+        <div className="flex flex-col flex-grow justify-center w-[70vw] standalone:w-[65vw] border-b border-border/80 h-12 pr-5">
+          <div className="flex items-center gap-1.5">
             <Skeleton className="w-[25vw] h-[1rem]" />
           </div>
           <Skeleton className="w-[15vw] h-[1rem]" />

@@ -401,6 +401,14 @@ input[type="range"] {
   }
 }
 
+/* ------------------ */
+
+@media (hover: hover) {
+  .desktop-hover-library-card:hover {
+    background-color: hsl(var(--foreground) / 0.05);
+  }
+}
+
 /* Album Animated */
 
 .album-animated-blur {
