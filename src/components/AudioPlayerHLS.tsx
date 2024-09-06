@@ -467,7 +467,11 @@ const ExpandedPlayerControls = ({
                 transition={{ duration: 0.5 }}
                 layout="position"
                 id="controls"
-                className={`${showLyrics ? "pt-[3.75rem]" : "pt-[0rem]"}`}
+                className={`${
+                  showLyrics
+                    ? "pt-[3.75rem] max-sm:translate-y-10"
+                    : "pt-[0rem]"
+                }`}
               >
                 <div className="w-full">
                   {!showLyrics && (
