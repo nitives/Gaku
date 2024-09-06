@@ -34,7 +34,7 @@ export const LibraryCard = ({
     fetchSongData();
   }, [songId]);
 
-  if (!songData) {
+  if (!songData?.title) {
     return <LibraryCardSkeleton />;
   }
 
