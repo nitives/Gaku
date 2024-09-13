@@ -47,9 +47,9 @@ export const SongCard = ({
   // };
   if (!img && !title && !artist) return <SongCardSkeleton />;
   return (
-    <div onClick={onClick} className="min-w-[15rem] min-h-[19.5rem]">
+    <div onClick={onClick} className="min-w-[15rem] h-[24rem]">
       <div className="text-white rounded-2xl overflow-hidden">
-        <ImageBlur blur="120" className="min-h-[19.5rem]" src={img}>
+        <ImageBlur blur="120" className="h-[24rem]" src={img}>
           <Image
             className="border-b border-border/50 aspect-square"
             src={img}
@@ -59,7 +59,7 @@ export const SongCard = ({
             draggable={false}
             unoptimized={true}
           />
-          <div className="p-2 text-center">
+          <div className="p-2 text-center h-[25%] flex flex-col justify-center items-center">
             <p className="font-bold">{title || "Title"}</p>
             <p>{artist || "Artist"}</p>
           </div>

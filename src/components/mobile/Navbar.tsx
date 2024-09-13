@@ -5,6 +5,7 @@ import { GoHomeFill } from "react-icons/go";
 import { IoAlbums, IoSearch } from "react-icons/io5";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { LinearBlur } from "progressive-blur";
 
 export const Navbar = ({
   volume,
@@ -53,7 +54,7 @@ export const Navbar = ({
         <motion.div whileTap={{ scale: 0.925 }}>
           <Link href={"/search"} className="flex flex-col items-center">
             <IoSearch
-              className={`navbar-icon ${ 
+              className={`navbar-icon ${
                 isLinkActive("/search") ? "text-ambient" : "text-foreground/30"
               }`}
               size={30}
@@ -85,6 +86,20 @@ export const Navbar = ({
           </Link>
         </motion.div>
       </nav>
+      <div className="w-screen h-screen overflow-hidden bottom-0 absolute blur-pro">
+        <LinearBlur
+          side="bottom"
+          tint="rgba(255, 255, 255, 0.1)"
+          falloffPercentage={100}
+          strength={128}
+          style={{
+            position: "fixed",
+            width: "100vw",
+            height: "100vh",
+            pointerEvents: "none",
+          }}
+        />
+      </div>
     </div>
   );
 };

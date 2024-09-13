@@ -14,6 +14,7 @@ import { useAudio } from "@/context/AudioContext";
 import { fetchPlaylistM3U8 } from "@/lib/utils";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { usePathname, useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function PlaylistPage() {
   const { setCurrentTrack, setPlaylistUrl, setIsPlaying, setHDCover } =
@@ -63,6 +64,10 @@ export default function PlaylistPage() {
   };
 
   const playSong = async (item: any) => {
+    if (!item || !item.permalink_url) {
+      toast.error("Song data unavailable!");
+      return;
+    }
     if (item.kind === "playlist") {
       router.push(`/playlist/${item.id}`);
     } else {

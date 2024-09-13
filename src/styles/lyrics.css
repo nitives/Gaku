@@ -4,16 +4,27 @@
     to top,
     rgba(0, 0, 0, 0) 0.5%,
     rgba(0, 0, 0, 1) 15%,
-    rgba(0, 0, 0, 1) 95%,
-    rgba(0, 0, 0, 0) 100%
+    rgba(0, 0, 0, 1) 85%,
+    rgba(0, 0, 0, 0) 99.5%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0) 0.5%,
     rgb(0, 0, 0) 15%,
-    rgb(0, 0, 0) 95%,
-    rgba(0, 0, 0, 0) 100%
+    rgb(0, 0, 0) 85%,
+    rgba(0, 0, 0, 0) 99.5%
   );
+}
+
+.lyric-letter {
+  font-size: var(--fontSize);
+  opacity: 0.3;
+  transition: opacity 0.2s ease;
+}
+
+.lyric-letter.active {
+  color: rgba(255, 255, 255, 1);
+  opacity: 1;
 }
 
 .lyrics-container {
@@ -133,4 +144,61 @@
   to {
     transform: scale(1);
   }
+}
+
+/* RICH SYNC */
+
+.lyric-word {
+  --progressColor: white;
+  --defaultColor: rgba(200, 200, 200, 0.6);
+  --gradientImage: linear-gradient(to right, white 95%, transparent 100%);
+  --lyric-line-progress: 0; /* Default progress value */
+  display: inline-block;
+  margin: 0 0.2em 0 0;
+  background-image: var(--gradientImage);
+  background-size: calc(var(--lyric-line-progress) * 100%) 100%; /* Control gradient progress */
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: background-size 0.1s ease-out, opacity 0.5s;
+}
+
+/* Word currently in progress */
+.lyric-word.current-word {
+  opacity: 1;
+}
+
+.lyrics-view .lyric-line.current-word {
+  /* color: var(--ambient); */
+  color: rgba(255, 255, 255, 1);
+  opacity: 1;
+  transform: scale(1);
+  filter: unset;
+  transition: transform 0.2s var(--appleEase), opacity 0.35s var(--appleEase),
+    filter 0.35s var(--appleEase);
+}
+
+/* Completed word */
+.lyric-word.finished-word {
+  background-size: 100% 100%; /* Complete gradient */
+  opacity: 0.8;
+  color: white;
+}
+
+/* Character styles */
+.lyric-char {
+  display: inline-block;
+  /* background-image: var(--gradientImage); */
+  background-color: var(--defaultColor);
+  background-size: 100% 100%;
+  background-position: 0px 0px;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: background-size 0.5s ease-out;
+}
+
+/* Space between characters */
+.lyric-char.space {
+  width: 0.3em;
 }

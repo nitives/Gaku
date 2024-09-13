@@ -1,7 +1,7 @@
 export const Lossless = ({ className }: { className: string }) => {
   return (
     <div
-      title="Not Actually Lossless"
+      title="p.s. it's not actually lossless :P"
       className="flex items-center justify-center gap-1"
     >
       <svg

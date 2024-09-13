@@ -37,6 +37,7 @@ export default function PlaylistPage() {
   const { addSong, removeSong, isSongInLibrary } = useLibrary();
   const [apple, setAppleData] = useState<any>(null);
   const [animated, setAnimatedVideo] = useState(false);
+  const [albumCover, setAlbumCover] = useState<string | null>(null); // Separate cover for the album
 
   const handleLikeToggle = (track: any) => {
     const songId = `${track.title}-${playlist.user.username}`;
@@ -88,13 +89,15 @@ export default function PlaylistPage() {
     console.log("fetchCover | response:", response);
     const data = await response.json();
     console.log("fetchCover | Query:", query, "img:", data);
-    setHDCover(data.imageUrl);
+    setAlbumCover(data.imageUrl); // Set album cover for currently viewed album
+    console.log("fetchCover | img:", data.imageUrl);
   };
 
   const playTrack = async (track: any, index: number) => {
     const url = await fetchPlaylistM3U8(track.permalink_url);
     setGlobalPlaylistUrl(url);
     setGlobalCurrentTrack({ ...track, index });
+    setHDCover(track.artwork_url || track.user.avatar_url); // Set the playing track's cover separately
     setIsPlaying(true);
   };
 
@@ -211,7 +214,7 @@ export default function PlaylistPage() {
         "MusicKit | editorialVideo.bgColor:",
         apple?.data[0].attributes?.editorialVideo?.motionDetailSquare
           .previewFrame.bgColor
-      );  
+      );
     } else {
       console.log("MusicKit | No editorialVideo:", apple);
     }
@@ -284,10 +287,9 @@ export default function PlaylistPage() {
             <div className="album-container album-shadow">
               <Image
                 src={
-                  cover ||
+                  albumCover ||
                   playlist?.tracks[0].artwork_url ||
-                  globalCurrentTrack?.artwork_url ||
-                  ""
+                  "/assets/placeeholders/missing_song_dark.png"
                 }
                 alt={`${playlist.title} Album Cover`}
                 title={`${playlist.title} Album Cover`}
@@ -311,7 +313,9 @@ export default function PlaylistPage() {
                   .toLowerCase()
                   .replace(/\s+/g, "-")}`}
                 className={`${
-                  animated && !isDesktop ? "text-white/90" : "text-[var(--ambient)]"
+                  animated && !isDesktop
+                    ? "text-white/90"
+                    : "text-[var(--ambient)]"
                 }  transition-colors duration-300 text-center cursor-pointer text-xl`}
               >
                 {playlist.user.username}
@@ -325,23 +329,31 @@ export default function PlaylistPage() {
                   } text-[0.875rem] text-center w-56 flex items-center justify-center gap-1`}
                 >
                   {animated && (
-                    <span className="whitespace-nowrap">
-                      {apple?.data[0]?.attributes?.genreNames?.[0] ??
-                        playlist.genre}
-                    </span>
+                    <>
+                      <span className="whitespace-nowrap">
+                        {apple?.data[0]?.attributes?.genreNames?.[0] ??
+                          playlist.genre}
+                      </span>
+                      ·
+                    </>
                   )}
-                  ·
                   <span title={formatDate(playlist.created_at)}>
                     {formatDate(playlist.created_at, "year")}
                   </span>
-                  ·
-                  <Lossless
-                    className={`${
-                      animated && !isDesktop
-                        ? "fill-white/75"
-                        : "fill-muted-foreground dark:fill-muted-foreground/50"
-                    }`}
-                  />
+
+                  {apple?.data[0]?.attributes?.audioTraits[0] ===
+                    "lossless" && (
+                    <>
+                      ·
+                      <Lossless
+                        className={`${
+                          animated && !isDesktop
+                            ? "fill-white/75"
+                            : "fill-muted-foreground dark:fill-muted-foreground/50"
+                        }`}
+                      />
+                    </>
+                  )}
                 </p>
               </div>
             </div>
@@ -387,15 +399,17 @@ export default function PlaylistPage() {
                     exit={{ opacity: 0 }}
                     className="w-full justify-center flex pt-3"
                   >
-                    <p
-                      className={`${
-                        animated && !isDesktop
-                          ? "text-white/55"
-                          : "text-muted-foreground dark:text-muted-foreground/50"
-                      } text-sm font-[450] flex items-center justify-center`}
-                    >
-                      {apple?.data[0].attributes.editorialNotes.short}
-                    </p>
+                    {apple?.data[0]?.attributes?.editorialNotes?.short ? (
+                      <p
+                        className={`${
+                          animated && !isDesktop
+                            ? "text-white/55"
+                            : "text-muted-foreground dark:text-muted-foreground/50"
+                        } text-sm font-[450] flex items-center justify-center`}
+                      >
+                        {apple?.data[0]?.attributes?.editorialNotes?.short}
+                      </p>
+                    ) : null}
                   </motion.div>
                 ) : null}
               </AnimatePresence>

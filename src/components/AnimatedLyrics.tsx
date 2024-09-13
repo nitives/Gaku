@@ -1,13 +1,14 @@
+// src\components\AnimatedLyrics.tsx
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { fetchLyrics } from "@/lib/utils";
 import "../styles/lyrics.css";
 import { motion, AnimatePresence } from "framer-motion";
 
-const LyricDots = () => (
+export const LyricDots = () => (
   <motion.div
     layout
-    className="size-fit"
+    className="size-fit pt-4"
     initial={{ scale: 0, opacity: 0, marginBottom: "0px" }}
     animate={{ scale: 1, opacity: 1, marginBottom: "0px" }}
     exit={{ scale: 0.8, opacity: 0, marginBottom: "-22px" }}
@@ -141,12 +142,9 @@ export const AnimatedLyrics = ({
     if (currentLineRef.current && containerRef.current) {
       const lyricsContainer = containerRef.current;
       const lineTop = currentLineRef.current.offsetTop;
-      const containerScroll = lyricsContainer.scrollTop;
       const containerHeight = lyricsContainer.clientHeight;
       const lineHeight = currentLineRef.current.clientHeight;
-
       const scrollPosition = lineTop - containerHeight / 2 + lineHeight / 2;
-
       lyricsContainer.scrollTo({
         top: scrollPosition,
         behavior: "smooth",
@@ -184,19 +182,21 @@ export const AnimatedLyrics = ({
         }}
       >
         <AnimatePresence>{showDots && <LyricDots />}</AnimatePresence>
-        {lyrics.lines.map((line) => {
+        {lyrics.lines.map((line, index) => {
           const isCurrentLine = currentLine?.startTimeMs === line.startTimeMs;
           const isPastLine =
             Number(line.startTimeMs) < (localPlayed + delay) * 1000;
+          const isFirstLine = index === 0;
 
           return (
             <p
-              key={line.startTimeMs}
+              key={line.startTimeMs + index}
               ref={isCurrentLine ? currentLineRef : null}
               onClick={() => handleClick(line.startTimeMs)}
               className={clsx(
                 "lyric-line has-syllables",
-                isCurrentLine ? "active" : isPastLine ? "finished" : ""
+                isCurrentLine ? "active" : isPastLine ? "finished" : "",
+                isFirstLine ? "!pt-4" : ""
               )}
               style={{ cursor: "pointer" }}
             >

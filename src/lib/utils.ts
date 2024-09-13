@@ -61,9 +61,7 @@ export async function fetchPlaylistM3U8(trackUrl: string) {
 export async function fetchUserData(trackUrl: string) {
   try {
     const response = await fetch(
-      `/api/soundcloud/user/userData?profileUrl=${encodeURIComponent(
-        trackUrl
-      )}`
+      `/api/soundcloud/user/userData?profileUrl=${encodeURIComponent(trackUrl)}`
     );
     console.log("fetchUserData | response:", response);
     if (!response.ok) throw new Error("Failed to fetch users data");
@@ -77,6 +75,11 @@ export async function fetchUserData(trackUrl: string) {
 
 export async function fetchLyrics(title: string, artist: string) {
   try {
+    // Replace "octobersveryown" with "Drake"
+    if (artist.toLowerCase() === "octobersveryown") {
+      artist = "Drake";
+    }
+    console.log(`fetchLyrics | artist and title:", ${artist} - ${title})`);
     const response = await fetch(
       `https://lyrix.vercel.app/getLyricsByName/${artist}/${title}/?remix=false`
     );
@@ -89,3 +92,27 @@ export async function fetchLyrics(title: string, artist: string) {
     console.error("Error fetching lyrics | fetchLyrics:", error);
   }
 }
+
+export async function fetchRichSyncLyrics(title: string, artist: string) {
+  try {
+    // Replace "octobersveryown" with "Drake"
+    if (artist.toLowerCase() === "octobersveryown") {
+      artist = "Drake";
+    }
+
+    const response = await fetch(
+      `/api/lyrics/get?artist=${artist}&track=${title}`
+    );
+    console.log("fetchRichSyncLyrics | response:", response);
+    if (!response.ok) throw new Error("Failed to fetch lyrics");
+    const data = await response.json();
+    console.log("API fetchRichSyncLyrics | data:", data);
+    return data;
+  } catch (error) {
+    console.error(
+      "Error fetching rich sync lyrics | fetchRichSyncLyrics:",
+      error
+    );
+  }
+}
+

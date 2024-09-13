@@ -70,7 +70,7 @@ export const SubHeading = ({
       <h1 className="text-2xl font-bold flex items-center gap-2">
         {link ? (
           <motion.button
-            whileHover={{
+            whileTap={{
               scale: 0.95,
               translateX: -5,
             }}

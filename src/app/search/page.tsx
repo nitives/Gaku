@@ -163,7 +163,7 @@ export default function Home() {
           </SafeView>
         )}
       </SafeView>
-      <div className="min-h-screen min-w-[100vw] flex justify-center absolute items-center z-[1] top-[-35rem]">
+      <div className="min-h-screen min-w-[99vw] flex justify-center absolute items-center z-[1] top-[-35rem]">
         <div className="ambient-bg" />
       </div>
     </>

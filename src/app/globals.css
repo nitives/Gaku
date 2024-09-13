@@ -161,7 +161,7 @@ input[type="range"] {
   );
   /* transform: scaleX(1); */
   scale: 1 70%;
-  width: 100svw;
+  width: 99svw;
   height: 100vh;
   top: 0;
   opacity: 1;
@@ -235,6 +235,42 @@ input[type="range"] {
   z-index: 150;
 }
 
+.blur-pro div div {
+  width: 100vw !important;
+  height: 15vh !important;
+  bottom: 0 !important;
+  position: fixed !important;
+  inset: auto auto 0 auto !important;
+  &:is(.light *) {
+    background: linear-gradient(
+      to top,
+      rgb(from rgba(255, 255, 255, 0.1) r g b / alpha) 0%,
+      rgb(from rgba(255, 255, 255, 0.1) r g b / 0%) 100%
+    ) !important;
+  }
+  @media (prefers-color-scheme: light) {
+    background: linear-gradient(
+      to top,
+      rgb(from rgba(255, 255, 255, 0.1) r g b / alpha) 0%,
+      rgb(from rgba(255, 255, 255, 0.1) r g b / 0%) 100%
+    ) !important;
+  }
+  &:is(.dark *) {
+    background: linear-gradient(
+      to top,
+      rgb(from rgba(0, 0, 0, 1) r g b / alpha) 0%,
+      rgb(from rgba(0, 0, 0, 1) r g b / 0%) 100%
+    ) !important;
+  }
+  @media (prefers-color-scheme: dark) {
+    background: linear-gradient(
+      to top,
+      rgb(from rgba(0, 0, 0, 0.75) r g b / alpha) 0%,
+      rgb(from rgba(0, 0, 0, 0.75) r g b / 0%) 100%
+    ) !important;
+  }
+}
+
 .navbar-mobile {
   display: flex;
   /* background: linear-gradient(
@@ -249,8 +285,8 @@ input[type="range"] {
   width: 100%;
   padding: 40px 15px 20px 15px;
   justify-content: space-between;
-  mask: linear-gradient(0deg, black 60%, transparent 100%);
-  backdrop-filter: blur(20px);
+  /* mask: linear-gradient(0deg, black 60%, transparent 100%); */
+  /* backdrop-filter: blur(20px); */
 }
 
 /* @media (prefers-color-scheme: dark) {

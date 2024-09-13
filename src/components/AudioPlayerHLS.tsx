@@ -15,12 +15,14 @@ import Image from "next/image";
 import { AnimatePresence, motion, transform } from "framer-motion";
 import { TitleOverflowAnimator } from "./mobile/TitleOverflowAnimator";
 import { useAudio } from "@/context/AudioContext";
-import { AnimatedLyrics } from "./AnimatedLyrics";
+// import { AnimatedLyrics } from "./AnimatedLyrics";
 import "../styles/overlay.css";
 import "../styles/playercontrols.css";
 import { ImageBlur } from "./ImageBlur";
 import { BubbleChat, XMark } from "react-ios-icons";
 import { useTheme } from "next-themes";
+import { AnimatedRichSyncLyrics } from "./AnimatedRichSyncLyrics";
+import lyrics from "./richsynclyrics.json";
 
 export const AudioPlayerHLS = ({
   src,
@@ -364,6 +366,8 @@ const ExpandedPlayerControls = ({
     closed: { scale: 1, x: "40vw", y: 0, transition: { duration: 0.3 } },
   };
 
+  const richSyncData = lyrics.message.body.richsync.richsync_body;
+
   return (
     <div className="overlay bg-black">
       <AnimatePresence>
@@ -375,6 +379,7 @@ const ExpandedPlayerControls = ({
           className="mt-[2rem] px-5 w-full h-fit flex justify-between"
         >
           <ImageBlur
+            animated
             blur={isStandalone ? "100" : "200"}
             src={img || ""}
             className="w-full"
@@ -446,19 +451,21 @@ const ExpandedPlayerControls = ({
               <div
                 className={`w-full ${
                   showLyrics
-                    ? "h-[10vh] max-sm:h-[5vh]"
+                    ? "h-[7.5vh] max-sm:h-[5vh]"
                     : "h-[15vh] max-sm:h-[10vh]"
                 }`}
               />
 
               {showLyrics && (
                 <div className="h-[55vh]">
-                  <AnimatedLyrics
-                    artistName={artist}
+                  <AnimatedRichSyncLyrics
+                    hasRichSync={true}
                     songTitle={title}
+                    artistName={artist}
                     onSeek={(time) => playerRef.current?.seekTo(time)}
                     delay={1}
                     localPlayed={localPlayed}
+                    duration={duration}
                   />
                 </div>
               )}
@@ -637,7 +644,7 @@ const Controls = ({
   onNext,
   onPrevious,
   onPlayPause,
-  setIsPlaying, // Add this prop to update the global state
+  setIsPlaying,
   playerRef,
   onExpand,
 }: {
@@ -660,20 +667,6 @@ const Controls = ({
   playerRef: React.RefObject<ReactPlayer>;
   onExpand: () => void;
 }) => {
-  const [localPlayed, setLocalPlayed] = useState(played * duration);
-
-  useEffect(() => {
-    setLocalPlayed(played * duration);
-  }, [played, duration]);
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setVolume(parseFloat(e.target.value));
-  };
-
-  const handleMute = () => {
-    setMuted(!muted);
-  };
-
   const handlePlayPause = () => {
     const newPlayingState = !playing;
     setPlaying(newPlayingState);
@@ -687,50 +680,6 @@ const Controls = ({
     }
   };
 
-  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const time = parseFloat(e.target.value);
-    setLocalPlayed(time);
-  };
-
-  const handleSeekMouseUp = (
-    e: React.MouseEvent<HTMLInputElement> | React.TouchEvent<HTMLInputElement>
-  ) => {
-    const time = parseFloat((e.target as HTMLInputElement).value);
-    onSeek(time);
-  };
-
-  const formatTime = (seconds: number) => {
-    const date = new Date(seconds * 1000);
-    const hh = date.getUTCHours();
-    const mm = date.getUTCMinutes();
-    const ss = date.getUTCSeconds().toString().padStart(2, "0");
-    if (hh) {
-      return `${hh}:${mm.toString().padStart(2, "0")}:${ss}`;
-    }
-    return `${mm}:${ss}`;
-  };
-
-  const useDisplayMode = () => {
-    const [isStandalone, setIsStandalone] = useState(false);
-
-    useEffect(() => {
-      // Check if the app is running in standalone mode
-      const mediaQuery = window.matchMedia("(display-mode: standalone)");
-      setIsStandalone(mediaQuery.matches);
-
-      // Listen for changes in display mode
-      const handleChange = (e: MediaQueryListEvent) =>
-        setIsStandalone(e.matches);
-      mediaQuery.addListener(handleChange);
-
-      return () => mediaQuery.removeListener(handleChange);
-    }, []);
-
-    return isStandalone;
-  };
-
-  const isStandalone = useDisplayMode();
-
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="navbar-mobile-container">
@@ -743,93 +692,6 @@ const Controls = ({
           onExpand={onExpand}
         />
       </div>
-
-      {/* <div className="controls">
-        <div className="w-full">
-          <div className="items-center flex w-full">
-            <input
-              className="w-full"
-              type="range"
-              min={0}
-              max={duration}
-              step="any"
-              value={localPlayed}
-              onChange={handleSeekChange}
-              onMouseUp={handleSeekMouseUp}
-              onTouchEnd={handleSeekMouseUp}
-            />
-          </div>
-          <div className="w-full justify-between flex">
-            <span>{formatTime(localPlayed)}</span>
-            <span>{formatTime(duration)}</span>
-          </div>
-        </div>
-
-        <div className="flex items-center w-full justify-center">
-          <motion.button
-            whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
-            whileTap={{
-              scale: 0.85,
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-            }}
-            transition={{ duration: 0.125, ease: "easeInOut" }}
-            onClick={onPrevious}
-            className="flex flex-col items-center rounded-full p-2"
-          >
-            <IoPlayBack size={40} />
-          </motion.button>
-          <motion.button
-            onClick={handlePlayPause}
-            whileTap={{ scale: 0.85 }}
-            transition={{ duration: 0.1, ease: "easeInOut" }}
-          >
-            {playing ? <IoPause size={40} /> : <IoPlay size={40} />}
-          </motion.button>
-          <motion.button
-            whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
-            whileTap={{
-              scale: 0.85,
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-            }}
-            transition={{ duration: 0.125, ease: "easeInOut" }}
-            onClick={onNext}
-            className="flex flex-col items-center rounded-full p-2"
-          >
-            <IoPlayForward size={40} />
-          </motion.button>
-        </div>
-        {!isStandalone && (
-          <div className="flex items-center gap-2 w-full p">
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={volume}
-              onChange={handleVolumeChange}
-              className="w-full"
-            />
-            <motion.button
-              whileTap={{ scale: 0.85 }}
-              transition={{ duration: 0.1, ease: "easeInOut" }}
-              onClick={handleMute}
-            >
-              {muted ? (
-                <IoVolumeMute size={30} />
-              ) : (
-                <IoVolumeMedium size={30} />
-              )}
-            </motion.button>
-          </div>
-        )}
-      </div> */}
-      {/* <AnimatedLyrics
-        artistName={artist}
-        songTitle={title}
-        onSeek={(time) => playerRef.current?.seekTo(time)}
-        delay={1}
-        localPlayed={localPlayed}
-      /> */}
     </div>
   );
 };
