@@ -38,6 +38,8 @@ export const LibraryCard = ({
     return <LibraryCardSkeleton />;
   }
 
+  console.log("songData", songData);
+
   return (
     <>
       <div

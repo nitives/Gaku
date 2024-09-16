@@ -119,6 +119,22 @@ export default function Library() {
     }
   };
 
+  const showToast = (type: "success" | "error" | "warning") => {
+    switch (type) {
+      case "success":
+        toast.success("Added to library");
+        break;
+      case "error":
+        toast.error("This is an error message!");
+        break;
+      case "warning":
+        toast("This is a warning message!", { icon: "⚠️" });
+        break;
+      default:
+        break;
+    }
+  };
+
   const handleCreateLibrary = () => {
     createLibrary();
     setCanNameLibrary(true);
@@ -417,6 +433,7 @@ export default function Library() {
               </button>
             </DrawerDialog>
           </div>
+          <button onClick={() => showToast("success")}>Show Success Toast</button>
         </Heading>
         {/* <SubHeading className="*:text-xs *:leading-5 mb-2 px-5">
           <div className="flex py-1 px-2 font-normal bg-destructive/15 border-destructive border rounded-xl">

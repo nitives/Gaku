@@ -7,6 +7,7 @@ import type { Viewport } from "next";
 import { AudioProvider } from "@/context/AudioContext";
 import { PersistentAudioPlayer } from "@/components/PersistentAudioPlayer";
 import { Toaster } from "react-hot-toast";
+// import useDisplayMode from "@/lib/utils/isStandalone";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,6 +39,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // const isStandalone = useDisplayMode();
   return (
     <html lang="en">
       <head>
@@ -254,17 +256,34 @@ export default function RootLayout({
               position="bottom-center"
               toastOptions={{
                 style: {
-                  padding: "16px",
-                  borderRadius: "16px",
-                  background: "#0c0c0c",
+                  padding: "12px 16px",
+                  borderRadius: "15px",
+                  background: "rgba(28, 28, 30, 0.85)",
                   color: "#fff",
+                  fontSize: "15px",
+                  fontWeight: "500",
+                  maxWidth: "90%",
+                  textAlign: "center",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                  backdropFilter: "blur(10px)",
                 },
                 success: {
-                  duration: 3000,
+                  iconTheme: {
+                    primary: "#fff",
+                    secondary: "rgba(28, 28, 30, 0.85)",
+                  },
+                  duration: 2000,
                 },
                 error: {
-                  duration: 4000,
+                  iconTheme: {
+                    primary: "#fff",
+                    secondary: "rgba(28, 28, 30, 0.85)",
+                  },
+                  duration: 3000,
                 },
+              }}
+              containerStyle={{
+                bottom: 50,
               }}
             />
           </AudioProvider>
