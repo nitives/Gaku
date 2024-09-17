@@ -433,7 +433,6 @@ export default function Library() {
               </button>
             </DrawerDialog>
           </div>
-          <button onClick={() => showToast("success")}>Show Success Toast</button>
         </Heading>
         {/* <SubHeading className="*:text-xs *:leading-5 mb-2 px-5">
           <div className="flex py-1 px-2 font-normal bg-destructive/15 border-destructive border rounded-xl">
