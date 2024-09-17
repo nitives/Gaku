@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useLibrary } from "../../hooks/useLibrary";
+import { useLibrary } from "@/hooks/useLibrary";
 import {
   Heading,
   Input,

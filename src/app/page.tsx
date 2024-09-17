@@ -91,9 +91,7 @@ export default function Home() {
     setHDCover(data.imageUrl);
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  fetchData();
 
   console.log("topHipHop", topHipHop);
 

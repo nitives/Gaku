@@ -109,7 +109,7 @@ export const AudioPlayerHLS = ({
         if (playerRef.current) {
           navigator.mediaSession.setPositionState({
             duration: duration,
-            playbackRate: playerRef.current.getInternalPlayer().playbackRate,
+            playbackRate: playerRef?.current.getInternalPlayer().playbackRate,
             position: playerRef.current.getCurrentTime(),
           });
         }
