@@ -447,7 +447,9 @@ input[type="range"] {
 
 /* Album Animated */
 
-.album-animated-blur {
+.album-animated-blur,
+.album-animated-fade {
+  transform: translateY(calc(100% - var(--line-height-offset-animated-cover)));
   backdrop-filter: blur(15px);
   mask: linear-gradient(0deg, black 0%, black 75%, transparent 99%);
 }

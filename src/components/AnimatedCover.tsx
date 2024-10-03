@@ -42,7 +42,7 @@ export const AnimatedCoverFull: React.FC<AnimatedCoverProps> = ({ hlsUrl }) => {
           </div>
 
           <div className="w-full h-56 album-animated-blur absolute translate-y-[14rem]" />
-          <div className="w-full h-56 bg-gradient-to-t from-[--apple-animated-bg-color] from-50% absolute translate-y-[14rem]" />
+          <div className="w-full h-56 album-animated-fade bg-gradient-to-t from-[--apple-animated-bg-color] from-50% absolute translate-y-[14rem]" />
         </div>
       </div>
     </>

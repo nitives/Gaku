@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { AudioPlayerHLS } from "@/components/AudioPlayerHLS";
 import { fetchPlaylistM3U8 } from "@/lib/utils";
@@ -33,11 +33,12 @@ export default function PlaylistPage() {
 
   const params = useParams();
   const id = params?.id as string;
+  const pRef = useRef<HTMLParagraphElement>(null);
   const [playlist, setPlaylist] = useState<any>(null);
   const { addSong, removeSong, isSongInLibrary } = useLibrary();
   const [apple, setAppleData] = useState<any>(null);
   const [animated, setAnimatedVideo] = useState(false);
-  const [albumCover, setAlbumCover] = useState<string | null>(null); // Separate cover for the album
+  const [albumCover, setAlbumCover] = useState<string | null>(null);
 
   const handleLikeToggle = (track: any) => {
     const songId = `${track.title}-${playlist.user.username}`;
@@ -197,6 +198,41 @@ export default function PlaylistPage() {
       );
     }
   }, [animated]);
+
+  useEffect(() => {
+    if (pRef.current) {
+      const pElement = pRef.current;
+      const computedStyle = window.getComputedStyle(pElement);
+      const lineHeight = parseFloat(computedStyle.lineHeight);
+      const height = pElement.offsetHeight;
+      const numberOfLines = Math.ceil(height / lineHeight);
+      const getLineHeightOffset = (lines: any) => {
+        switch (lines) {
+          case 1:
+            return "20px";
+          case 2:
+            return "0px";
+          case 3:
+            return "-20px";
+          case 4:
+            return "40px";
+          default:
+            return "0px";
+        }
+      };
+      const lineHeightOffset = getLineHeightOffset(numberOfLines);
+      console.log(
+        "numberOfLines:",
+        numberOfLines,
+        "lineHeightOffset:",
+        lineHeightOffset
+      );
+      document.documentElement.style.setProperty(
+        "--line-height-offset-animated-cover",
+        lineHeightOffset
+      );
+    }
+  }, [apple, animated, isDesktop]);
 
   if (!playlist) return <PlaylistSkeleton />;
 
@@ -401,6 +437,7 @@ export default function PlaylistPage() {
                   >
                     {apple?.data[0]?.attributes?.editorialNotes?.short ? (
                       <p
+                        ref={pRef}
                         className={`${
                           animated && !isDesktop
                             ? "text-white/55"
