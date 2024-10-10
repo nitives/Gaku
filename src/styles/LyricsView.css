@@ -1,0 +1,307 @@
+/* :root {
+  --LyricFontSize: 2rem;
+  @media (display-mode: standalone) {
+    --LyricFontSize: 2.75rem;
+  }
+}
+
+.md-body.lyric-body {
+  background: rgba(0, 0, 0, 0.001);
+  mask-image: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0) 0.5%,
+    rgba(0, 0, 0, 1) 15%,
+    rgba(0, 0, 0, 1) 85%,
+    rgba(0, 0, 0, 0) 99.5%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0.5%,
+    rgb(0, 0, 0) 15%,
+    rgb(0, 0, 0) 85%,
+    rgba(0, 0, 0, 0) 99.5%
+  );
+  overflow-y: scroll;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lyrics-container {
+  color: rgba(255, 255, 255, 0.4);
+  width: 100%;
+  height: 60vh;
+  display: flex;
+  scroll-behavior: smooth;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.lyric-line {
+  --fontSizeBG: 1rem;
+  --lineBlurAmount: 1px;
+  font-weight: 600;
+  opacity: 0.5;
+  cursor: pointer;
+  font-size: var(--LyricFontSize);
+  text-align: left;
+
+  color: white;
+  transform: scale(0.8);
+  transform-origin: left center;
+  transition: transform 0.2s ease;
+  opacity: 0.75;
+  width: auto;
+  display: inline-block;
+  margin: 10px 0;
+}
+
+.lyric-line:hover {
+  cursor: pointer;
+}
+
+.lyric-line:hover::after {
+  content: " ";
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: scale(1.06);
+  pointer-events: none;
+  border-radius: 10px;
+  -webkit-backface-visibility: hidden;
+}
+
+.lyric-line.active {
+  opacity: 1;
+  transform: scale(1);
+  transition: transform 0.2s ease;
+}
+
+.lyric-line:not(.active) {
+  filter: blur(1px);
+}
+
+.lyricWaiting {
+  margin-top: 8px;
+  display: none;
+}
+
+.lyric-line.active .lyricWaiting {
+  display: inline-flex;
+  animation: lyricWaitingLine 6s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+}
+
+.lyric-line.active .lyricWaiting > div {
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-radius: 50%;
+  margin: 3px;
+}
+
+@keyframes lyricWaitingLine {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+
+.word {
+  display: inline-block;
+  position: relative;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.word-active,
+.word-completed {
+  color: transparent;
+  background: linear-gradient(to right, #ff0080, #ff8c00, #40e0d0, #ff0080);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.word-active,
+.word-completed {
+  color: transparent;
+  background: linear-gradient(to right, #ffffff, #ffffff);
+  background-size: var(--word-duration-2) 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.word-active {
+  animation: gradientAnimation 10s linear forwards;
+}
+
+@keyframes gradientAnimation {
+  from {
+    background-position: 0% center;
+  }
+  to {
+    background-position: 100% center;
+  }
+} */
+
+:root {
+  --musicKeyColor: #fa2d48;
+  --gradientColor: white;
+  --gradientStartColor: rgba(255, 255, 255, 0.6); /* Start transparent */
+  --gradientEndColor: rgb(255, 255, 255, 0.6); /* End with full color */
+  --defaultColor: rgba(255, 255, 255, 0.6);
+  --wordIntensity: 0.8;
+  --lyricRaiseAmount: -0.1em;
+  --lyricStartAmount: 0em;
+  --char-start-offset: 0em;
+  --char-end-offset: 0em;
+  --easeOut: ease-out;
+  --LyricFontSize: 2rem;
+  --word-duration: 2s; /* Ensure this is set */
+  --char-duration: 0.5s; /* Ensure this is set */
+  --gradientImage: linear-gradient(
+    to right,
+    var(--gradientColor),
+    var(--gradientColor) 10%,
+    var(--gradientColor) 90%,
+    transparent 100%
+  );
+}
+
+/* Container Styles */
+.md-body.lyric-body {
+  background: rgba(0, 0, 0, 0.001);
+  mask-image: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0) 0.5%,
+    rgba(0, 0, 0, 1) 15%,
+    rgba(0, 0, 0, 1) 85%,
+    rgba(0, 0, 0, 0) 99.5%
+  );
+  overflow-y: scroll;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lyrics-container {
+  color: rgba(255, 255, 255, 0.4);
+  width: 100%;
+  height: 60vh;
+  display: flex;
+  scroll-behavior: smooth;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Line Styles */
+.lyric-line {
+  font-weight: 700;
+  opacity: 0.5;
+  cursor: pointer;
+  font-size: var(--LyricFontSize);
+  transform-origin: left;
+  transform: scale(0.8);
+  transition: transform 1s var(--appleEase), opacity 0.8s var(--appleEase),
+    padding-top 0.5s var(--appleEase);
+  padding-top: 0;
+  margin-top: 0.5rem;
+  position: relative;
+  flex-direction: row;
+  gap: 16px;
+  width: 100%;
+  filter: blur(1px);
+}
+
+.lyric-line.active {
+  opacity: 1;
+  transform: scale(1);
+  filter: unset;
+  transition: transform 0.2s var(--appleEase), opacity 0.35s var(--appleEase),
+    filter 0.35s var(--appleEase), scale 0.35s var(--appleEase);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Word Styles */
+.word {
+  --bgProgress: 0%;
+  display: inline-block;
+  position: relative;
+  color: var(--defaultColor);
+  background-image: var(--gradientImage);
+  background-size: var(--bgProgress) 100%;
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-clip: text;
+  -webkit-background-clip: text;
+  font-weight: 800;
+  transform: translateY(var(--lyricStartAmount));
+  transition: background-size var(--word-duration) linear, transform 0.5s var(--appleEase);
+}
+
+.word-active {
+  /* No additional styles needed, background-size is controlled via inline styles */
+}
+
+.word-completed {
+  transform: translateY(var(--lyricRaiseAmount));
+  color: var(--gradientEndColor);
+  transition: transform 0.5s var(--appleEase);
+}
+
+/* Character Styles */
+.char {
+  opacity: 1;
+  transform: translateY(var(--char-start-offset));
+  text-shadow: 0px 0px 0px transparent;
+}
+
+/* Exclude spaces from animation */
+.word-active .char:not(.space) {
+  animation-delay: var(--char-animation-delay);
+  animation-timing-function: var(--easeOut);
+  will-change: transform, text-shadow;
+}
+
+/* Styles for spaces */
+.char.space {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Space between words */
+.word-space {
+  display: inline;
+  width: 0.1em;
+}
+
+/* Additional Styles */
+.lyrics-translation {
+  font-size: 0.9em;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.2em;
+}
+
+.source-info {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+  color: #ccc;
+  font-size: 0.8rem;
+}
+
+.richl {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}

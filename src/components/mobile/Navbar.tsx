@@ -33,7 +33,7 @@ export const Navbar = ({
 
   return (
     <div className="navbar-mobile-container select-none !z-[100] relative">
-      <nav className="navbar-mobile bg-background/15">
+      <nav className="navbar-mobile">
         <motion.div whileTap={{ scale: 0.925 }}>
           <Link href={"/"} className="flex flex-col items-center">
             <GoHomeFill
@@ -89,7 +89,7 @@ export const Navbar = ({
       <div className="w-screen h-screen overflow-hidden bottom-0 absolute blur-pro">
         <LinearBlur
           side="bottom"
-          tint="rgba(255, 255, 255, 0.1)"
+          tint="rgba(255, 255, 255, 0)"
           falloffPercentage={100}
           strength={128}
           style={{

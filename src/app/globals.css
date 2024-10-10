@@ -99,6 +99,17 @@
     min-height: calc(100% + env(safe-area-inset-top));
     padding: env(safe-area-inset-top) env(safe-area-inset-right)
       env(safe-area-inset-bottom) env(safe-area-inset-left);
+    &::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      width: 100%;
+      height: env(safe-area-inset-top);
+      /* background: var(--background); */
+      background: hsl(var(--background));
+    }
   }
 }
 
@@ -318,7 +329,7 @@ input[type="range"] {
   .navbar-mobile {
     padding: 30px;
     padding-top: 90px;
-    backdrop-filter: blur(30px);
+    /* backdrop-filter: blur(30px); */
     /* background: linear-gradient(
       0deg,
       rgba(0, 0, 0, 0.2) 75%,

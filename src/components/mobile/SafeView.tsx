@@ -135,7 +135,7 @@ export const ScrollHeader = ({
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full z-50 transition-all opacity-0 pt-8 standalone:pt-12 pb-2 px-5 ${
+      className={`fixed top-0 left-0 w-full z-[150] transition-all opacity-0 pt-8 standalone:pt-12 pb-2 px-5 ${
         isScrolled
           ? "bg-background/75 backdrop-blur-2xl pt-14 opacity-[1] standalone:pt-[3.6rem]  pb-2 px-5"
           : "bg-transparent py-4"

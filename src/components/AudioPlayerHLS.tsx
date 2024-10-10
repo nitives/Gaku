@@ -21,8 +21,10 @@ import "../styles/playercontrols.css";
 import { ImageBlur } from "./ImageBlur";
 import { BubbleChat, XMark } from "react-ios-icons";
 import { useTheme } from "next-themes";
-import { AnimatedRichSyncLyrics } from "./AnimatedRichSyncLyrics";
-import lyrics from "./richsynclyrics.json";
+import { Lyric } from "@/lib/types";
+
+import LyricsView from "./lyrics/LyricsView";
+import timelessData from "./lyrics/timeless.json";
 
 export const AudioPlayerHLS = ({
   src,
@@ -366,8 +368,6 @@ const ExpandedPlayerControls = ({
     closed: { scale: 1, x: "40vw", y: 0, transition: { duration: 0.3 } },
   };
 
-  const richSyncData = lyrics.message.body.richsync.richsync_body;
-
   return (
     <div className="overlay bg-black">
       <AnimatePresence>
@@ -458,7 +458,7 @@ const ExpandedPlayerControls = ({
 
               {showLyrics && (
                 <div className="h-[55vh]">
-                  <AnimatedRichSyncLyrics
+                  {/* <AnimatedRichSyncLyrics
                     hasRichSync={true}
                     songTitle={title}
                     artistName={artist}
@@ -466,6 +466,14 @@ const ExpandedPlayerControls = ({
                     delay={1}
                     localPlayed={localPlayed}
                     duration={duration}
+                  /> */}
+                  <LyricsView
+                    time={localPlayed}
+                    artistName={artist}
+                    songTitle={title}
+                    duration={duration}
+                    playing={playing}
+                    seekTo={(time: number) => playerRef.current?.seekTo(time)}
                   />
                 </div>
               )}

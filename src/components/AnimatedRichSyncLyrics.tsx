@@ -20,27 +20,30 @@ const easeOutCubic = (t: number): number => {
   return 1 - Math.pow(1 - t, 3);
 };
 
-const calculateLineProgress = (
+const calculateCharacterProgress = (
   line: RichSyncLine,
   localPlayed: number,
   delay: number
-): number => {
-  if (!line) return 0;
+): number[] => {
+  if (!line) return [];
 
-  // console.log("calculateLineProgress | localPlayed:", localPlayed);
-  const adjustedTimestamp = (localPlayed + delay) * 1000; // current timestamp
-  const lineStartTime = line.ts * 1000; // convert line start time to milliseconds
-  const totalLineDuration = (line.te - line.ts) * 1000; // total duration of the line in milliseconds
-
-  const elapsedTime = adjustedTimestamp - lineStartTime; // how much time has passed since the start of the line
-
-  // Calculate raw progress
+  const adjustedTimestamp = (localPlayed + delay) * 1000;
+  const lineStartTime = line.ts * 1000;
+  const totalLineDuration = (line.te - line.ts) * 1000;
+  const elapsedTime = adjustedTimestamp - lineStartTime;
   const rawProgress = Math.min(Math.max(elapsedTime / totalLineDuration, 0), 1);
-
-  // Apply easing function to the raw progress
   const easedProgress = easeOutCubic(rawProgress);
 
-  return easedProgress; // return progress between 0 and 1
+  return line.l.map((_, index) => {
+    const charStartTime =
+      lineStartTime + (index / line.l.length) * totalLineDuration;
+    const charElapsedTime = adjustedTimestamp - charStartTime;
+    const charProgress = Math.min(
+      Math.max(charElapsedTime / totalLineDuration, 0),
+      1
+    );
+    return easeOutCubic(charProgress);
+  });
 };
 
 export const AnimatedRichSyncLyrics = ({
@@ -69,7 +72,7 @@ export const AnimatedRichSyncLyrics = ({
     { lines: [] }
   );
   const [showDots, setShowDots] = useState(false);
-  const [lineProgress, setLineProgress] = useState(0); // State to store line progress
+  const [lineProgress, setLineProgress] = useState<number[]>([]); // State to store line progress for each character
   const animationRef = useRef<number | null>(null); // Store requestAnimationFrame ID
 
   // Fetch Rich Sync Lyrics
@@ -165,24 +168,10 @@ export const AnimatedRichSyncLyrics = ({
     onSeek(timeInSeconds);
   };
 
-  //   const calculateLineProgress = (line: RichSyncLine): number => {
-  //     if (!line || !currentLine) return 0;
-
-  //     const adjustedTimestamp = (localPlayed + delay) * 1000; // current timestamp
-  //     const lineStartTime = line.ts * 1000; // convert line start time to milliseconds
-  //     const totalLineDuration = (line.te - line.ts) * 1000; // total duration of the line in milliseconds
-
-  //     const elapsedTime = adjustedTimestamp - lineStartTime; // how much time has passed since the start of the line
-
-  //     // Calculate progress based on elapsed time relative to the total line duration
-  //     const progress = Math.min(Math.max(elapsedTime / totalLineDuration, 0), 1);
-  //     return progress; // return progress between 0 and 1
-  //   };
-
   useEffect(() => {
     const updateLineProgress = () => {
       if (currentLine) {
-        const progress = calculateLineProgress(
+        const progress = calculateCharacterProgress(
           currentLine as RichSyncLine,
           localPlayed,
           delay
@@ -238,10 +227,14 @@ export const AnimatedRichSyncLyrics = ({
 
           const lineProgress =
             isCurrentLine && hasRichSync
-              ? calculateLineProgress(line as RichSyncLine, localPlayed, delay)
+              ? calculateCharacterProgress(
+                  line as RichSyncLine,
+                  localPlayed,
+                  delay
+                )
               : isPastLine
-              ? 1
-              : 0;
+              ? Array((line as RichSyncLine).l.length).fill(1)
+              : Array((line as RichSyncLine).l.length).fill(0);
 
           return (
             <p
@@ -276,10 +269,21 @@ export const AnimatedRichSyncLyrics = ({
                       key={partIndex}
                       className={clsx(
                         "lyric-char",
-                        part.c === " " ? "space" : ""
+                        part.c === " " && partIndex === 0
+                          ? "no-leading-space"
+                          : ""
                       )}
+                      style={
+                        {
+                          "--char-progress": lineProgress[partIndex],
+                        } as React.CSSProperties
+                      }
                     >
-                      {part.c === " " ? "\u00A0" : part.c}
+                      {part.c === " " && partIndex === 0
+                        ? ""
+                        : part.c === " "
+                        ? "\u00A0"
+                        : part.c}
                     </span>
                   ))
                 : (line as LyricLine).words}
