@@ -154,6 +154,13 @@
 } */
 
 :root {
+  --LyricFontSize: 2rem;
+  @media (display-mode: standalone) {
+    --LyricFontSize: 2.75rem;
+  }
+}
+
+:root {
   --musicKeyColor: #fa2d48;
   --gradientColor: white;
   --gradientStartColor: rgba(255, 255, 255, 0.6); /* Start transparent */
@@ -165,7 +172,6 @@
   --char-start-offset: 0em;
   --char-end-offset: 0em;
   --easeOut: ease-out;
-  --LyricFontSize: 2rem;
   --word-duration: 2s; /* Ensure this is set */
   --char-duration: 0.5s; /* Ensure this is set */
   --gradientImage: linear-gradient(

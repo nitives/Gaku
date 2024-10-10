@@ -42,7 +42,7 @@ export const LibraryCard = ({
     return <LibraryCardSkeleton />;
   }
 
-  console.log("songData", songData);
+  // console.log("songData", songData);
 
   return (
     <>

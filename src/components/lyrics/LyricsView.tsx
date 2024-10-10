@@ -123,9 +123,9 @@ const LyricsView: React.FC<LyricsViewProps> = ({
     artistName: string
   ): Promise<RichSyncLyrics | null> => {
     try {
-      console.log(
-        `fetchRichSyncLyrics | artist and title:", ${artistName} - ${songTitle})`
-      );
+      // console.log(
+      //   `fetchRichSyncLyrics | artist and title:", ${artistName} - ${songTitle})`
+      // );
       const data = await fetchRichSyncLyrics(songTitle, artistName);
       if (!data || !data.lyrics || !data.lyrics.message.body.richsync)
         return null;
@@ -149,9 +149,9 @@ const LyricsView: React.FC<LyricsViewProps> = ({
     artistName: string
   ): Promise<LineSyncLyrics | null> => {
     try {
-      console.log(
-        `fetchLyrics | artist and title:", ${artistName} - ${songTitle})`
-      );
+      // console.log(
+      //   `fetchLyrics | artist and title:", ${artistName} - ${songTitle})`
+      // );
       const data = await fetchLyrics(songTitle, artistName);
       if (!data || !data.lyrics || !data.lyrics.lines) return null;
       const lines = data.lyrics.lines;
@@ -341,22 +341,7 @@ const LyricsView: React.FC<LyricsViewProps> = ({
     };
 
     return (
-      <div className="lyrics-container">
-        <motion.div
-          className="loading-container"
-          variants={loadingContainerVariants}
-          initial="start"
-          animate="end"
-        >
-          {[...Array(3)].map((_, index) => (
-            <motion.span
-              key={index}
-              className="loading-circle"
-              variants={loadingCircleVariants}
-              transition={loadingCircleTransition}
-            />
-          ))}
-        </motion.div>
+      <div className="lyrics-container pt-5">
         <p>Loading lyrics...</p>
       </div>
     );
