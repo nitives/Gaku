@@ -721,52 +721,60 @@ export const NavbarMiniControls = ({
 }) => {
   const { theme } = useTheme();
   return (
-    <div className="navbar-mini-container">
-      <div className="w-full h-fit mini-control backdrop-blur-lg p-2 rounded-[14px] flex justify-between bg-background/20 dark:bg-card/75">
-        <div onClick={onExpand} className="flex items-center w-full">
-          <Image
-            className="size-11 rounded-lg"
-            src={
-              img ||
-              (theme === "light"
-                ? "/assets/placeholders/missing_song_light.png"
-                : "/assets/placeholders/missing_song_dark.png")
-            }
-            alt={title || "Missing Image"}
-            width={200}
-            height={200}
-            unoptimized={true}
-            draggable={false}
-          />
-          <TitleOverflowAnimator>{title}</TitleOverflowAnimator>
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <div className="navbar-mini-container">
+          <div className="w-full h-fit mini-control backdrop-blur-lg p-2 rounded-[14px] flex justify-between bg-background/20 dark:bg-card/75">
+            <div onClick={onExpand} className="flex items-center w-full">
+              <Image
+                className="size-11 rounded-lg"
+                src={
+                  img ||
+                  (theme === "light"
+                    ? "/assets/placeholders/missing_song_light.png"
+                    : "/assets/placeholders/missing_song_dark.png")
+                }
+                alt={title || "Missing Image"}
+                width={200}
+                height={200}
+                unoptimized={true}
+                draggable={false}
+              />
+              <TitleOverflowAnimator>{title}</TitleOverflowAnimator>
+            </div>
+            <div className="flex items-center pr-2 gap-2">
+              <motion.button
+                whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                whileTap={{
+                  scale: 0.85,
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                }}
+                transition={{ duration: 0.125, ease: "easeInOut" }}
+                onClick={play}
+                className="flex flex-col items-center rounded-full p-2"
+              >
+                {playing ? <FaPause size={26} /> : <IoPlay size={26} />}
+              </motion.button>
+              <motion.button
+                whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                whileTap={{
+                  scale: 0.85,
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                }}
+                transition={{ duration: 0.125, ease: "easeInOut" }}
+                onClick={onNext}
+                className="flex flex-col items-center rounded-full p-2"
+              >
+                <IoPlayForward size={26} />
+              </motion.button>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center pr-2 gap-2">
-          <motion.button
-            whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
-            whileTap={{
-              scale: 0.85,
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-            }}
-            transition={{ duration: 0.125, ease: "easeInOut" }}
-            onClick={play}
-            className="flex flex-col items-center rounded-full p-2"
-          >
-            {playing ? <FaPause size={26} /> : <IoPlay size={26} />}
-          </motion.button>
-          <motion.button
-            whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
-            whileTap={{
-              scale: 0.85,
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-            }}
-            transition={{ duration: 0.125, ease: "easeInOut" }}
-            onClick={onNext}
-            className="flex flex-col items-center rounded-full p-2"
-          >
-            <IoPlayForward size={26} />
-          </motion.button>
-        </div>
-      </div>
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 };

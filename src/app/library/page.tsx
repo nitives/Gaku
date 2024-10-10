@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useLibrary } from "@/hooks/useLibrary";
 import {
   Heading,
@@ -182,36 +182,39 @@ export default function Library() {
     }
   };
 
-  const handlePlaySong = async (songId: string) => {
-    const songIndex = library?.songs.findIndex((song) => song.id === songId);
-    if (songIndex !== undefined && songIndex >= 0) {
-      const remainingSongs = library?.songs.slice(songIndex);
-      if (remainingSongs) {
-        setGlobalPlaylist(remainingSongs);
-        const firstSong = remainingSongs[0];
-        console.log("firstSong.id 1:", firstSong.id);
+  const handlePlaySong = useCallback(
+    async (songId: string) => {
+      const songIndex = library?.songs.findIndex((song) => song.id === songId);
+      if (songIndex !== undefined && songIndex >= 0) {
+        const remainingSongs = library?.songs.slice(songIndex);
+        if (remainingSongs) {
+          setGlobalPlaylist(remainingSongs);
+          const firstSong = remainingSongs[0];
+          console.log("firstSong.id 1:", firstSong.id);
 
-        try {
-          console.log("firstSong.id 2:", firstSong.id);
-          const response = await fetch(`/api/track/info/${firstSong.id}`);
-          const songData = await response.json();
-          const playlistUrl = await fetchPlaylistM3U8(songData.permalink_url);
+          try {
+            console.log("firstSong.id 2:", firstSong.id);
+            const response = await fetch(`/api/track/info/${firstSong.id}`);
+            const songData = await response.json();
+            const playlistUrl = await fetchPlaylistM3U8(songData.permalink_url);
 
-          setCurrentTrack(songData);
-          setPlaylistUrl(playlistUrl);
-          setIsPlaying(true);
+            setCurrentTrack(songData);
+            setPlaylistUrl(playlistUrl);
+            setIsPlaying(true);
 
-          if (songData.permalink_url) {
-            fetchCover(songData.permalink_url);
+            if (songData.permalink_url) {
+              fetchCover(songData.permalink_url);
+            }
+
+            console.log("playlistUrl:", playlistUrl);
+          } catch (error) {
+            console.error("Error fetching song or playlist data:", error);
           }
-
-          console.log("playlistUrl:", playlistUrl);
-        } catch (error) {
-          console.error("Error fetching song or playlist data:", error);
         }
       }
-    }
-  };
+    },
+    [library, setGlobalPlaylist, setCurrentTrack, setPlaylistUrl, setIsPlaying]
+  );
 
   const fetchCover = async (query: string) => {
     const url = encodeURIComponent(query);
@@ -416,6 +419,28 @@ export default function Library() {
     );
   };
 
+  // Extracting the icon component to prevent re-creation on every render
+  const keyIcon = <IoKey className="text-muted-foreground" />;
+  const playAllButton = (
+    <button
+      className="min-w-fit transition-all duration-150 max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
+      onClick={handlePlayAll}
+    >
+      <>
+        <p>Play All</p>
+        <IoPlay />
+      </>
+    </button>
+  );
+
+  // Memoizing the onChange handler for the Input component
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setImportKey(e.target.value);
+    },
+    []
+  );
+
   return (
     <>
       <SafeView className="!px-0">
@@ -434,14 +459,6 @@ export default function Library() {
             </DrawerDialog>
           </div>
         </Heading>
-        {/* <SubHeading className="*:text-xs *:leading-5 mb-2 px-5">
-          <div className="flex py-1 px-2 font-normal bg-destructive/15 border-destructive border rounded-xl">
-            <p>
-              Some features may not work as intended, the library is an
-              experimental feature, just like the rest of this app.
-            </p>
-          </div>
-        </SubHeading> */}
         <div>
           {!library ? (
             <div className="px-5">
@@ -465,9 +482,9 @@ export default function Library() {
                 <Input
                   type="text"
                   value={importKey}
-                  onChange={(e) => setImportKey(e.target.value)}
+                  onChange={handleInputChange} // Using memoized onChange handler
                   placeholder="Enter library key"
-                  icon={<IoKey className="text-muted-foreground" />}
+                  icon={keyIcon}
                 />
               </div>
             </div>
@@ -493,50 +510,17 @@ export default function Library() {
                         {libraryName || "Untitled Library"}
                       </SubHeading>
                     )}
-                    {/* <button
-                      onClick={() => setIsEditing(!isEditing)}
-                      className="text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <IoPencil size={16} />
-                    </button> */}
-                    {/* <div>
-                      <Input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Enter username"
-                        icon={<IoKey className="text-muted-foreground" />}
-                      />
-                      <button
-                        className="mt-2 min-w-[7.25rem] transition-all duration-150 py-2 px-4 flex justify-center rounded-xl text-foreground bg-foreground/10 hover:bg-foreground/20 items-center gap-2"
-                        onClick={handleFetchUserData}
-                      >
-                        Fetch User Data
-                      </button>
-                    </div> */}
                   </div>
                 </>
               )}
-              <div className="grid gap-2 px-5">
-                <div className="flex gap-1 w-full">
-                  <button
-                    className="min-w-fit transition-all duration-150 max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
-                    onClick={handlePlayAll}
-                  >
-                    <>
-                      <p>Play All</p>
-                      <IoPlay />
-                    </>
-                  </button>
-                </div>
-              </div>
+              <div className="grid gap-2 px-5">{playAllButton}</div>
               <div className="py-4">
                 <ul className="flex flex-col gap-1">
                   {library.songs.map((song) => (
                     <LibraryCard
                       key={song.id}
                       songId={song.id}
-                      onClick={() => handlePlaySong(song.id)}
+                      handlePlaySong={() => handlePlaySong(song.id)} // Using memoized handlePlaySong
                       isPlaying={playingId == song.id}
                     />
                   ))}

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Skeleton } from "../ui/skeleton";
 import "../../styles/album.css";
 import { useTheme } from "next-themes";
@@ -8,12 +8,12 @@ import "loaders.css";
 
 export const LibraryCard = ({
   songId,
-  onClick,
+  handlePlaySong,
   isExplicit,
   isPlaying,
 }: {
   songId: string;
-  onClick: () => void;
+  handlePlaySong: (id: string) => void;
   isExplicit?: boolean;
   isPlaying?: boolean;
 }) => {
@@ -34,6 +34,10 @@ export const LibraryCard = ({
     fetchSongData();
   }, [songId]);
 
+  const handleClick = useCallback(() => {
+    handlePlaySong(songId);
+  }, [handlePlaySong, songId]);
+
   if (!songData?.title) {
     return <LibraryCardSkeleton />;
   }
@@ -43,7 +47,7 @@ export const LibraryCard = ({
   return (
     <>
       <div
-        onClick={onClick}
+        onClick={handleClick}
         className="w-full py-[1.5px] pl-5 flex items-center gap-3 cursor-pointer desktop-hover-library-card standalone:active:bg-foreground/5 transition-colors duration-150 standalone:duration-300"
       >
         <div className="size-12">
@@ -96,6 +100,7 @@ export const LibraryCard = ({
     </>
   );
 };
+
 export const LibraryCardSkeleton = () => {
   return (
     <>
