@@ -7,7 +7,7 @@ import {
   SafeView,
   SubHeading,
 } from "@/components/mobile/SafeView";
-import { useAudio } from "@/context/AudioContext";
+import useAudioStore from "@/context/AudioContext";
 import {
   IoAddCircle,
   IoCheckmark,
@@ -57,13 +57,13 @@ import { fetchPlaylistM3U8, fetchUserData } from "@/lib/utils";
 
 export default function Library() {
   const {
-    currentTrack: globalCurrentTrack,
-    setCurrentTrack: setGlobalCurrentTrack,
-    playlistUrl: globalPlaylistUrl,
-    setPlaylistUrl: setGlobalPlaylistUrl,
     setGlobalPlaylist,
     setHDCover,
-  } = useAudio();
+    setPlaylistUrl,
+    setCurrentTrack,
+    setIsPlaying,
+    currentTrack,
+  } = useAudioStore();
   const {
     library,
     setLibrary,
@@ -72,9 +72,6 @@ export default function Library() {
     updateLibraryName,
     globalLibraryKey,
   } = useLibrary();
-
-  const { setPlaylistUrl, setCurrentTrack, setIsPlaying, currentTrack } =
-    useAudio();
   const [importKey, setImportKey] = useState("");
   const [isKeyHidden, setIsKeyHidden] = useState(true);
   const [isCopied, setIsCopied] = useState(false);

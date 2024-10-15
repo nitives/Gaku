@@ -1,6 +1,6 @@
 "use client";
 import { AudioPlayerHLS } from "@/components/AudioPlayerHLS";
-import { useAudio } from "@/context/AudioContext";
+import useAudioStore from "@/context/AudioContext";
 import { useEffect } from "react";
 
 export const PersistentAudioPlayer = () => {
@@ -11,12 +11,15 @@ export const PersistentAudioPlayer = () => {
     playNextTrack,
     playPreviousTrack,
     isPlaying,
-  } = useAudio();
+  } = useAudioStore();
 
   useEffect(() => {
     const setPageTitle = async () => {
       // const fixedTitle = artistNameRemove(currentTrack.user.username, currentTrack.title)
-      const fixedTitle = currentTrack.title;
+      const fixedTitle = currentTrack?.title;
+      if (!currentTrack) {
+        console.log("No current track | PersistentAudioPlayer");
+      }
       const title = fixedTitle ? `${fixedTitle}` : "Gaku";
       document.title = title;
     };

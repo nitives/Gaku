@@ -13,7 +13,7 @@ import { SearchCard } from "@/components/mobile/SearchCard";
 import { fetchPlaylistM3U8, FetchSearch } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useAudio } from "@/context/AudioContext";
+import useAudioStore from "@/context/AudioContext";
 
 export default function Home() {
   const {
@@ -23,7 +23,7 @@ export default function Home() {
     setIsPlaying,
     cover,
     setHDCover,
-  } = useAudio();
+  } = useAudioStore();
 
   const [search, setSearchData] = useState<any>(null);
   const [localPlaylistUrl, setLocalPlaylistUrl] = useState<string | null>(null);

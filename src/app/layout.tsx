@@ -4,10 +4,8 @@ import "./globals.css";
 import { Navbar } from "@/components/mobile/Navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Viewport } from "next";
-import { AudioProvider } from "@/context/AudioContext";
 import { PersistentAudioPlayer } from "@/components/PersistentAudioPlayer";
 import { Toaster } from "react-hot-toast";
-// import useDisplayMode from "@/lib/utils/isStandalone";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -39,7 +37,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const isStandalone = useDisplayMode();
   return (
     <html lang="en">
       <head>
@@ -248,45 +245,43 @@ export default function RootLayout({
       </head>
       <body className={"SFPro"}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AudioProvider>
-            <PersistentAudioPlayer />
-            {children}
-            <Navbar />
-            <Toaster
-              position="bottom-center"
-              toastOptions={{
-                style: {
-                  padding: "12px 16px",
-                  borderRadius: "15px",
-                  background: "rgba(28, 28, 30, 0.85)",
-                  color: "#fff",
-                  fontSize: "15px",
-                  fontWeight: "500",
-                  maxWidth: "90%",
-                  textAlign: "center",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                  backdropFilter: "blur(10px)",
+          <PersistentAudioPlayer />
+          {children}
+          <Navbar />
+          <Toaster
+            position="bottom-center"
+            toastOptions={{
+              style: {
+                padding: "12px 16px",
+                borderRadius: "15px",
+                background: "rgba(28, 28, 30, 0.85)",
+                color: "#fff",
+                fontSize: "15px",
+                fontWeight: "500",
+                maxWidth: "90%",
+                textAlign: "center",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                backdropFilter: "blur(10px)",
+              },
+              success: {
+                iconTheme: {
+                  primary: "#fff",
+                  secondary: "rgba(28, 28, 30, 0.85)",
                 },
-                success: {
-                  iconTheme: {
-                    primary: "#fff",
-                    secondary: "rgba(28, 28, 30, 0.85)",
-                  },
-                  duration: 2000,
+                duration: 2000,
+              },
+              error: {
+                iconTheme: {
+                  primary: "#fff",
+                  secondary: "rgba(28, 28, 30, 0.85)",
                 },
-                error: {
-                  iconTheme: {
-                    primary: "#fff",
-                    secondary: "rgba(28, 28, 30, 0.85)",
-                  },
-                  duration: 3000,
-                },
-              }}
-              containerStyle={{
-                bottom: 50,
-              }}
-            />
-          </AudioProvider>
+                duration: 3000,
+              },
+            }}
+            containerStyle={{
+              bottom: 50,
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>

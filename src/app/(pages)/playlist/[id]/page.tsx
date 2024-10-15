@@ -11,7 +11,7 @@ import { ColorGen } from "@/components/ColorGen";
 import { Lossless } from "@/components/Icons/Lossless";
 import "../../../../styles/album.css";
 import Link from "next/link";
-import { useAudio } from "@/context/AudioContext";
+import useAudioStore from "@/context/AudioContext";
 import { PlaylistSkeleton } from "@/components/skeletons/PlaylistSkeleton";
 import { useLibrary } from "@/hooks/useLibrary";
 import { PausedIcon, PlayingIcon } from "@/components/Icons/PlayingIcon";
@@ -29,7 +29,7 @@ export default function PlaylistPage() {
     cover,
     setHDCover,
     setGlobalPlaylist, // Ensure this is imported from the context
-  } = useAudio();
+  } = useAudioStore();
 
   const params = useParams();
   const id = params?.id as string;

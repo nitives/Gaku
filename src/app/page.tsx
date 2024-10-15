@@ -7,14 +7,15 @@ import {
 } from "@/components/mobile/SafeView";
 import { SongCard } from "@/components/mobile/home/SongCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAudio } from "@/context/AudioContext";
+// import { useAudio } from "@/context/AudioContext";
+import useAudioStore from "@/context/AudioContext";
 import {
   FetchHipHopEvents,
   FetchNewHotEvents,
   fetchPlaylistM3U8,
 } from "@/lib/utils";
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 export default function Home() {
   const {
@@ -22,7 +23,7 @@ export default function Home() {
     setPlaylistUrl: setGlobalPlaylistUrl,
     setIsPlaying,
     setHDCover,
-  } = useAudio();
+  } = useAudioStore();
   const [topHipHop, setTopHipHop] = useState<any>(null);
   const [newHot, setNewHot] = useState<any>(null);
 

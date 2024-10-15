@@ -155,8 +155,10 @@
 
 :root {
   --LyricFontSize: 2rem;
+  --LyricLineHeight: inherit;
   @media (display-mode: standalone) {
     --LyricFontSize: 2.75rem;
+    --LyricLineHeight: 3.5rem;
   }
 }
 
@@ -215,6 +217,7 @@
   opacity: 0.5;
   cursor: pointer;
   font-size: var(--LyricFontSize);
+  line-height: var(--LyricLineHeight);
   transform-origin: left;
   transform: scale(0.8);
   transition: transform 1s var(--appleEase), opacity 0.8s var(--appleEase),
@@ -225,15 +228,16 @@
   flex-direction: row;
   gap: 16px;
   width: 100%;
-  filter: blur(1px);
+  filter: blur(2px);
 }
 
 .lyric-line.active {
   opacity: 1;
   transform: scale(1);
-  filter: unset;
+  filter: blur(0px);
   transition: transform 0.2s var(--appleEase), opacity 0.35s var(--appleEase),
-    filter 0.35s var(--appleEase), scale 0.35s var(--appleEase);
+    filter 0.35s var(--appleEase), scale 0.35s var(--appleEase),
+    filter 0.35s var(--appleEase);
   color: rgba(255, 255, 255, 0.95);
 }
 
@@ -251,7 +255,8 @@
   -webkit-background-clip: text;
   font-weight: 800;
   transform: translateY(var(--lyricStartAmount));
-  transition: background-size var(--word-duration) linear, transform 0.5s var(--appleEase);
+  transition: background-size var(--word-duration) linear,
+    transform 0.5s var(--appleEase);
 }
 
 .word-active {

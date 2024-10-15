@@ -10,7 +10,7 @@ import {
   SubHeading,
 } from "@/components/mobile/SafeView";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
-import { useAudio } from "@/context/AudioContext";
+import useAudioStore from "@/context/AudioContext";
 import { fetchPlaylistM3U8 } from "@/lib/utils";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { usePathname, useRouter } from "next/navigation";
@@ -18,7 +18,7 @@ import toast from "react-hot-toast";
 
 export default function PlaylistPage() {
   const { setCurrentTrack, setPlaylistUrl, setIsPlaying, setHDCover } =
-    useAudio();
+  useAudioStore();
   const params = useParams();
   const id = params?.id as string;
   const [artist, setArtist] = useState<any>(null);

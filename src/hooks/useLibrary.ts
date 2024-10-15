@@ -6,6 +6,7 @@ interface Song {
   title: string;
   artist: string;
   addedAt: string;
+  permalink_url?: string;
 }
 
 interface LibraryData {
