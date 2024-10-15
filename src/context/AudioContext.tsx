@@ -2,23 +2,17 @@
 import { create } from "zustand";
 import { fetchPlaylistM3U8 } from "@/lib/utils";
 
-interface Track {
-  id: string;
-  permalink_url: string;
-  [key: string]: any;
-}
-
 interface AudioState {
-  currentTrack: Track | null;
+  currentTrack: any | null;
   playlistUrl: string | null;
   isPlaying: boolean;
   cover: string | null;
-  playlist: Track[];
-  setCurrentTrack: (track: Track | null) => void;
+  playlist: any[];
+  setCurrentTrack: (track: any | null) => void;
   setPlaylistUrl: (url: string | null) => void;
   setIsPlaying: (isPlaying: boolean) => void;
   setHDCover: (cover: string) => void;
-  setGlobalPlaylist: (tracks: Track[]) => void;
+  setGlobalPlaylist: (tracks: any[]) => void;
   playNextTrack: () => Promise<void>;
   playPreviousTrack: () => Promise<void>;
 }
@@ -60,7 +54,7 @@ const useAudioStore = create<AudioState>((set, get) => ({
       console.log("No more tracks in the playlist");
     }
   },
-  
+
   playPreviousTrack: async () => {
     const {
       playlist,
