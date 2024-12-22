@@ -46,7 +46,7 @@ export const AudioPlayerNew = () => {
 
   return (
     <>
-      <UrlInput onLoadUrl={(url) => handleLoadUrl(url)} />
+      {/* <UrlInput onLoadUrl={(url) => handleLoadUrl(url)} /> */}
       <ReactPlayer
         ref={playerRef}
         url={currentSong?.src}

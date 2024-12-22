@@ -16,6 +16,8 @@ import { useLibrary } from "@/hooks/useLibrary";
 import { PausedIcon, PlayingIcon } from "@/components/Icons/PlayingIcon";
 import AnimatedCover, { AnimatedCoverFull } from "@/components/AnimatedCover";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { mapSCDataToSongOrPlaylist } from "@/lib/audio/fetchers";
+import { useAudioStoreNew } from "@/context/AudioContextNew";
 
 export default function PlaylistPage() {
   const {
@@ -38,6 +40,8 @@ export default function PlaylistPage() {
   const [apple, setAppleData] = useState<any>(null);
   const [animated, setAnimatedVideo] = useState(false);
   const [albumCover, setAlbumCover] = useState<string | null>(null);
+
+  const { setQueue, addToQueue } = useAudioStoreNew();
 
   const handleLikeToggle = (track: any) => {
     const songId = `${track.title}-${playlist.user.username}`;
@@ -258,7 +262,16 @@ export default function PlaylistPage() {
     console.log("animated:", animated);
   }
 
-  // const animated = apple?.data[0]?.attributes?.editorialVideo;
+  const handleFetchPlaylist = async (url: string) => {
+    if (!url) return;
+    const { initialSongs, loadRemaining } = await mapSCDataToSongOrPlaylist(
+      url,
+      3
+    );
+    await setQueue(initialSongs);
+    const remainingSongs = await loadRemaining();
+    addToQueue(remainingSongs);
+  };
 
   return (
     <>
@@ -291,32 +304,6 @@ export default function PlaylistPage() {
                   </div>
                 </>
               )}
-
-              {/* <AnimatedCoverFull
-                hlsUrl={
-                  apple.data[0].attributes.editorialVideo.motionDetailSquare
-                    .video
-                }
-              /> */}
-              {/* <div className="album-container opacity-0 album-shadow">
-                <Image
-                  src={
-                    cover ||
-                    playlist?.tracks[0].artwork_url ||
-                    globalCurrentTrack?.artwork_url ||
-                    ""
-                  }
-                  alt={`${playlist.title} Album Cover`}
-                  title={`${playlist.title} Album Cover`}
-                  width={300}
-                  height={300}
-                  className="album-cover-img"
-                  draggable={false}
-                  unoptimized={true}
-                />
-
-                <div className="album-border" />
-              </div> */}
             </>
           ) : (
             <div className="album-container album-shadow">
@@ -400,7 +387,8 @@ export default function PlaylistPage() {
                     scale: 0.95,
                     backgroundColor: "rgba(255, 255, 255, 0.1)",
                   }}
-                  onClick={() => playTrack(playlist.tracks[0], 0)}
+                  // onClick={() => playTrack(playlist.tracks[0], 0)}
+                  onClick={() => handleFetchPlaylist(playlist.permalink_url)}
                   className={`flex justify-center items-center gap-[1px] w-full transition-colors duration-300 ${
                     animated && !isDesktop
                       ? "bg-white/20 backdrop-blur-md text-white"
@@ -459,7 +447,7 @@ export default function PlaylistPage() {
                 className="cursor-pointer flex items-center justify-between"
               >
                 <div
-                  onClick={() => playTrack(track, index)}
+                  onClick={() => handleFetchPlaylist(track.permalink_url)}
                   className="flex items-center"
                 >
                   {globalCurrentTrack && globalCurrentTrack.id === track.id ? (

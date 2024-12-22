@@ -9,9 +9,10 @@ interface Props {
   audioRef: RefObject<HTMLAudioElement> | React.RefObject<ReactPlayer> | null;
   currentTime: number;
   title: string;
+  artist: string;
 }
 
-const LrcView = ({ currentTime, title }: Props) => {
+const LrcView = ({ currentTime, title, artist }: Props) => {
   const [parsedJson, setParsedJson] = useState<any>(null);
 
   // Create a ref for the scrollable container
@@ -19,7 +20,7 @@ const LrcView = ({ currentTime, title }: Props) => {
 
   useEffect(() => {
     const fetchLyrics = async () => {
-      const lyrics = await getAppleLyrics(title);
+      const lyrics = await getAppleLyrics(title, artist);
       const parsedJson = parseTTML(lyrics);
       setParsedJson(parsedJson);
     };
