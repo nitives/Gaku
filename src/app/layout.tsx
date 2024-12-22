@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import type { Viewport } from "next";
 import { PersistentAudioPlayer } from "@/components/PersistentAudioPlayer";
 import { Toaster } from "react-hot-toast";
+import { AudioPlayerNew } from "@/components/player/new/AudioPlayerNew";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
       <head>
         <link
           rel="apple-touch-startup-image"
@@ -245,7 +246,8 @@ export default function RootLayout({
       </head>
       <body className={"SFPro"}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <PersistentAudioPlayer />
+          {/* <PersistentAudioPlayer /> */}
+          <AudioPlayerNew />
           {children}
           <Navbar />
           <Toaster

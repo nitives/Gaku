@@ -315,14 +315,38 @@ input[type="range"] {
 }
 
 .navbar-mini-container {
-  min-width: 100vw;
+  /* min-width: 100vw; */
   background: transparent;
   position: fixed;
   z-index: 70;
   bottom: 5rem;
   padding: 0.5rem 1rem;
   display: flex;
-  left: 0;
+}
+
+.navbar-mini-container {
+  width: 100%;
+  height: fit-content; /* equivalent to h-fit */
+  padding: 0.5rem; /* p-2 in Tailwind */
+  border-radius: 14px; /* rounded-[14px] */
+  display: flex;
+  justify-content: space-between;
+  backdrop-filter: blur(20px); /* approximate blur-lg */
+  background-color: rgba(
+    var(--background-rgb, 0, 0, 0),
+    0.2
+  ); /* bg-background/20 */
+
+  /* If you want to support dark mode via a .dark class on html/body, add a selector: */
+}
+
+.miniplayer {
+  display: flex;
+  align-items: center;
+}
+
+.dark .navbar-mini-container {
+  background-color: rgba(var(--card-rgb, 0, 0, 0), 0.75); /* dark:bg-card/75 */
 }
 
 @media (display-mode: standalone) {
@@ -360,7 +384,7 @@ input[type="range"] {
 
   display: flex;
   padding: 0.5rem;
-  width: 100%;
+  width: 99%;
   flex-grow: 1;
   font-weight: 600;
 }
@@ -456,6 +480,16 @@ input[type="range"] {
   }
 }
 
+.library-card-container > div:not(:last-child)::after {
+  --seperator-offset: 60px;
+  content: "";
+  width: calc(100% - var(--seperator-offset));
+  height: 1px;
+  background: hsl(var(--border) / 0.8);
+  position: absolute;
+  transform: translateY(1.7rem) translateX(var(--seperator-offset));
+}
+
 /* Album Animated */
 
 .album-animated-blur,
@@ -479,3 +513,50 @@ input[type="range"] {
 } */
 
 /* Album Animated - END */
+
+.primary-vocals button {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 600;
+  margin: 1rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.primary-vocals .syllable::after {
+  content: "";
+  margin-right: 0.25ch;
+}
+
+.primary-vocals .current .syllable {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.8) var(--gradient-progress),
+    rgba(255, 255, 255, 0.4) var(--gradient-progress)
+  );
+
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  -webkit-text-stroke: 1px transparent; /* Fix the issue where background-clip: text; would make the text appear thinner */
+
+  font-weight: 600;
+}
+
+.primary-vocals .current .letter {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.8),
+    rgba(255, 255, 255, 0.8)
+  );
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}
+
+.bg-lyrics {
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  margin-top: 0.25rem;
+  margin-left: 0.5rem;
+}

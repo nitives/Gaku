@@ -512,7 +512,7 @@ export default function Library() {
               )}
               <div className="grid gap-2 px-5">{playAllButton}</div>
               <div className="py-4">
-                <ul className="flex flex-col gap-1">
+                <ul className="flex flex-col gap-1 library-card-container">
                   {library.songs.map((song) => (
                     <LibraryCard
                       key={song.id}

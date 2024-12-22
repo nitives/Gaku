@@ -1,8 +1,7 @@
 import React from "react";
 import Image from "next/image";
-import { ImageBlur } from "@/components/ImageBlur";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRouter } from "next/navigation";
+import { CanvasBackground } from "@/components/CanvasBackground";
 
 interface SongCard {
   img: string;
@@ -49,7 +48,11 @@ export const SongCard = ({
   return (
     <div onClick={onClick} className="min-w-[15rem] h-[22rem] max-sm:h-[20rem]">
       <div className="text-white rounded-2xl overflow-hidden">
-        <ImageBlur blur="120" className="h-[22rem] max-sm:h-[20rem]" src={img}>
+        <CanvasBackground
+          blur={120}
+          className="h-[22rem] max-sm:h-[20rem]"
+          src={img}
+        >
           <Image
             className="border-b border-border/50 aspect-square"
             src={img}
@@ -59,11 +62,11 @@ export const SongCard = ({
             draggable={false}
             unoptimized={true}
           />
-          <div className="p-2 text-center h-[25%] flex flex-col justify-center items-center">
+          <div className="p-2 pb-3 text-center h-[25%] flex flex-col justify-center items-center">
             <p className="font-bold">{title || "Title"}</p>
             <p>{artist || "Artist"}</p>
           </div>
-        </ImageBlur>
+        </CanvasBackground>
       </div>
     </div>
   );

@@ -1,0 +1,36 @@
+.controlsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.controls {
+  overflow: hidden;
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  z-index: 150;
+}
+
+.miniPlayer {
+  /* @apply bg-background/20 dark:bg-card/75; */
+  /* background-color: hsl(var(--background) / 1); */
+  background-color: hsl(var(--card) / 0.75);
+  backdrop-filter: blur(24px);
+  display: flex;
+  padding-inline: 0.5rem;
+  padding-block: 0.5rem;
+  margin: auto;
+  border-radius: 1rem;
+  width: calc(100% - 2rem);
+  @media (max-width: 640px) {
+    width: calc(100% - 1rem);
+  }
+  &:is(* .dark) {
+    background-color: hsl(var(--card) / 0.75);
+  }
+}

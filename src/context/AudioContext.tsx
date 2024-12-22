@@ -7,6 +7,7 @@ interface AudioState {
   playlistUrl: string | null;
   isPlaying: boolean;
   cover: string | null;
+  HDCover: string | null;
   playlist: any[];
   setCurrentTrack: (track: any | null) => void;
   setPlaylistUrl: (url: string | null) => void;
@@ -22,11 +23,12 @@ const useAudioStore = create<AudioState>((set, get) => ({
   playlistUrl: null,
   isPlaying: false,
   cover: null,
+  HDCover: null,
   playlist: [],
   setCurrentTrack: (track) => set({ currentTrack: track }),
   setPlaylistUrl: (url) => set({ playlistUrl: url }),
   setIsPlaying: (isPlaying) => set({ isPlaying }),
-  setHDCover: (cover) => set({ cover }),
+  setHDCover: (cover) => set({ HDCover: cover }),
   setGlobalPlaylist: (tracks) => set({ playlist: tracks }),
   playNextTrack: async () => {
     const {
@@ -42,13 +44,7 @@ const useAudioStore = create<AudioState>((set, get) => ({
       const response = await fetch(`/api/track/info/${nextTrack.id}`);
       const nextTrackData = await response.json();
       setPlaylistUrl(await fetchPlaylistM3U8(nextTrackData.permalink_url));
-      const fetchCover = async (query: string) => {
-        const url = encodeURIComponent(query);
-        const response = await fetch(`/api/extra/cover/${url}`);
-        const data = await response.json();
-        setHDCover(data.imageUrl);
-      };
-      await fetchCover(nextTrackData.permalink_url);
+      // await fetchCover(nextTrackData.permalink_url);
       setGlobalPlaylist(playlist.slice(1));
     } else {
       console.log("No more tracks in the playlist");

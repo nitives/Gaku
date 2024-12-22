@@ -1,5 +1,5 @@
 "use client";
-import { AudioPlayerHLS } from "@/components/AudioPlayerHLS";
+import { AudioPlayer } from "@/components/player/AudioPlayer";
 import useAudioStore from "@/context/AudioContext";
 import { useEffect } from "react";
 
@@ -47,7 +47,7 @@ export const PersistentAudioPlayer = () => {
 
   return (
     <div className="pb-[20rem] z-[200] absolute">
-      <AudioPlayerHLS
+      <AudioPlayer
         height="100%"
         img={cover || currentTrack.artwork_url || ""}
         // title={artistNameRemove(currentTrack.user.username, currentTrack.title)}

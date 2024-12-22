@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
-import { AudioPlayerHLS } from "@/components/AudioPlayerHLS";
 import { fetchPlaylistM3U8 } from "@/lib/utils";
 import Image from "next/image";
 import { SafeView, BackButton } from "@/components/mobile/SafeView";
@@ -98,7 +97,7 @@ export default function PlaylistPage() {
     const url = await fetchPlaylistM3U8(track.permalink_url);
     setGlobalPlaylistUrl(url);
     setGlobalCurrentTrack({ ...track, index });
-    setHDCover(track.artwork_url || track.user.avatar_url); // Set the playing track's cover separately
+    setHDCover(track.artwork_url || track.user.avatar_url);
     setIsPlaying(true);
   };
 

@@ -1,19 +1,18 @@
 "use client";
-import { AudioPlayerHLS } from "@/components/AudioPlayerHLS";
 import { ColorGen } from "@/components/ColorGen";
 import {
-  Header,
   Heading,
   Input,
   SafeView,
   ScrollHeader,
-  SubHeading,
 } from "@/components/mobile/SafeView";
 import { SearchCard } from "@/components/mobile/SearchCard";
 import { fetchPlaylistM3U8, FetchSearch } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import useAudioStore from "@/context/AudioContext";
+import { useAudioStoreNew } from "@/context/AudioContextNew";
+import { mapSCDataToSongOrPlaylist } from "@/lib/audio/fetchers";
 
 export default function Home() {
   const {
@@ -24,6 +23,7 @@ export default function Home() {
     cover,
     setHDCover,
   } = useAudioStore();
+  const { setQueue, addToQueue } = useAudioStoreNew();
 
   const [search, setSearchData] = useState<any>(null);
   const [localPlaylistUrl, setLocalPlaylistUrl] = useState<string | null>(null);
@@ -41,19 +41,30 @@ export default function Home() {
     handleSearch();
   }, []);
 
-  const handleFetchPlaylist = async (item: any) => {
-    const data = await fetchPlaylistM3U8(item.permalink_url);
-    console.log("handleFetchPlaylist | data:", data);
-    setGlobalPlaylistUrl(data);
-    setGlobalCurrentTrack(item);
-    setIsPlaying(true);
-    setLocalPlaylistUrl(data);
-    setLocalCurrentTrack(item);
-    if (item.permalink_url) {
-      console.log("fetchPlaylist to fetchCover -", item.permalink_url);
-      fetchCover(item.permalink_url);
-    }
-    console.log("playlistUrl:", data);
+  // const handleFetchPlaylist = async (item: any) => {
+  //   const data = await fetchPlaylistM3U8(item.permalink_url);
+  //   console.log("handleFetchPlaylist | data:", data);
+  //   setGlobalPlaylistUrl(data);
+  //   setGlobalCurrentTrack(item);
+  //   setIsPlaying(true);
+  //   setLocalPlaylistUrl(data);
+  //   setLocalCurrentTrack(item);
+  //   if (item.permalink_url) {
+  //     console.log("fetchPlaylist to fetchCover -", item.permalink_url);
+  //     fetchCover(item.permalink_url);
+  //   }
+  //   console.log("playlistUrl:", data);
+  // };
+
+  const handleFetchPlaylist = async (url: string) => {
+    if (!url) return;
+    const { initialSongs, loadRemaining } = await mapSCDataToSongOrPlaylist(
+      url,
+      3
+    );
+    await setQueue(initialSongs);
+    const remainingSongs = await loadRemaining();
+    addToQueue(remainingSongs);
   };
 
   const fetchCover = async (query: string) => {
@@ -63,10 +74,6 @@ export default function Home() {
     const data = await response.json();
     console.log("fetchCover | Query:", query, "img:", data);
     setHDCover(data.imageUrl);
-  };
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(event.target.value);
   };
 
   const formatDuration = (duration: number): string => {
@@ -79,6 +86,10 @@ export default function Home() {
     }
   };
 
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
+  };
+
   let regionNames = new Intl.DisplayNames(["en"], { type: "region" });
 
   const navigateToAlbum = (item: any) => {
@@ -86,7 +97,9 @@ export default function Home() {
   };
 
   const navigateToArtist = (item: any) => {
-    router.push(`/artist/${item.id}/${item.username.toLowerCase().replace(/\s+/g, '-')}`);
+    router.push(
+      `/artist/${item.id}/${item.username.toLowerCase().replace(/\s+/g, "-")}`
+    );
   };
 
   return (
@@ -138,7 +151,7 @@ export default function Home() {
                       } else if (item.kind === "playlist") {
                         navigateToAlbum(item);
                       } else {
-                        handleFetchPlaylist(item);
+                        handleFetchPlaylist(item.permalink_url);
                       }
                     }}
                     id={item.id}

@@ -1,6 +1,9 @@
 import MillionLint from "@million/lint";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  devIndicators: {
+    appIsrStatus: false,
+  },
   env: {
     SOUNDCLOUD_API_KEY: process.env.SOUNDCLOUD_API_KEY,
   },
@@ -30,4 +33,5 @@ const nextConfig = {
   },
 };
 
-export default MillionLint.next()(nextConfig);
+// export default MillionLint.next()(nextConfig);
+export default nextConfig;

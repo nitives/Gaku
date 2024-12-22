@@ -13,20 +13,21 @@ import {
 import { FaPause } from "react-icons/fa6";
 import Image from "next/image";
 import { AnimatePresence, motion, transform } from "framer-motion";
-import { TitleOverflowAnimator } from "./mobile/TitleOverflowAnimator";
+import { TitleOverflowAnimator } from "../mobile/TitleOverflowAnimator";
 import useAudioStore from "@/context/AudioContext";
 // import { AnimatedLyrics } from "./AnimatedLyrics";
-import "../styles/overlay.css";
-import "../styles/playercontrols.css";
-import { ImageBlur } from "./ImageBlur";
+import "../../styles/overlay.css";
+import "../../styles/playercontrols.css";
+import { CanvasBackground } from "../CanvasBackground";
 import { BubbleChat, XMark } from "react-ios-icons";
 import { useTheme } from "next-themes";
 import { Lyric } from "@/lib/types";
 
-import LyricsView from "./lyrics/LyricsView";
-import timelessData from "./lyrics/timeless.json";
+import LyricsView from "../lyrics/LyricsView";
+import timelessData from "../lyrics/timeless.json";
+import { LyricIcon } from "../Icons/LyricIcon";
 
-export const AudioPlayerHLS = ({
+export const AudioPlayer = ({
   src,
   width,
   height,
@@ -376,16 +377,17 @@ const ExpandedPlayerControls = ({
         </div>
         <motion.div
           layout="position"
-          className="mt-[2rem] px-5 w-full h-fit flex justify-between"
+          className="mt-[2rem] w-full h-fit flex justify-between"
         >
-          <ImageBlur
-            animated
-            blur={isStandalone ? "100" : "200"}
+          <CanvasBackground
+            // animated
+            // blur={isStandalone ? "100" : "200"}
+            blur={3}
             src={img || ""}
-            className="w-full"
-            opacity={playing ? 1 : 0.1}
+            warpIntensity={120}
+            brightness={playing ? 0.9 : 0.5}
           >
-            <div>
+            <div className="px-5">
               <motion.div
                 layout="position"
                 layoutId="cover"
@@ -400,7 +402,7 @@ const ExpandedPlayerControls = ({
                 <motion.div
                   onClick={() => showLyrics && toggleLyrics()}
                   layout="position"
-                  className="pointer-events-auto max-w-[25rem] aspect-square"
+                  className="pointer-events-auto max-w-[25rem] aspect-square shadow-sm"
                   transition={{ duration: 0.5, type: "spring" }}
                   animate={
                     !showLyrics
@@ -572,13 +574,6 @@ const ExpandedPlayerControls = ({
                 </div>
                 {!isStandalone && (
                   <div className="flex items-center gap-2 w-full text-white">
-                    {/* <motion.button
-                      whileTap={{ scale: 0.85 }}
-                      transition={{ duration: 0.1, ease: "easeInOut" }}
-                      onClick={handleMute}
-                    >
-                      <IoVolumeOff size={30} />
-                    </motion.button> */}
                     <motion.button
                       whileTap={{ scale: 0.85 }}
                       transition={{ duration: 0.1, ease: "easeInOut" }}
@@ -609,14 +604,12 @@ const ExpandedPlayerControls = ({
                     whileTap={{ scale: 0.85 }}
                     transition={{ duration: 0.1, ease: "easeInOut" }}
                   >
-                    <BubbleChat
+                    <LyricIcon
                       className={`transition-all duration-300 ${
                         showLyrics
-                          ? "text-white/75 stroke-white/75"
-                          : "text-white/10 stroke-white/10"
+                          ? "fill-white/75 text-white/75 stroke-white/75"
+                          : "fill-white/10 text-white/10 stroke-white/10"
                       }`}
-                      type="multiple"
-                      withMark="text"
                     />
                   </motion.button>
                   <motion.button
@@ -629,14 +622,14 @@ const ExpandedPlayerControls = ({
                 </div>
               </motion.div>
             </div>
-          </ImageBlur>
+          </CanvasBackground>
         </motion.div>
       </AnimatePresence>
     </div>
   );
 };
 
-const Controls = ({
+export const Controls = ({
   volume,
   setVolume,
   muted,

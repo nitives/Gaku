@@ -22,7 +22,7 @@ import { ImageBlur } from "./ImageBlur";
 import { BubbleChat, XMark } from "react-ios-icons";
 import { useTheme } from "next-themes";
 
-export const AudioPlayerHLS = ({
+export const AudioPlayer = ({
   src,
   width,
   height,
