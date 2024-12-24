@@ -89,6 +89,19 @@ export function useLibrary() {
     }
   };
 
+  const handleLikeToggle = (title: any, artist: any) => {
+    const songId = `${title}-${artist}`;
+    if (isSongInLibrary(songId)) {
+      removeSong(songId);
+    } else {
+      addSong({
+        id: songId,
+        title: title,
+        artist: artist,
+      });
+    }
+  };
+
   const isSongInLibrary = (songId: string): boolean => {
     return library?.songs.some((song) => song.id === songId) || false;
   };
@@ -139,6 +152,7 @@ export function useLibrary() {
     removeSong,
     importLibrary,
     isSongInLibrary,
+    handleLikeToggle,
     globalLibraryKey,
   };
 }

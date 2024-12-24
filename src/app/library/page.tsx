@@ -87,7 +87,7 @@ export default function Library() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  const [username, setUsername] = useState("");
+  const [userProfileURL, setUserProfile] = useState("");
   const [userData, setUserData] = useState(null);
 
   const { handleFetchPlaylist } = usePlaylistFetcher();
@@ -240,8 +240,9 @@ export default function Library() {
   };
 
   const handleFetchUserData = async () => {
-    if (username) {
-      const data = await fetchUserData(username);
+    if (userProfileURL) {
+      const data = await fetchUserData(userProfileURL);
+      console.log("handleFetchUserData | data:", data);
       setUserData(data);
     }
   };
@@ -399,6 +400,17 @@ export default function Library() {
     </button>
   );
 
+  const FetchUserButton = ({ onClick }: { onClick: () => void }) => {
+    return (
+      <button
+        className="min-w-fit transition-all duration-150 max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
+        onClick={onClick}
+      >
+        <p>Fetch User Data</p>
+      </button>
+    );
+  };
+
   // Memoizing the onChange handler for the Input component
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -479,16 +491,26 @@ export default function Library() {
                   </div>
                 </>
               )}
-              <div className="grid gap-2 px-5">{playAllButton}</div>
+              {/* <div className="flex gap-2 px-5 w-full">
+                {playAllButton}
+                <div className="flex items-center gap-2 w-full">
+                  <input
+                    className="w-full"
+                    type="text"
+                    value={userProfileURL}
+                    onChange={(e) => setUserProfile(e.target.value)}
+                    placeholder="Enter user profile URL"
+                  />
+                  <FetchUserButton onClick={handleFetchUserData} />
+                </div>
+              </div> */}
               <div className="py-4">
                 <ul className="flex flex-col gap-1 library-card-container">
                   {library.songs.map((song) => (
                     <LibraryCard
                       key={song.id}
                       songId={song.id}
-                      handlePlaySong={() =>
-                        handleFetchPlaylist(song.id, true)
-                      } // Using handleFetchPlaylist
+                      handlePlaySong={() => handleFetchPlaylist(song.id, true)}
                       isPlaying={playingId == song.id}
                     />
                   ))}

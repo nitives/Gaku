@@ -60,7 +60,7 @@ export default function Home() {
     if (!url) return;
     const { initialSongs, loadRemaining } = await mapSCDataToSongOrPlaylist(
       url,
-      3
+      3,
     );
     await setQueue(initialSongs);
     const remainingSongs = await loadRemaining();

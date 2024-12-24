@@ -280,7 +280,15 @@ export const ScrollContainer = ({
 export const BackButton = ({ className }: { className?: string }) => {
   const router = useRouter();
   const handleBack = () => {
-    router.back();
+    const currentUrl = window.location.hostname;
+    if (
+      document.referrer &&
+      new URL(document.referrer).hostname === currentUrl
+    ) {
+      router.back();
+    } else {
+      router.push("/");
+    }
   };
   return (
     <motion.button
@@ -290,7 +298,7 @@ export const BackButton = ({ className }: { className?: string }) => {
       }}
       transition={{ duration: 0.125, ease: "easeInOut" }}
       onClick={handleBack}
-      className={`${className} flex items-center space-x-2 p-2 max-sm:pl-0 cursor-pointer rounded-[50%] sm:hover:bg-[rgba(255,255,255,0.1)] sm:ml-4 transition-colors ease-out`}
+      className={`${className} flex items-center space-x-2 p-2 max-sm:pl-1 cursor-pointer rounded-[50%] sm:hover:bg-[rgba(255,255,255,0.1)] sm:ml-4 transition-colors ease-out`}
     >
       <IoIosArrowBack size={30} />
       <span className="sr-only">Back</span>

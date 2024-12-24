@@ -73,15 +73,15 @@ export default async function handler(
     );
 
     // Step 6: Combine the data
-    const combinedData = {
+    const data = {
       userData: userDataResponse.data,
       userLikes: userLikesResponse.data,
     };
 
-    console.log("combinedData:", combinedData);
+    console.log("combinedData:", data);
 
     // Step 7: Return the combined data
-    return res.status(200).json(combinedData);
+    return res.status(200).json(data);
   } catch (error) {
     console.error("Error fetching user data:", error);
     return res.status(500).json({ error: "Failed to fetch user data" });

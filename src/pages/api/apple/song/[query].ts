@@ -7,16 +7,21 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { query } = req.query;
+  const { query, type } = req.query;
 
   if (req.method === "GET") {
     try {
-      // First request to search for the song
-      // console.log("Starting  search for:", query);
+      // Determine the type of search (albums or songs)
+      const searchType = type === "albums" ? "albums" : "songs";
+
+      console.log(`AppleKit API | Query ${query} | Type ${searchType}`);
+
+      // First request to search for the song or album
+      // Usage: /api/apple/song/[query]?type=albums or /api/apple/song/[query]?type=songs
+
+      // https://api.music.apple.com/v1/catalog/us/search?types=albums&term=LYFESTYLE
       const searchResponse = await axios.get(
-        `https://api.music.apple.com/v1/catalog/us/search?term=${encodeURIComponent(
-          query as string
-        )}&limit=10&types=albums`,
+        `https://api.music.apple.com/v1/catalog/us/search?limit=5&term=${query}&types=${searchType}`,
         {
           headers: {
             Origin: "https://music.apple.com",
@@ -25,7 +30,22 @@ export default async function handler(
         }
       );
 
+      console.log(
+        "searchResponse | results.albums:",
+        searchResponse.data.results.albums
+      );
+
       const albumId = searchResponse.data.results.albums.data[0].id;
+
+      // Finds ID by name
+      // const album = searchResponse.data.results.albums.data.find(
+      //   (album: any) => album.attributes.name.toLowerCase() === (query as string).toLowerCase()
+      // );
+
+      // if (!album) {
+      //   return res.status(404).json({ error: "Album not found" });
+      // }
+      // const albumId = album.id;
 
       // Second request to get detailed album information
       const albumResponse = await axios.get(

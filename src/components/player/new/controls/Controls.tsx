@@ -1,11 +1,11 @@
 import { useAudioStoreNew } from "@/context/AudioContextNew";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./Controls.module.css";
 
 import { IoPlay, IoPlayBack, IoPlayForward } from "react-icons/io5";
 import { PiPauseFill } from "react-icons/pi";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { TitleOverflowAnimator } from "@/components/mobile/TitleOverflowAnimator";
@@ -16,6 +16,7 @@ import dynamic from "next/dynamic";
 import AnimatedCover from "@/components/AnimatedCover";
 import { LyricIcon } from "@/components/Icons/LyricIcon";
 import { Options } from "@/components/Icons/Options";
+import { exit } from "process";
 // import { AppleLyrics } from "../lyrics/AppleLyrics";
 // import { BackgroundRender } from "@applemusic-like-lyrics/react";
 
@@ -34,8 +35,6 @@ const BackgroundRender = dynamic(
     ssr: false,
   }
 );
-
-const imageSize = 400;
 
 export const Controls: React.FC = () => {
   const { currentSong, isPlaying, nextSong, previousSong, setIsPlaying } =
@@ -56,37 +55,47 @@ export const Controls: React.FC = () => {
 
   return (
     <>
-      {/* Minimized Player */}
-      {!isExpanded && (
-        <div className={styles.controlsContainer}>
-          <div className={styles.controls}>
-            <MiniPlayer
+      <LayoutGroup>
+        {/* Minimized Player */}
+        {!isExpanded && (
+          <div className={styles.controlsContainer}>
+            <div className={styles.controls}>
+              <MiniPlayer
+                song={currentSong || undefined}
+                playing={isPlaying}
+                onPlayPause={handlePlayPause}
+                onNext={nextSong}
+                onExpand={handleExpand}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Expanded Player */}
+        <AnimatePresence>
+          {isExpanded && (
+            <ExpandedPlayer
+              key="expanded"
               song={currentSong || undefined}
-              playing={isPlaying}
+              isPlaying={isPlaying}
               onPlayPause={handlePlayPause}
               onNext={nextSong}
-              onExpand={handleExpand}
+              onPrev={previousSong}
+              onClose={handleClose}
             />
-          </div>
-        </div>
-      )}
-
-      {/* Expanded Player */}
-      <AnimatePresence>
-        {isExpanded && (
-          <ExpandedPlayer
-            key="expanded"
-            song={currentSong || undefined}
-            isPlaying={isPlaying}
-            onPlayPause={handlePlayPause}
-            onNext={nextSong}
-            onPrev={previousSong}
-            onClose={handleClose}
-          />
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </LayoutGroup>
     </>
   );
+};
+
+const playerImageProps = {
+  initial: { filter: "blur(2px)" },
+  animate: { filter: "blur(0px)" },
+  exit: { filter: "blur(2px)" },
+  layout: "position", // Ensures consistent layout animations
+  transition: { ease: "easeInOut" },
 };
 
 interface MiniPlayerProps {
@@ -105,15 +114,20 @@ const MiniPlayer = ({
   onExpand,
 }: MiniPlayerProps) => {
   const { theme } = useTheme();
+
   return (
-    <div className="fixed bottom-[5rem] left-0 right-0 z-50">
+    <div className="fixed bottom-[5rem] left-0 right-0">
       <div className={styles.miniPlayer}>
-        {/* navbar-mini-container mini-control */}
         <motion.div
           onClick={onExpand}
+          layout
           className="flex items-center w-full cursor-pointer"
         >
-          <motion.div layout="preserve-aspect" layoutId="playerImage">
+          <motion.div
+            layoutId="playerImage"
+            layout="preserve-aspect"
+            className="relative overflow-hidden origin-center size-11"
+          >
             <Image
               className="size-11 rounded-lg"
               src={
@@ -195,11 +209,9 @@ const ExpandedPlayer = ({
   onClose,
 }: ExpandedPlayerProps) => {
   const { theme } = useTheme();
-  const desktop = useMediaQuery("(min-width: 955px)");
-  const mobile = useMediaQuery("(max-width: 615px)");
+  const isDesktop = useMediaQuery("(min-width: 955px)");
   const [lyricsVisible, setLyricsVisible] = useState(false);
   const toggleLyrics = () => setLyricsVisible(!lyricsVisible);
-  const isDesktop = desktop;
 
   const currentTime = useAudioStoreNew((state) => state.currentTime ?? 0);
   const duration = useAudioStoreNew((state) => state.duration ?? 0);
@@ -210,24 +222,91 @@ const ExpandedPlayer = ({
     seek(newTime);
   };
 
-  const buttonMotionProps = {
-    whileHover: { backgroundColor: "rgba(255, 255, 255, 0.05)" },
-    whileTap: {
-      scale: 0.85,
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
-    },
-    transition: { duration: 0.125, ease: "easeInOut" },
-    className: "flex flex-col items-center rounded-full p-2",
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  const controlsBaseProps = {
+    // layout: true,
+    className:
+      "fixed inset-0 flex flex-col bg-black text-white z-[110] standalone:pt-10",
+    initial: { opacity: 0, filter: "blur(10px)" },
+    animate: { opacity: 1, filter: "blur(0px)" },
+    exit: { opacity: 0, filter: "blur(10px)" },
+    transition: { duration: 0.3, ease: "easeInOut" },
   };
 
+  if (!isDesktop)
+    return (
+      <motion.div {...controlsBaseProps}>
+        <motion.div layout style={{ zIndex: 10 }}>
+          Mobile view
+          <motion.div>
+            <CloseButton onClick={onClose} />
+          </motion.div>
+          {/* Cover Art */}
+          <motion.div
+            {...playerImageProps}
+            layout="preserve-aspect"
+            layoutId="playerImage"
+            style={{ display: "flex", justifyContent: "center" }}
+          >
+            <motion.span>
+              <AppleCover
+                imageSize={250}
+                theme={theme}
+                isDesktop={isDesktop}
+                song={song}
+                isAnimated={Boolean(song?.artwork?.animatedURL)}
+              />
+            </motion.span>
+          </motion.div>
+          <motion.div>
+            {/* Controls */}
+            <ExpandedPlayerControls
+              onPlayPause={onPlayPause}
+              playing={isPlaying}
+              onNext={onNext}
+              onPrev={onPrev}
+            />
+          </motion.div>
+        </motion.div>
+        {/* {lyricsVisible && (
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex flex-col size-full items-center justify-center"
+          >
+            <AppleLyrics />
+          </motion.span>
+        )} */}
+        <BackgroundRender
+          fps={30}
+          playing={isPlaying}
+          style={{
+            position: "fixed",
+            width: "100%",
+            height: "100%",
+            inset: "0",
+          }}
+          album={song?.artwork.url}
+          // albumIsVideo={false}
+        />
+      </motion.div>
+    );
+
   return (
-    <motion.div
-      className="fixed inset-0 flex flex-col bg-black text-white z-[110] standalone:pt-10"
-      initial={{ opacity: 0, filter: "blur(10px)" }}
-      animate={{ opacity: 1, filter: "blur(0px)" }}
-      exit={{ opacity: 0, filter: "blur(10px)" }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-    >
+    <motion.div {...controlsBaseProps}>
       <motion.div className="flex justify-start z-20 absolute w-full">
         <CloseButton onClick={onClose} />
       </motion.div>
@@ -245,9 +324,10 @@ const ExpandedPlayer = ({
           } flex w-full`}
         >
           <motion.div
-            className="relative"
-            layout="preserve-aspect"
+            // {...playerImageProps}
+            layout="position"
             layoutId="playerImage"
+            className="relative"
           >
             <Image
               className={`${
@@ -261,8 +341,8 @@ const ExpandedPlayer = ({
                   : "/assets/placeholders/missing_song_dark.png")
               }
               alt={song?.name || "Missing Image"}
-              width={isDesktop ? imageSize : 50}
-              height={isDesktop ? imageSize : 50}
+              width={400}
+              height={400}
               quality={10}
               unoptimized={true}
               draggable={false}
@@ -277,11 +357,14 @@ const ExpandedPlayer = ({
             </span>
           </motion.div>
           <motion.div
+            layout="position"
             className={`${
               isDesktop ? "w-[20rem] flex-col mt-3" : "w-full h-fit px-4 -mt-2"
             } flex justify-center items-center`}
           >
             <motion.div
+              layout="position"
+              layoutId="playerInfo"
               className={`${
                 isDesktop
                   ? "w-full justify-center items-center"
@@ -321,7 +404,7 @@ const ExpandedPlayer = ({
             </motion.div>
             <motion.div
               layout="position"
-              layoutId="playerSlider"
+              layoutId="playerControls"
               className={`${
                 isDesktop ? "flex-col mt-4" : "mt-0 justify-between"
               } flex items-center w-full gap-2`}
@@ -419,7 +502,7 @@ const ExpandedPlayerControls = ({
 
   return (
     <div className="flex items-center gap-2">
-      <motion.button {...buttonMotionProps} onClick={onNext}>
+      <motion.button {...buttonMotionProps} onClick={onPrev}>
         <IoPlayBack size={32} />
       </motion.button>
       <motion.button {...buttonMotionProps} onClick={onPlayPause}>
@@ -437,19 +520,21 @@ const AppleCover = ({
   theme,
   song,
   isAnimated,
+  imageSize = 400,
 }: {
   isDesktop: boolean;
   theme: string | undefined;
   song: Song | undefined;
   isAnimated: boolean;
+  imageSize?: number;
 }) => {
   if (isAnimated) {
     return (
       <AnimatedCover
         style={{
           borderRadius: isDesktop ? "1rem" : "6px",
-          width: isDesktop ? imageSize : 50,
-          height: isDesktop ? imageSize : 50,
+          width: imageSize,
+          height: imageSize,
           overflow: "hidden",
         }}
         url="https://mvod.itunes.apple.com/itunes-assets/HLSVideo221/v4/a1/5c/64/a15c640b-5177-821d-e72c-b35dae9fd0c6/P869282945_default.m3u8"
@@ -468,11 +553,25 @@ const AppleCover = ({
             : "/assets/placeholders/missing_song_dark.png")
         }
         alt={song?.name || "Missing Image"}
-        width={isDesktop ? imageSize : 50}
-        height={isDesktop ? imageSize : 50}
+        width={imageSize}
+        height={imageSize}
         unoptimized={true}
         draggable={false}
       />
+      {/* <div
+        style={{
+          borderRadius: "1rem",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          pointerEvents: "none",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          mixBlendMode: "overlay",
+          scale: "1",
+        }}
+      /> */}
     </>
   );
 };

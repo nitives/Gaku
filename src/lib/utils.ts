@@ -48,26 +48,22 @@ export async function fetchPlaylistM3U8(trackUrl: string) {
     const response = await fetch(
       `/api/soundcloud/music?trackUrl=${encodeURIComponent(trackUrl)}`
     );
-    console.log("fetchPlaylistM3U8 | response:", response);
     if (!response.ok) throw new Error("Failed to fetch playlist URL");
     const data = await response.json();
-    console.log("API fetchPlaylistM3U8 | data:", data);
     return data.playlistUrl;
   } catch (error) {
     console.error("Error fetching playlist URL | fetchPlaylistM3U8:", error);
   }
 }
 
-export async function fetchUserData(trackUrl: string) {
+export async function fetchUserData(profileUrl: string) {
   try {
     const response = await fetch(
-      `/api/soundcloud/user/userData?profileUrl=${encodeURIComponent(trackUrl)}`
+      `/api/soundcloud/user/userData?profileUrl=${profileUrl}`
     );
-    console.log("fetchUserData | response:", response);
     if (!response.ok) throw new Error("Failed to fetch users data");
     const data = await response.json();
-    console.log("API fetchUserData | data:", data);
-    return data.playlistUrl;
+    return data;
   } catch (error) {
     console.error("Error fetching users data | fetchUserData:", error);
   }
@@ -115,4 +111,3 @@ export async function fetchRichSyncLyrics(title: string, artist: string) {
     );
   }
 }
-

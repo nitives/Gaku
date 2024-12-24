@@ -21,7 +21,7 @@ export default async function handler(
 
       res.status(200).json(response.data);
     } catch (error) {
-      console.error("Error fetching track data:", error);
+      // console.error("Error fetching track data:", error);
       res
         .status(500)
         .json({ error: "An error occurred while fetching the track data" });

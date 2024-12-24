@@ -67,9 +67,10 @@ export const AudioPlayerNew = () => {
       });
       const updatePositionState = () => {
         if (playerRef.current) {
+          const internalPlayer = playerRef.current.getInternalPlayer();
           navigator.mediaSession.setPositionState({
             duration: duration,
-            playbackRate: playerRef?.current.getInternalPlayer().playbackRate,
+            playbackRate: internalPlayer ? internalPlayer.playbackRate : 1,
             position: playerRef.current.getCurrentTime(),
           });
         }

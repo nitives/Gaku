@@ -10,8 +10,8 @@
   padding: 8px;
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  transition: 0.2s opacity ease-out, transform ease-out,
-    background-color ease-out;
+  transition: 0.2s opacity ease-out, 0.2s transform ease-out,
+    0.2s background-color ease-out;
   border-radius: 50%;
   outline: none;
   cursor: pointer;

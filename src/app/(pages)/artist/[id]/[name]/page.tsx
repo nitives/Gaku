@@ -3,28 +3,20 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import {
-  BackButton,
   Heading,
   SafeView,
   ScrollContainer,
   SubHeading,
 } from "@/components/mobile/SafeView";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
-import useAudioStore from "@/context/AudioContext";
-import { fetchPlaylistM3U8 } from "@/lib/utils";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { usePathname, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { usePlaylistFetcher } from "@/lib/audio/play";
 
 export default function PlaylistPage() {
-  const { setCurrentTrack, setPlaylistUrl, setIsPlaying, setHDCover } =
-    useAudioStore();
   const params = useParams();
   const id = params?.id as string;
   const [artist, setArtist] = useState<any>(null);
   const [spotlight, setSpotlight] = useState<any>(null);
-  const router = useRouter();
   const [recent, setRecent] = useState<any>(null);
 
   const { handleFetchPlaylist } = usePlaylistFetcher();
@@ -76,8 +68,8 @@ export default function PlaylistPage() {
 
   return (
     <>
-      <SafeView className="w-full">
-        <header className="w-full h-fit flex flex-col rounded-xl border-2 max-md:border overflow-hidden">
+      <SafeView className="w-full !pt-5">
+        <header className="w-full h-fit flex flex-col rounded-xl overflow-hidden">
           <Image
             className="size-full"
             width={960}

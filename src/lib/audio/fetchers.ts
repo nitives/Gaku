@@ -52,13 +52,14 @@ export async function fetchM3U8ForSong(song: Song): Promise<string> {
  */
 export async function mapSCDataToSongOrPlaylist(
   url: string,
-  initialCount = 3
+  initialCount = 3,
+  isID?: boolean,
 ): Promise<{ initialSongs: Song[]; loadRemaining: () => Promise<Song[]> }> {
   try {
     if (url.includes("/sets/")) {
       return await mapPlaylistUrlToSongsIncrementally(url, initialCount);
     } else {
-      const track = await mapTrackUrlToSong(url);
+      const track = await mapTrackUrlToSong(url, isID ? true : false);
       return { initialSongs: [track], loadRemaining: async () => [] };
     }
   } catch (error) {
@@ -71,9 +72,10 @@ export async function mapSCDataToSongOrPlaylist(
 /**
  * Converts a single track URL to a Song object without fetching M3U8.
  */
-async function mapTrackUrlToSong(url: string): Promise<Song> {
+async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
   try {
-    const trackId = await getIDFromURL(url);
+    console.log("mapTrackUrlToSong", url);
+    const trackId = isID ? Number(url) : await getIDFromURL(url);
     console.log("trackId", trackId);
     const response = await fetch(`/api/track/info/${trackId}`);
     if (!response.ok) {
@@ -114,6 +116,7 @@ async function mapPlaylistUrlToSongsIncrementally(
   initialCount: number
 ): Promise<{ initialSongs: Song[]; loadRemaining: () => Promise<Song[]> }> {
   try {
+    console.log("mapPlaylistUrlToSongsIncrementally", url);
     const playlistId = await getIDFromURL(url);
     const response = await fetch(`/api/playlist/${playlistId}`);
     if (!response.ok) {
@@ -201,27 +204,27 @@ export async function getIDFromURL(url: string): Promise<number> {
     );
     if (!response.ok) {
       console.error(`Failed to get ID from URL: ${url}`);
-      return -1; // Use -1 to indicate an error
+      return -1;
     }
 
     const data = await response.json();
     return data.trackId;
   } catch (error) {
     console.error("Error getting ID from URL:", error);
-    return -1; // Use -1 to indicate an error
+    return -1;
   }
 }
 
-export async function getURLFromID(id: string): Promise<string> {
+export async function getURLFromID(id: string) {
   try {
-    const response = await fetch(`/api/soundcloud/geturl/${id}`);
+    const response = await fetch(`/api/track/info/${id}`);
     if (!response.ok) {
       console.error(`Failed to get URL from ID: ${id}`);
       return "";
     }
     const data = await response.json();
     console.log("getURLFromID data", data);
-    return data.url;
+    return data.permalink_url;
   } catch (error) {
     console.error("Error getting URL from ID:", error);
     return "";
@@ -296,7 +299,11 @@ export const AppleKit = {
   /**
    * Fetch Apple Data.
    */
-  async getAppleData(title: string, artist: string): Promise<any> {
+  async getAppleData(
+    title: string,
+    artist: string,
+    type: "albums" | "songs"
+  ): Promise<any> {
     try {
       const cleanedTitle = title.split("(")[0].trim();
       let cleanedArtist = artist;
@@ -310,9 +317,8 @@ export const AppleKit = {
           .filter(Boolean)
           .join("+");
       }
-
       const query = `${cleanedTitle.replace(/ /g, "+")}+${cleanedArtist}`;
-      const response = await fetch(`/api/apple/song/${query}`);
+      const response = await fetch(`/api/apple/song/${query}?type=${type}`);
 
       if (!response.ok) {
         console.error(
@@ -320,7 +326,6 @@ export const AppleKit = {
         );
         return "";
       }
-
       const data = await response.json();
       return data;
     } catch (error) {
