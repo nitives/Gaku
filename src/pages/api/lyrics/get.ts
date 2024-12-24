@@ -39,7 +39,6 @@ async function getMXMToken() {
       // maxRedirects: 5,
     });
     console.log("getMXMToken | response:", response.data);
-
     if (
       response.data.message &&
       response.data.message.header.status_code === 200

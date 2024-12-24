@@ -7,7 +7,6 @@ import {
   SafeView,
   SubHeading,
 } from "@/components/mobile/SafeView";
-import useAudioStore from "@/context/AudioContext";
 import {
   IoAddCircle,
   IoCheckmark,
@@ -53,17 +52,24 @@ import {
 } from "@/components/ui/drawer";
 import toast from "react-hot-toast";
 import { LibraryCard } from "@/components/mobile/LibraryCard";
-import { fetchPlaylistM3U8, fetchUserData } from "@/lib/utils";
+import { fetchUserData } from "@/lib/utils";
+import { useAudioStoreNew } from "@/context/AudioContextNew"; // Import the new AudioContext
+import { usePlaylistFetcher } from "@/lib/audio/play";
 
 export default function Library() {
   const {
-    setGlobalPlaylist,
-    setHDCover,
-    setPlaylistUrl,
-    setCurrentTrack,
+    setQueue,
+    addToQueue,
+    setAnimatedURL,
+    setCurrentTime,
+    setDuration,
+    seek,
     setIsPlaying,
-    currentTrack,
-  } = useAudioStore();
+    setPlayerRef,
+    startFineProgressUpdates,
+    stopFineProgressUpdates,
+  } = useAudioStoreNew(); // Use the new AudioContext
+
   const {
     library,
     setLibrary,
@@ -84,6 +90,8 @@ export default function Library() {
   const [username, setUsername] = useState("");
   const [userData, setUserData] = useState(null);
 
+  const { handleFetchPlaylist } = usePlaylistFetcher();
+
   useEffect(() => {
     if (globalLibraryKey) {
       fetchLibraryData(globalLibraryKey);
@@ -95,12 +103,6 @@ export default function Library() {
       inputRef.current.focus();
     }
   }, [isEditing]);
-
-  useEffect(() => {
-    if (currentTrack) {
-      setPlayingId(currentTrack.id);
-    }
-  }, [currentTrack]);
 
   const fetchLibraryData = async (key: string) => {
     try {
@@ -172,55 +174,22 @@ export default function Library() {
     }
   };
 
-  const handlePlayAll = () => {
+  const handlePlayAll = async () => {
     if (library && library.songs.length > 0) {
       const [firstSong] = library.songs;
-      handlePlaySong(firstSong.id);
+      console.log("Playing first song:", firstSong);
+      handleFetchPlaylist(firstSong.id, true);
     }
   };
 
-  const handlePlaySong = useCallback(
-    async (songId: string) => {
-      const songIndex = library?.songs.findIndex((song) => song.id === songId);
-      if (songIndex !== undefined && songIndex >= 0) {
-        const remainingSongs = library?.songs.slice(songIndex);
-        if (remainingSongs) {
-          setGlobalPlaylist(remainingSongs);
-          const firstSong = remainingSongs[0];
-          console.log("firstSong.id 1:", firstSong.id);
-
-          try {
-            console.log("firstSong.id 2:", firstSong.id);
-            const response = await fetch(`/api/track/info/${firstSong.id}`);
-            const songData = await response.json();
-            const playlistUrl = await fetchPlaylistM3U8(songData.permalink_url);
-
-            setCurrentTrack(songData);
-            setPlaylistUrl(playlistUrl);
-            setIsPlaying(true);
-
-            if (songData.permalink_url) {
-              fetchCover(songData.permalink_url);
-            }
-
-            console.log("playlistUrl:", playlistUrl);
-          } catch (error) {
-            console.error("Error fetching song or playlist data:", error);
-          }
-        }
-      }
-    },
-    [library, setGlobalPlaylist, setCurrentTrack, setPlaylistUrl, setIsPlaying]
-  );
-
-  const fetchCover = async (query: string) => {
-    const url = encodeURIComponent(query);
-    const response = await fetch(`/api/extra/cover/${url}`);
-    console.log("fetchCover | response:", response);
-    const data = await response.json();
-    console.log("fetchCover | Query:", query, "img:", data);
-    setHDCover(data.imageUrl);
-  };
+  // const fetchCover = async (query: string) => {
+  //   const url = encodeURIComponent(query);
+  //   const response = await fetch(`/api/extra/cover/${url}`);
+  //   console.log("fetchCover | response:", response);
+  //   const data = await response.json();
+  //   console.log("fetchCover | Query:", query, "img:", data);
+  //   setHDCover(data.permalink_url);
+  // };
 
   const toggleKeyVisibility = () => {
     setIsKeyHidden(!isKeyHidden);
@@ -517,7 +486,9 @@ export default function Library() {
                     <LibraryCard
                       key={song.id}
                       songId={song.id}
-                      handlePlaySong={() => handlePlaySong(song.id)} // Using memoized handlePlaySong
+                      handlePlaySong={() =>
+                        handleFetchPlaylist(song.id, true)
+                      } // Using handleFetchPlaylist
                       isPlaying={playingId == song.id}
                     />
                   ))}

@@ -13,10 +13,9 @@ interface AudioStateNew {
 
   currentTime: number;
   duration: number;
-  
-  // Add a finer resolution progress time
-  fineProgress: number; 
-  rafId: number | null; // To store requestAnimationFrame ID
+
+  fineProgress: number;
+  rafId: number | null;
 
   setQueue: (songs: Song[]) => Promise<void>;
   addToQueue: (songs: Song[]) => void;
@@ -26,6 +25,7 @@ interface AudioStateNew {
   setIsPlaying: (playing: boolean) => void;
   prefetchNextN: (n: number) => Promise<void>;
   setPlayerRef: (ref: React.RefObject<ReactPlayer>) => void;
+  setAnimatedURL: (url: string) => void;
 
   setDuration: (duration: number) => void;
   setCurrentTime: (time: number) => void;
@@ -51,14 +51,13 @@ export const useAudioStoreNew = create<AudioStateNew>((set, get) => ({
 
   setIsPlaying: (playing) => {
     set({ isPlaying: playing });
-    // If starting playback, start updates; if pausing, stop them
     if (playing) {
       get().startFineProgressUpdates();
     } else {
       get().stopFineProgressUpdates();
     }
   },
-  
+
   setPlayerRef: (ref) => set({ playerRef: ref }),
 
   setQueue: async (songs: Song[]) => {
@@ -98,7 +97,6 @@ export const useAudioStoreNew = create<AudioStateNew>((set, get) => ({
     });
 
     await get().prefetchNextN(PREFETCH_COUNT);
-    // Start fine updates if playing
     get().startFineProgressUpdates();
   },
 
@@ -155,7 +153,8 @@ export const useAudioStoreNew = create<AudioStateNew>((set, get) => ({
   },
 
   setDuration: (duration: number) => set({ duration }),
-  setCurrentTime: (time: number) => set({ currentTime: time, fineProgress: time }),
+  setCurrentTime: (time: number) =>
+    set({ currentTime: time, fineProgress: time }),
   seek: (time: number) => {
     const { playerRef } = get();
     if (playerRef && playerRef.current) {
@@ -164,8 +163,22 @@ export const useAudioStoreNew = create<AudioStateNew>((set, get) => ({
     }
   },
 
+  setAnimatedURL: (url: string) => {
+    const { currentSong } = get();
+    if (currentSong) {
+      set({
+        currentSong: {
+          ...currentSong,
+          artwork: {
+            ...currentSong.artwork,
+            animatedURL: url,
+          },
+        },
+      });
+    }
+  },
+
   startFineProgressUpdates: () => {
-    // Use requestAnimationFrame to update fineProgress ~60 times per second
     const { rafId, playerRef, isPlaying } = get();
     if (isPlaying && playerRef && playerRef.current && rafId === null) {
       const update = () => {

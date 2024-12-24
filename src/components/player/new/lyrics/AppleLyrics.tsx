@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAudioStoreNew } from "@/context/AudioContextNew";
 import { LyricPlayer, LyricPlayerRef } from "@applemusic-like-lyrics/react";
-import { getAppleLyrics } from "@/lib/audio/fetchers";
 import { LyricLine, parseTTML } from "./lrc/utils/TTMLparser";
+import { AppleKit } from "@/lib/audio/fetchers";
 
 export const AppleLyrics = () => {
   const [lyricLines, setLyricLines] = useState<LyricLine[]>([]);
@@ -34,7 +34,7 @@ export const AppleLyrics = () => {
         }
 
         // Fetch new lyrics if not in cache or expired
-        const lyrics = await getAppleLyrics(
+        const lyrics = await AppleKit.getAppleLyrics(
           currentSong?.name || "",
           currentSong?.artistName || "",
           true
@@ -105,15 +105,16 @@ export const AppleLyrics = () => {
   }
 
   return (
-    <div className="h-screen w-full flex flex-col overflow-y-auto">
+    <div className="h-screen w-full flex flex-col">
       <LyricPlayer
         style={{
           width: "100%",
           height: "100%",
           maxWidth: "100%",
           maxHeight: "100%",
-          contain: "paint layout",
-          overflow: "hidden",
+          scale: 0.95,
+          // contain: "paint layout",
+          // overflow: "hidden",
           mixBlendMode: "plus-lighter",
           fontWeight: "bold",
         }}

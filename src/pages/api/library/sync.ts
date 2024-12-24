@@ -14,7 +14,7 @@ export default async function handler(
       const { key } = req.query;
 
       if (!key || typeof key !== "string") {
-        console.log("Invalid key:", key);
+        // console.log("Invalid key:", key);
         return res.status(400).json({ error: "Invalid key provided" });
       }
 
@@ -33,10 +33,10 @@ export default async function handler(
           // console.log("library done 2");
         } else {
           res.status(200).json(null); // No library found
-          console.log("Library not found");
+          console.warn("Library not found");
         }
       } catch (error) {
-        console.log("library error");
+        console.error("Library error");
         res.status(500).json({ error: "Error fetching library" });
       }
       break;

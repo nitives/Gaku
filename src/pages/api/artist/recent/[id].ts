@@ -21,7 +21,20 @@ export default async function handler(
         }
       );
 
-      res.status(200).json(response.data);
+      const tracks = response.data.collection;
+
+      // Modify artwork_url to get the HD version
+      const updatedTracks = tracks.map((track: any) => {
+        const artwork_url_hd = track.artwork_url
+          ? track.artwork_url.replace("large", "t500x500")
+          : null;
+        return {
+          ...track,
+          artwork_url_hd,
+        };
+      });
+
+      res.status(200).json({ ...response.data, collection: updatedTracks });
     } catch (error) {
       res
         .status(500)

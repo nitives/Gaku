@@ -13,6 +13,9 @@ import { Song } from "@/lib/audio/types";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { CloseButton } from "./components/CloseButton";
 import dynamic from "next/dynamic";
+import AnimatedCover from "@/components/AnimatedCover";
+import { LyricIcon } from "@/components/Icons/LyricIcon";
+import { Options } from "@/components/Icons/Options";
 // import { AppleLyrics } from "../lyrics/AppleLyrics";
 // import { BackgroundRender } from "@applemusic-like-lyrics/react";
 
@@ -31,6 +34,8 @@ const BackgroundRender = dynamic(
     ssr: false,
   }
 );
+
+const imageSize = 400;
 
 export const Controls: React.FC = () => {
   const { currentSong, isPlaying, nextSong, previousSong, setIsPlaying } =
@@ -191,6 +196,7 @@ const ExpandedPlayer = ({
 }: ExpandedPlayerProps) => {
   const { theme } = useTheme();
   const desktop = useMediaQuery("(min-width: 955px)");
+  const mobile = useMediaQuery("(max-width: 615px)");
   const [lyricsVisible, setLyricsVisible] = useState(false);
   const toggleLyrics = () => setLyricsVisible(!lyricsVisible);
   const isDesktop = desktop;
@@ -216,7 +222,7 @@ const ExpandedPlayer = ({
 
   return (
     <motion.div
-      className="fixed inset-0 flex flex-col bg-black text-white z-[110]"
+      className="fixed inset-0 flex flex-col bg-black text-white z-[110] standalone:pt-10"
       initial={{ opacity: 0, filter: "blur(10px)" }}
       animate={{ opacity: 1, filter: "blur(0px)" }}
       exit={{ opacity: 0, filter: "blur(10px)" }}
@@ -235,7 +241,7 @@ const ExpandedPlayer = ({
           className={`${
             isDesktop
               ? "justify-center h-full flex-col items-center"
-              : "flex-row h-fit px-4 items-start my-16 justify-start"
+              : "flex-row h-fit px-4 items-start mt-16 mb-8 justify-start"
           } flex w-full`}
         >
           <motion.div
@@ -255,35 +261,24 @@ const ExpandedPlayer = ({
                   : "/assets/placeholders/missing_song_dark.png")
               }
               alt={song?.name || "Missing Image"}
-              width={isDesktop ? 300 : 50}
-              height={isDesktop ? 300 : 50}
+              width={isDesktop ? imageSize : 50}
+              height={isDesktop ? imageSize : 50}
               quality={10}
               unoptimized={true}
               draggable={false}
             />
             <span className="absolute inset-0 flex items-center justify-center">
-              <Image
-                className={`${isDesktop ? "rounded-[1rem]" : "rounded-[6px]"}`}
-                src={
-                  song?.artwork?.hdUrl ||
-                  song?.artwork?.url ||
-                  (theme === "light"
-                    ? "/assets/placeholders/missing_song_light.png"
-                    : "/assets/placeholders/missing_song_dark.png")
-                }
-                alt={song?.name || "Missing Image"}
-                width={isDesktop ? 300 : 50}
-                height={isDesktop ? 300 : 50}
-                unoptimized={true}
-                draggable={false}
+              <AppleCover
+                theme={theme}
+                isAnimated={Boolean(song?.artwork?.animatedURL)}
+                isDesktop={isDesktop}
+                song={song}
               />
             </span>
           </motion.div>
           <motion.div
             className={`${
-              isDesktop
-                ? "w-[20rem] flex-col mt-3"
-                : "w-full h-fit px-4 -mt-2"
+              isDesktop ? "w-[20rem] flex-col mt-3" : "w-full h-fit px-4 -mt-2"
             } flex justify-center items-center`}
           >
             <motion.div
@@ -297,7 +292,7 @@ const ExpandedPlayer = ({
                 layout="position"
                 layoutId="playerTitle"
                 className={`${
-                  isDesktop ? "text-lg " : "text-sm "
+                  isDesktop ? "text-lg text-center" : "text-sm "
                 } font-semibold`}
               >
                 {song?.name}
@@ -306,37 +301,46 @@ const ExpandedPlayer = ({
                 layout="position"
                 layoutId="playerArtist"
                 className={`${
-                  isDesktop ? "text-sm" : "text-xs"
-                } text-white/75`}
+                  isDesktop ? "text-sm text-center" : "text-xs"
+                } text-white/75 cursor-pointer`}
+                onClick={() => {
+                  const artistUrl = `/artist/${song?.artistId}/${song?.artistName}`;
+                  if (
+                    window.location.pathname.includes(
+                      song?.artistId.toString() || ""
+                    )
+                  ) {
+                    onClose();
+                  } else {
+                    window.location.href = artistUrl;
+                  }
+                }}
               >
                 {song?.artistName}
               </motion.h2>
             </motion.div>
-
             <motion.div
               layout="position"
               layoutId="playerSlider"
               className={`${
-                isDesktop ? "flex-col mt-4" : "mt-0"
-              } w-full flex items-center gap-2`}
+                isDesktop ? "flex-col mt-4" : "mt-0 justify-between"
+              } flex items-center w-full gap-2`}
             >
-              <div className="flex w-full items-center gap-2">
-                <span className="text-xs text-white/75">
-                  {formatTime(currentTime)}
-                </span>
-                <input
-                  type="range"
-                  min={0}
-                  max={duration || 1}
-                  // step="0.1"
-                  value={currentTime}
-                  onChange={handleSeekChange}
-                  className="flex-1"
-                />
-                <span className="text-xs text-white/75">
-                  {formatTime(duration)}
-                </span>
-              </div>
+              {isDesktop && (
+                <div className="flex w-full items-center gap-2">
+                  <span className="text-xs text-white/75">
+                    {formatTime(currentTime)}
+                  </span>
+                  <DurationSlider
+                    duration={duration}
+                    currentTime={currentTime}
+                    onChange={handleSeekChange}
+                  />
+                  <span className="text-xs text-white/75">
+                    {formatTime(duration)}
+                  </span>
+                </div>
+              )}
               <div>
                 <ExpandedPlayerControls
                   onPlayPause={onPlayPause}
@@ -345,13 +349,15 @@ const ExpandedPlayer = ({
                   onPrev={onPrev}
                 />
               </div>
-              <div className="flex items-center w-full gap-2 justify-between">
-                <button onClick={toggleLyrics} className="text-white">
-                  Lyrics
-                </button>
-                <motion.button {...buttonMotionProps} onClick={toggleLyrics}>
-                  <IoPlayForward size={32} />
-                </motion.button>
+              <div
+                className={`${
+                  isDesktop ? "w-full" : ""
+                } flex items-center gap-2 justify-between`}
+              >
+                {isDesktop && (
+                  <LyricButton active={lyricsVisible} onClick={toggleLyrics} />
+                )}
+                <OptionsButton onClick={toggleLyrics} />
               </div>
             </motion.div>
           </motion.div>
@@ -368,7 +374,7 @@ const ExpandedPlayer = ({
         )}
       </motion.div>
       <BackgroundRender
-        fps={60}
+        fps={30}
         playing={isPlaying}
         style={{
           position: "fixed",
@@ -376,8 +382,8 @@ const ExpandedPlayer = ({
           height: "100%",
           inset: "0",
         }}
-        album={song?.artwork?.url}
-        // albumIsVideo={albumIsVideo}
+        album={song?.artwork.url}
+        // albumIsVideo={false}
       />
     </motion.div>
   );
@@ -423,5 +429,124 @@ const ExpandedPlayerControls = ({
         <IoPlayForward size={32} />
       </motion.button>
     </div>
+  );
+};
+
+const AppleCover = ({
+  isDesktop,
+  theme,
+  song,
+  isAnimated,
+}: {
+  isDesktop: boolean;
+  theme: string | undefined;
+  song: Song | undefined;
+  isAnimated: boolean;
+}) => {
+  if (isAnimated) {
+    return (
+      <AnimatedCover
+        style={{
+          borderRadius: isDesktop ? "1rem" : "6px",
+          width: isDesktop ? imageSize : 50,
+          height: isDesktop ? imageSize : 50,
+          overflow: "hidden",
+        }}
+        url="https://mvod.itunes.apple.com/itunes-assets/HLSVideo221/v4/a1/5c/64/a15c640b-5177-821d-e72c-b35dae9fd0c6/P869282945_default.m3u8"
+      />
+    );
+  }
+  return (
+    <>
+      <Image
+        className={`${isDesktop ? "rounded-[1rem]" : "rounded-[6px]"}`}
+        src={
+          song?.artwork?.hdUrl ||
+          song?.artwork?.url ||
+          (theme === "light"
+            ? "/assets/placeholders/missing_song_light.png"
+            : "/assets/placeholders/missing_song_dark.png")
+        }
+        alt={song?.name || "Missing Image"}
+        width={isDesktop ? imageSize : 50}
+        height={isDesktop ? imageSize : 50}
+        unoptimized={true}
+        draggable={false}
+      />
+    </>
+  );
+};
+
+const LyricButton = ({
+  onClick,
+  active,
+}: {
+  onClick: () => void;
+  active: boolean;
+}) => {
+  const buttonMotionProps = {
+    whileHover: { backgroundColor: "rgba(255, 255, 255, 0.05)" },
+    whileTap: {
+      scale: 0.9,
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+    },
+    transition: { duration: 0.125, ease: "easeInOut" },
+    className: "flex flex-col items-center rounded-full p-2",
+  };
+  return (
+    <motion.button
+      {...buttonMotionProps}
+      onClick={onClick}
+      style={{
+        backgroundColor: active ? "rgba(255, 255, 255, 0.1)" : "transparent",
+      }}
+      className="flex items-center justify-center w-10 h-10 rounded-full"
+    >
+      <LyricIcon className="size-[24px] fill-white" />
+    </motion.button>
+  );
+};
+
+const OptionsButton = ({ onClick }: { onClick: () => void }) => {
+  const buttonMotionProps = {
+    whileHover: { backgroundColor: "rgba(255, 255, 255, 0.075)" },
+    whileTap: {
+      scale: 0.9,
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+    },
+    transition: { duration: 0.125, ease: "easeInOut" },
+    style: {
+      backgroundColor: "rgba(255, 255, 255, 0.05)",
+    },
+    className:
+      "flex flex-col items-center rounded-full p-2 justify-center size-10",
+  };
+  return (
+    <motion.button {...buttonMotionProps} onClick={onClick}>
+      <Options className="size-[24px] fill-white" />
+    </motion.button>
+  );
+};
+
+const DurationSlider = ({
+  duration,
+  currentTime,
+  onChange,
+}: {
+  duration: number;
+  currentTime: number;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) => {
+  return (
+    <>
+      <input
+        type="range"
+        min={0}
+        max={duration || 1}
+        value={currentTime}
+        onChange={onChange}
+        className="flex-1 accent-white rounded-lg h-2"
+      />
+    </>
   );
 };

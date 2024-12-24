@@ -8,7 +8,7 @@
   height: 30px;
   margin: 20px;
   padding: 8px;
-  background-color: #c7c7c75c;
+  background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   transition: 0.2s opacity ease-out, transform ease-out,
     background-color ease-out;
@@ -16,11 +16,11 @@
   outline: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+  &::hover {
+    background-color: rgba(255, 255, 255, 0.05);
   }
-  &:active {
-    background-color: rgba(255, 255, 255, 0.075);
+  &::active {
+    background-color: rgba(255, 255, 255, 0.15);
   }
 }
 

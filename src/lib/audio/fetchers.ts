@@ -87,6 +87,7 @@ async function mapTrackUrlToSong(url: string): Promise<Song> {
     return {
       albumName: data.publisher_metadata?.album_title || "",
       artistName: data.publisher_metadata?.artist || data.user?.username || "",
+      artistId: data.user?.id || -1,
       artwork: {
         hdUrl: HDCover,
         url: data.artwork_url,
@@ -94,6 +95,7 @@ async function mapTrackUrlToSong(url: string): Promise<Song> {
       id: data.id,
       songHref: data.permalink_url,
       name: data.title,
+      explicit: data.publisher_metadata.explicit || false,
       src: "",
     };
   } catch (error) {
@@ -148,6 +150,7 @@ async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
         albumName: track.publisher_metadata?.album_title || "",
         artistName:
           track.publisher_metadata?.artist || track.user?.username || "",
+        artistId: track.user?.id || -1,
         artwork: {
           hdUrl: HDCover,
           url: track.artwork_url,
@@ -155,6 +158,7 @@ async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
         id: track.id,
         songHref: track.permalink_url,
         name: track.title,
+        explicit: track.publisher_metadata.explicit || false,
         src: "", // M3U8 fetched later in the store
       };
       songs.push(song);
@@ -208,6 +212,22 @@ export async function getIDFromURL(url: string): Promise<number> {
   }
 }
 
+export async function getURLFromID(id: string): Promise<string> {
+  try {
+    const response = await fetch(`/api/soundcloud/geturl/${id}`);
+    if (!response.ok) {
+      console.error(`Failed to get URL from ID: ${id}`);
+      return "";
+    }
+    const data = await response.json();
+    console.log("getURLFromID data", data);
+    return data.url;
+  } catch (error) {
+    console.error("Error getting URL from ID:", error);
+    return "";
+  }
+}
+
 /**
  * Creates a minimal Song object with default values, useful for error fallback.
  */
@@ -215,6 +235,7 @@ function createEmptySong(id: number): Song {
   return {
     albumName: "",
     artistName: "",
+    artistId: -1,
     artwork: {
       hdUrl: "",
       url: "",
@@ -222,44 +243,89 @@ function createEmptySong(id: number): Song {
     id,
     songHref: "",
     name: "Unknown Track",
+    explicit: false,
     src: "",
   };
 }
 
-export async function getAppleLyrics(
-  title: string,
-  artist: string,
-  file: boolean = false
-): Promise<string> {
-  try {
-    // const query = `${artist.replace(/ /g, "+")}+${title.replace(/ /g, "+")}`;
-    const cleanedTitle = title.split("(")[0].trim();
-    const cleanedArtist = artist
-      .replace(/&|feat\.|featuring/gi, "")
-      .split(/[(),]/)
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .join("+");
-    const query = `${cleanedTitle.replace(/ /g, "+")}+${cleanedArtist}`;
-    const response = await fetch(`/api/apple/lyrics/${query}`);
-    if (!response.ok) {
-      console.error(`Failed to get ID from URL: ${query}`);
+export const AppleKit = {
+  /**
+   * Fetch Apple Lyrics for a song.
+   */
+  async getAppleLyrics(
+    title: string,
+    artist: string,
+    file: boolean = false
+  ): Promise<string> {
+    try {
+      const cleanedTitle = title.split("(")[0].trim();
+      const cleanedArtist = artist
+        .replace(/&|feat\.|featuring/gi, "")
+        .split(/[(),]/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .join("+");
+
+      const query = `${cleanedTitle.replace(/ /g, "+")}+${cleanedArtist}`;
+      const response = await fetch(`/api/apple/lyrics/${query}`);
+
+      if (!response.ok) {
+        console.error(`Failed to get ID from URL: ${query}`);
+        return "";
+      }
+
+      const data = await response.json();
+      const formatTTMLResponse = (data: any) => {
+        if (typeof data === "string") {
+          return data.replace(/\\/g, "");
+        }
+        return data;
+      };
+
+      if (file) {
+        return formatTTMLResponse(data.data[0].attributes.ttml);
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error getting Apple lyrics:", error);
       return "";
     }
+  },
 
-    const data = await response.json();
-    const formatTTMLResponse = (data: any) => {
-      if (typeof data === "string") {
-        return data.replace(/\\/g, "");
+  /**
+   * Fetch Apple Data.
+   */
+  async getAppleData(title: string, artist: string): Promise<any> {
+    try {
+      const cleanedTitle = title.split("(")[0].trim();
+      let cleanedArtist = artist;
+      if (cleanedArtist.toLowerCase() === "octobersveryown") {
+        cleanedArtist = "Drake";
+      } else {
+        cleanedArtist = cleanedArtist
+          .replace(/&|feat\.|featuring/gi, "")
+          .split(/[(),]/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .join("+");
       }
+
+      const query = `${cleanedTitle.replace(/ /g, "+")}+${cleanedArtist}`;
+      const response = await fetch(`/api/apple/song/${query}`);
+
+      if (!response.ok) {
+        console.error(
+          `Response not OK | Failed to get data from AppleKit: ${query}`
+        );
+        return "";
+      }
+
+      const data = await response.json();
       return data;
-    };
-    if (file) {
-      return formatTTMLResponse(data.data[0].attributes.ttml);
+    } catch (error) {
+      console.error("Error getting Apple data:", error);
+      return "";
     }
-    return data;
-  } catch (error) {
-    console.error("Error getting ID from URL:", error);
-    return "";
-  }
-}
+  },
+};

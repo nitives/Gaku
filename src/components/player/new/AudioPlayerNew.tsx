@@ -10,12 +10,13 @@ export const AudioPlayerNew = () => {
     currentSong,
     isPlaying,
     nextSong,
+    previousSong,
     setQueue,
-    addToQueue,
     queue,
+    duration,
     setPlayerRef,
+    setIsPlaying,
   } = useAudioStoreNew();
-
   const playerRef = useRef<ReactPlayer>(null);
 
   useEffect(() => {
@@ -27,22 +28,58 @@ export const AudioPlayerNew = () => {
     setPlayerRef(playerRef);
   }, [setPlayerRef]);
 
-  const handleLoadUrl = async (url: string) => {
-    if (!url) return;
-    // Get initial songs and a function to load remaining
-    const { initialSongs, loadRemaining } = await mapSCDataToSongOrPlaylist(
-      url,
-      3
-    );
+  useEffect(() => {
+    if ("mediaSession" in navigator) {
+      const isIPhone = /iPhone/i.test(navigator.userAgent);
+      const displayTitle =
+        isIPhone && currentSong?.explicit
+          ? `${currentSong?.name} 🅴`
+          : currentSong?.name;
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: displayTitle || "Unknown Title",
+        artist: currentSong?.artistName || "Unknown Artist",
+        album: currentSong?.albumName || "",
+        artwork: [
+          {
+            src: currentSong?.artwork.hdUrl || "default-image.jpg",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
+      });
 
-    // Set the queue with the initial songs, starts playing as soon as first song is ready
-    await setQueue(initialSongs);
-
-    // Load the remaining tracks in the background
-    const remainingSongs = await loadRemaining();
-    // Add them to the queue as they come in
-    addToQueue(remainingSongs);
-  };
+      navigator.mediaSession.setActionHandler("play", () => {
+        setIsPlaying(true);
+      });
+      navigator.mediaSession.setActionHandler("pause", () => {
+        setIsPlaying(false);
+      });
+      navigator.mediaSession.setActionHandler("nexttrack", () => {
+        nextSong();
+      });
+      navigator.mediaSession.setActionHandler("previoustrack", () => {
+        previousSong();
+      });
+      navigator.mediaSession.setActionHandler("seekto", (details) => {
+        if (details.seekTime && playerRef.current) {
+          playerRef.current.seekTo(details.seekTime, "seconds");
+        }
+      });
+      const updatePositionState = () => {
+        if (playerRef.current) {
+          navigator.mediaSession.setPositionState({
+            duration: duration,
+            playbackRate: playerRef?.current.getInternalPlayer().playbackRate,
+            position: playerRef.current.getCurrentTime(),
+          });
+        }
+      };
+      const positionUpdateInterval = setInterval(updatePositionState, 1000);
+      return () => {
+        clearInterval(positionUpdateInterval);
+      };
+    }
+  }, [currentSong, isPlaying, duration, nextSong, previousSong, setIsPlaying]);
 
   return (
     <>

@@ -25,11 +25,6 @@ export default async function handler(
         }
       );
 
-      // console.log(
-      //   "Search Response meta:",
-      //   searchResponse.data.results.albums.data[0].id
-      // );
-
       const albumId = searchResponse.data.results.albums.data[0].id;
 
       // Second request to get detailed album information

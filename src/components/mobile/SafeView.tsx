@@ -270,7 +270,7 @@ export const ScrollContainer = ({
 }) => {
   return (
     <div
-      className={`${className} flex overflow-x-scroll pb-10 max-sm:pb-5 hide-scroll-bar gap-2`}
+      className={`${className} flex overflow-x-scroll pb-5 max-sm:pb-3 hide-scroll-bar gap-2`}
     >
       {children}
     </div>

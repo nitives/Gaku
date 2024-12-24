@@ -2,27 +2,29 @@ import React from "react";
 import ReactPlayer from "react-player";
 
 interface AnimatedCoverProps {
-  hlsUrl: string;
+  url: string;
+  style?: React.CSSProperties;
 }
 
-export const AnimatedCover: React.FC<AnimatedCoverProps> = ({ hlsUrl }) => {
+export const AnimatedCover: React.FC<AnimatedCoverProps> = ({ url, style }) => {
   return (
     <>
       <ReactPlayer
-        url={hlsUrl}
+        url={url}
         playing
         loop
         muted
+        playsinline
         width="100%"
         height="100%"
         controls={false}
-        style={{ borderRadius: "16px", aspectRatio: "1/1" }}
+        style={{ borderRadius: "16px", aspectRatio: "1/1", ...style }}
       />
     </>
   );
 };
 
-export const AnimatedCoverFull: React.FC<AnimatedCoverProps> = ({ hlsUrl }) => {
+export const AnimatedCoverFull: React.FC<AnimatedCoverProps> = ({ url }) => {
   return (
     <>
       <div>
@@ -30,7 +32,7 @@ export const AnimatedCoverFull: React.FC<AnimatedCoverProps> = ({ hlsUrl }) => {
         <div className="-z-10 overflow-x-clip grid items-end justify-center w-screen h-[20rem] absolute top-0">
           <div className="scale-[1.2] absolute top-0 standalone:top-[-1rem] left-0 w-screen h-screen animated-video-container flex">
             <ReactPlayer
-              url={hlsUrl}
+              url={url}
               playing={true}
               loop={true}
               muted={true}

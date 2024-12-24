@@ -5,9 +5,11 @@ export interface Song {
   contentRating?: string;
   discNumber?: number;
   id: number;
+  artistId: number;
   songHref: string;
   name: string;
   color?: string[];
+  explicit?: boolean;
   releaseDate?: string;
   src: string;
 }
@@ -27,6 +29,7 @@ export interface Album {
 }
 
 export interface Artwork {
+  animatedURL?: string;
   hdUrl: string | undefined;
   url: string | undefined;
   width?: number;

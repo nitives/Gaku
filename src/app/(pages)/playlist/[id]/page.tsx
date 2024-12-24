@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { fetchPlaylistM3U8 } from "@/lib/utils";
 import Image from "next/image";
-import { SafeView, BackButton } from "@/components/mobile/SafeView";
+import { SafeView } from "@/components/mobile/SafeView";
 import { IoHeart, IoHeartOutline, IoPlay, IoShuffle } from "react-icons/io5";
 import { AnimatePresence, motion } from "framer-motion";
 import { ColorGen } from "@/components/ColorGen";
@@ -16,7 +16,7 @@ import { useLibrary } from "@/hooks/useLibrary";
 import { PausedIcon, PlayingIcon } from "@/components/Icons/PlayingIcon";
 import AnimatedCover, { AnimatedCoverFull } from "@/components/AnimatedCover";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { mapSCDataToSongOrPlaylist } from "@/lib/audio/fetchers";
+import { AppleKit, mapSCDataToSongOrPlaylist } from "@/lib/audio/fetchers";
 import { useAudioStoreNew } from "@/context/AudioContextNew";
 
 export default function PlaylistPage() {
@@ -41,7 +41,7 @@ export default function PlaylistPage() {
   const [animated, setAnimatedVideo] = useState(false);
   const [albumCover, setAlbumCover] = useState<string | null>(null);
 
-  const { setQueue, addToQueue } = useAudioStoreNew();
+  const { setQueue, addToQueue, setAnimatedURL } = useAudioStoreNew();
 
   const handleLikeToggle = (track: any) => {
     const songId = `${track.title}-${playlist.user.username}`;
@@ -70,8 +70,6 @@ export default function PlaylistPage() {
     }
   }, [apple]);
 
-  console.log("playing:", globalCurrentTrack, isPlaying);
-  console.log("playlist:", playlist);
   const isDesktop = useMediaQuery("(min-width: 484px)");
 
   const fetchPlaylist = async (playlistID: string) => {
@@ -83,7 +81,7 @@ export default function PlaylistPage() {
     if (data.permalink_url) {
       console.log("fetchPlaylist to fetchCover -", data.permalink_url);
       fetchCover(data.permalink_url);
-      fetchAppleKitData(data.title);
+      fetchAppleKitData(data.title, data.user.username);
     }
   };
 
@@ -121,12 +119,16 @@ export default function PlaylistPage() {
     }
   };
 
-  const fetchAppleKitData = async (songTitle: string) => {
+  const fetchAppleKitData = async (songTitle: string, artistName: string) => {
     try {
-      console.log("fetchAppleKitData | songTitle:", songTitle);
-      const response = await fetch(`/api/apple/song/${songTitle}`);
-      const data = await response.json();
+      const data = await AppleKit.getAppleData(songTitle, artistName);
+      if (!data) return;
       setAppleData(data);
+      if (data[0]?.attributes?.editorialVideo?.motionDetailSquare?.video) {
+        setAnimatedURL(
+          data[0]?.attributes?.editorialVideo?.motionDetailSquare?.video
+        );
+      }
     } catch (error) {
       console.error("Error fetching Apple Music data:", error);
     }
@@ -237,30 +239,34 @@ export default function PlaylistPage() {
     }
   }, [apple, animated, isDesktop]);
 
-  if (!playlist) return <PlaylistSkeleton />;
-
-  console.log("playlist.tracks:", playlist.tracks);
-
-  if (apple?.data) {
-    console.log("MusicKit Data:", apple);
-    if (apple?.data[0]?.attributes?.editorialVideo) {
-      console.log("MusicKit Attributes:", apple);
-      console.log(
-        "MusicKit | editorialVideo:",
-        apple?.data[0]?.attributes?.editorialVideo?.motionDetailSquare
-      );
-      console.log(
-        "MusicKit | editorialVideo.bgColor:",
-        apple?.data[0].attributes?.editorialVideo?.motionDetailSquare
-          .previewFrame.bgColor
-      );
-    } else {
-      console.log("MusicKit | No editorialVideo:", apple);
+  useEffect(() => {
+    if (playlist?.tracks.length > 0) {
+      console.log("playlist.tracks:", playlist.tracks);
     }
-  } else {
-    console.log("No MusicKit Data");
-    console.log("animated:", animated);
-  }
+
+    if (apple?.data) {
+      console.log("MusicKit Data:", apple);
+      if (apple?.data[0]?.attributes?.editorialVideo) {
+        console.log("MusicKit Attributes:", apple);
+        console.log(
+          "MusicKit | editorialVideo:",
+          apple?.data[0]?.attributes?.editorialVideo?.motionDetailSquare
+        );
+        console.log(
+          "MusicKit | editorialVideo.bgColor:",
+          apple?.data[0].attributes?.editorialVideo?.motionDetailSquare
+            .previewFrame.bgColor
+        );
+      } else {
+        console.log("MusicKit | No editorialVideo:", apple);
+      }
+    } else {
+      console.log("No MusicKit Data");
+      console.log("animated:", animated);
+    }
+  }, [apple, playlist, animated]);
+
+  if (!playlist) return <PlaylistSkeleton />;
 
   const handleFetchPlaylist = async (url: string) => {
     if (!url) return;
@@ -283,7 +289,7 @@ export default function PlaylistPage() {
               {!isDesktop ? (
                 <>
                   <AnimatedCoverFull
-                    hlsUrl={
+                    url={
                       apple.data[0].attributes.editorialVideo.motionDetailSquare
                         .video
                     }
@@ -294,7 +300,7 @@ export default function PlaylistPage() {
                   <div className="album-container album-shadow">
                     <div className="rounded-[16px] overflow-hidden">
                       <AnimatedCover
-                        hlsUrl={
+                        url={
                           apple.data[0].attributes.editorialVideo
                             .motionDetailSquare.video
                         }
@@ -311,7 +317,7 @@ export default function PlaylistPage() {
                 src={
                   albumCover ||
                   playlist?.tracks[0].artwork_url ||
-                  "/assets/placeeholders/missing_song_dark.png"
+                  "/assets/placeholders/missing_song_dark.png"
                 }
                 alt={`${playlist.title} Album Cover`}
                 title={`${playlist.title} Album Cover`}
