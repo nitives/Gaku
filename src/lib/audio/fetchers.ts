@@ -53,7 +53,7 @@ export async function fetchM3U8ForSong(song: Song): Promise<string> {
 export async function mapSCDataToSongOrPlaylist(
   url: string,
   initialCount = 3,
-  isID?: boolean,
+  isID?: boolean
 ): Promise<{ initialSongs: Song[]; loadRemaining: () => Promise<Song[]> }> {
   try {
     if (url.includes("/sets/")) {
@@ -255,7 +255,7 @@ export const AppleKit = {
   /**
    * Fetch Apple Lyrics for a song.
    */
-  async getAppleLyrics(
+  async getLyrics(
     title: string,
     artist: string,
     file: boolean = false
@@ -299,7 +299,7 @@ export const AppleKit = {
   /**
    * Fetch Apple Data.
    */
-  async getAppleData(
+  async getMediaData(
     title: string,
     artist: string,
     type: "albums" | "songs"

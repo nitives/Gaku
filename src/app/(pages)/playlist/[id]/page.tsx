@@ -91,7 +91,7 @@ export default function PlaylistPage() {
     type: "albums" | "songs"
   ) => {
     try {
-      const data = await AppleKit.getAppleData(title, artistName, type);
+      const data = await AppleKit.getMediaData(title, artistName, type);
       console.log("fetchAppleKitData | data XX:", data);
       if (!data) return;
       setAppleData(data);
@@ -224,7 +224,7 @@ export default function PlaylistPage() {
   }, [apple, playlist, animated]);
 
   if (!playlist) return <PlaylistSkeleton />;
-  
+
   return (
     <>
       <SafeView backButton className="z-10 relative !pt-0 !px-0">

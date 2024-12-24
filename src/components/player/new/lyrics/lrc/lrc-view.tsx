@@ -2,7 +2,7 @@
 import { Fragment, RefObject, useEffect, useRef, useState } from "react";
 import LrcLine from "./lrc-line";
 import ReactPlayer from "react-player";
-import { getAppleLyrics } from "@/lib/audio/fetchers";
+import { AppleKit } from "@/lib/audio/fetchers";
 import { parseTTML } from "./utils/TTMLparser";
 
 interface Props {
@@ -20,7 +20,7 @@ const LrcView = ({ currentTime, title, artist }: Props) => {
 
   useEffect(() => {
     const fetchLyrics = async () => {
-      const lyrics = await getAppleLyrics(title, artist);
+      const lyrics = await AppleKit.getLyrics(title, artist);
       const parsedJson = parseTTML(lyrics);
       setParsedJson(parsedJson);
     };

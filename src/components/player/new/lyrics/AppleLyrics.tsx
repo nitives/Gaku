@@ -34,7 +34,7 @@ export const AppleLyrics = () => {
         }
 
         // Fetch new lyrics if not in cache or expired
-        const lyrics = await AppleKit.getAppleLyrics(
+        const lyrics = await AppleKit.getLyrics(
           currentSong?.name || "",
           currentSong?.artistName || "",
           true
