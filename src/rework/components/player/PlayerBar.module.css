@@ -1,0 +1,52 @@
+:global(.dark) .PlayerBar {
+  --playerBackgroundColor: hsla(0, 0%, 10%, 0.5);
+  --playerSongTitleColor: inherit;
+  --playerSongArtistColor: hsla(0, 0%, 100%, 0.5);
+}
+
+.PlayerBar {
+  --playerBackgroundColor: hsla(0, 0%, 100%, 0.95);
+  --playerSongTitleColor: hsl(0, 0%, 0%);
+  --playerSongArtistColor: hsla(0, 0%, 0%, 0.5);
+  height: fit-content;
+  display: flex;
+  align-content: center;
+  bottom: 0;
+  flex-shrink: 0;
+  inset-inline-end: 0;
+  position: fixed;
+  transition: opacity 0.25s, transform 0.25s;
+  width: 100%;
+  z-index: calc(var(--z-web-chrome) + 1);
+}
+
+.Player {
+  display: flex;
+  background-color: var(--playerBackgroundColor);
+  -webkit-backdrop-filter: saturate(60%) blur(24px);
+  backdrop-filter: saturate(60%) blur(24px);
+  border: 1px solid var(--labelDivider);
+  height: 54px;
+  padding: 0.25rem;
+  margin-bottom: 0.75rem;
+  margin-inline: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  & h2 {
+    color: var(--playerSongTitleColor);
+  }
+  & p {
+    color: var(--playerSongArtistColor);
+  }
+}
+
+.Artwork {
+  background: hsl(0, 0%, 15%);
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  height: 100%;
+  box-shadow: 0 0 5px hsla(0, 0%, 0%, 0.1), 0 1px 10px rgba(0, 0, 0, 0.025);
+}

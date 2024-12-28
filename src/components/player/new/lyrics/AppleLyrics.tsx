@@ -3,6 +3,7 @@ import { useAudioStoreNew } from "@/context/AudioContextNew";
 import { LyricPlayer, LyricPlayerRef } from "@applemusic-like-lyrics/react";
 import { LyricLine, parseTTML } from "./lrc/utils/TTMLparser";
 import { AppleKit } from "@/lib/audio/fetchers";
+import { GakuStorage } from "@/lib/utils/storage";
 
 export const AppleLyrics = () => {
   const [lyricLines, setLyricLines] = useState<LyricLine[]>([]);
@@ -15,25 +16,19 @@ export const AppleLyrics = () => {
     const loadLyrics = async () => {
       setIsLoading(true);
       try {
-        // Check localStorage first
-        const storageKey = `gakuData`;
-        const storedData = localStorage.getItem(storageKey);
+        const data = GakuStorage.getData();
         const currentTime = Date.now();
-        if (storedData) {
-          const data = JSON.parse(storedData);
-          const song = data.songs?.find(
-            (s: any) =>
-              s.name === currentSong?.name &&
-              s.artist === currentSong?.artistName
-          );
-          if (song?.lyrics && song.expiresAt > currentTime) {
-            setLyricLines(song.lyrics);
-            setIsLoading(false);
-            return;
-          }
+        const song = data.songs?.find(
+          (s) =>
+            s.name === currentSong?.name && s.artist === currentSong?.artistName
+        );
+
+        if (song?.lyrics && song.expiresAt && song.expiresAt > currentTime) {
+          setLyricLines(song.lyrics);
+          setIsLoading(false);
+          return;
         }
 
-        // Fetch new lyrics if not in cache or expired
         const lyrics = await AppleKit.getLyrics(
           currentSong?.name || "",
           currentSong?.artistName || "",
@@ -42,27 +37,25 @@ export const AppleLyrics = () => {
         const parsedLyrics = parseTTML(lyrics).lyricLines;
         setLyricLines(parsedLyrics);
 
-        // Save to localStorage
-        const expiresAt = currentTime + 60 * 60 * 1000; // 1 hour
-        const data = JSON.parse(storedData || '{"songs":[]}');
-        const songIndex = data.songs.findIndex(
-          (s: any) =>
-            s.name === currentSong?.name && s.artist === currentSong?.artistName
-        );
-
-        if (songIndex >= 0) {
-          data.songs[songIndex].lyrics = parsedLyrics;
-          data.songs[songIndex].expiresAt = expiresAt;
-        } else {
-          data.songs.push({
-            name: currentSong?.name,
-            artist: currentSong?.artistName,
-            lyrics: parsedLyrics,
-            expiresAt,
-          });
-        }
-
-        localStorage.setItem(storageKey, JSON.stringify(data));
+        GakuStorage.updateData((data) => {
+          const songIndex = data.songs.findIndex(
+            (s) =>
+              s.name === currentSong?.name &&
+              s.artist === currentSong?.artistName
+          );
+          if (songIndex >= 0) {
+            data.songs[songIndex].lyrics = parsedLyrics;
+            data.songs[songIndex].expiresAt = currentTime + 60 * 60 * 1000;
+          } else {
+            data.songs.push({
+              name: currentSong?.name,
+              artist: currentSong?.artistName,
+              lyrics: parsedLyrics,
+              expiresAt: currentTime + 60 * 60 * 1000,
+            });
+          }
+          return data;
+        });
       } catch (error) {
         console.error("Failed to load lyrics:", error);
         setLyricLines([]);
@@ -70,7 +63,6 @@ export const AppleLyrics = () => {
         setIsLoading(false);
       }
     };
-
     loadLyrics();
   }, [currentSong?.artistName, currentSong?.name]);
 

@@ -333,4 +333,68 @@ export const AppleKit = {
       return "";
     }
   },
+
+  /**
+   * Fetch Artist Data.
+   */
+  async getArtistData(artist: string): Promise<any> {
+    try {
+      const query = artist.replace(/ /g, "+");
+      const response = await fetch(`/api/apple/artist/${query}`);
+      console.log("AppleKit | Artist | Query: ", query);
+      if (!response.ok) {
+        console.error(`Failed to get data from AppleKit: ${query}`);
+        return "";
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error getting Apple data:", error);
+      return "";
+    }
+  },
+};
+
+/**
+ * Interact with Gaku's SoundCloud API.
+ */
+export const SoundCloudKit = {
+  /**
+   * Fetch SoundCloud Data for a song or album.
+   */
+  async getData(
+    id: string | number,
+    type: "albums" | "songs" | "playlists" | "artist",
+    options?: {
+      include?: string | string[]; // updated to allow multiple includes
+    }
+  ): Promise<any> {
+    try {
+      // Build query
+      const queryParams = new URLSearchParams();
+      queryParams.set("type", type);
+
+      if (options?.include) {
+        // If it's an array, join with commas; otherwise use as-is
+        const includeValue = Array.isArray(options.include)
+          ? options.include.join(",")
+          : options.include;
+        queryParams.set("include", includeValue);
+      }
+
+      // Now we have something like ?type=artist&include=spotlight,latest
+      const response = await fetch(`/api/soundcloud/${id}?${queryParams}`);
+      if (!response.ok) {
+        console.error(
+          `SoundCloudKit | getData | Response not OK | Failed to get data from SoundCloudKit: ${id}`
+        );
+        return "";
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("SoundCloudKit | getData | Error fetching data:", error);
+      return "";
+    }
+  },
 };

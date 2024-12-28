@@ -29,6 +29,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "images.genius.com",
       },
+      {
+        protocol: "https",
+        hostname: "is1-ssl.mzstatic.com",
+      },
     ],
   },
 };

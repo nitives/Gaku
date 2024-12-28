@@ -1,0 +1,102 @@
+.SidebarContainer {
+  grid-gap: 0;
+  grid-area: structure-header;
+  height: 100%;
+  position: relative;
+  width: 100%;
+  z-index: var(--z-web-chrome);
+}
+
+.Sidebar {
+  background-color: rgba(235, 235, 235, 0.03);
+  border-inline-end: 1px solid var(--labelDivider);
+  box-shadow: none;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  z-index: var(--z-web-chrome);
+}
+
+/* SidebarHeader */
+.SidebarHeader {
+  width: auto;
+}
+
+.SidebarHeaderLogo {
+  /* display: none; */
+  display: flex;
+  justify-content: space-between;
+  white-space: nowrap;
+  min-height: 55px;
+  padding-inline-end: 30px;
+  padding-top: 17px;
+  padding-inline-start: 30px;
+  -webkit-padding-start: 30px;
+  -moz-padding-start: 30px;
+  -webkit-padding-end: 30px;
+  -moz-padding-end: 30px;
+  & h1 {
+    font-size: 2rem;
+    font-weight: 500;
+  }
+}
+
+.SidebarContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.SidebarContentScrollArea {
+  -webkit-mask: linear-gradient(5deg, transparent 0px, black 32px);
+  mask: linear-gradient(5deg, transparent 0px, black 32px);
+  flex: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 5rem;
+  &::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    visibility: visible;
+    opacity: 1;
+  }
+  &:not(:hover)::-webkit-scrollbar-thumb {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s linear, opacity 0.3s linear;
+  }
+}
+
+.SidebarContentScrollArea a {
+  /* display: flex; */
+}
+
+.SidebarContentScrollArea svg {
+  fill: white;
+}
+
+:global(.dark) .SidebarFooter {
+  --blur-tint: hsla(0, 0%, 3%, 1);
+  --blur-tint-gradient: linear-gradient(
+    hsla(0, 0%, 3%, 0) 0%,
+    hsl(0, 0%, 3%) 100%
+  );
+}
+
+.SidebarFooter {
+  --blur-tint: hsla(0, 0%, 100%, 1);
+  --blur-tint-gradient: linear-gradient(
+    hsla(0, 0%, 100%, 0) 0%,
+    hsl(0, 0%, 100%) 100%
+  );
+  /* border-top: 1px solid var(--labelDivider); */
+  position: relative;
+  width: 100%;
+  min-height: 100px;
+}

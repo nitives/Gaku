@@ -1,0 +1,27 @@
+.Content {
+  height: 100vh;
+  grid-gap: 0;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "structure-header structure-main-section"
+    "structure-upsell structure-upsell"
+    "structure-locale-switcher structure-locale-switcher";
+}
+
+.ScrollPage {
+  display: flex;
+  flex-direction: column;
+  grid-area: structure-main-section;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: margin 0.1s linear, width 0.1s linear;
+  width: 100%;
+  z-index: var(--z-default);
+}
+
+.DynamicPage {
+  /* padding: 1rem 20px; */
+}

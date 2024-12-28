@@ -18,19 +18,10 @@ export default async function handler(
           },
         }
       );
-
       const playlist = playlistResponse.data;
-      // console.log("API Playlist | playlist", playlist);
-
-      // Get the IDs of tracks that need more details in the correct order
       const trackIdsToFetch = playlist.tracks
         .slice(5)
         .map((track: { id: any }) => track.id);
-
-      // console.log("API Playlist | Full Length:", playlist.tracks.length);
-      // console.log("API Playlist | Tracks:", playlist.tracks);
-      // console.log("API Playlist | trackIdsToFetch:", trackIdsToFetch.join(","));
-
       if (trackIdsToFetch.length > 0) {
         // Fetch details for the remaining tracks
         const tracksResponse = await axios.get(
@@ -44,7 +35,6 @@ export default async function handler(
             },
           }
         );
-
         // Create a map of the fetched tracks by ID
         const fetchedTracksMap = new Map(
           tracksResponse.data.map((track: any) => [track.id, track])

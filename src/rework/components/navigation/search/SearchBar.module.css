@@ -1,0 +1,70 @@
+.SearchBarWrapper {
+  --SearchIcon-fill: hsl(0, 0%, 75%);
+  --SearchBarWrapper-inline-margin: 12px;
+  height: 54px;
+  display: flex;
+  position: relative;
+  user-select: none;
+  flex-direction: column;
+  justify-content: center;
+  margin-inline-end: var(--SearchBarWrapper-inline-margin);
+  margin-inline-start: var(--SearchBarWrapper-inline-margin);
+  -webkit-margin-start: var(--SearchBarWrapper-inline-margin);
+  -moz-margin-start: var(--SearchBarWrapper-inline-margin);
+  -webkit-margin-end: var(--SearchBarWrapper-inline-margin);
+  -moz-margin-end: var(--SearchBarWrapper-inline-margin);
+}
+
+:global(.dark) .SearchBarWrapper {
+  --SearchIcon-fill: hsl(0, 0%, 100%);
+}
+
+.SearchInput {
+  background-color: hsla(0, 0%, 0%, 0.01);
+  border-color: var(--labelDivider);
+  border-radius: 9px;
+  border-style: solid;
+  border-width: 1px;
+  color: #000000;
+  font-weight: 400;
+  height: 31px;
+  letter-spacing: 0;
+  line-height: 1.25;
+  padding-block: 5px;
+  padding-inline-start: 32px;
+  padding-inline-end: 5px;
+  width: 100%;
+  transition: box-shadow 0.3s ease-in-out;
+  box-shadow: 0 0 0 0px rgba(var(--keyColor-RGB), 0);
+  &::placeholder {
+    color: hsla(0, 0%, 0%, 0.5);
+  }
+  &::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    cursor: pointer;
+    appearance: none;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-size: 14px 14px;
+    height: 14px;
+    width: 14px;
+    background-image: url(https://music.apple.com/assets/icons/sidebar-searchfield-close-on-light.svg);
+  }
+  &:focus {
+    box-shadow: 0 0 0 4px rgba(var(--keyColor-RGB), 0.6);
+    outline: none;
+  }
+}
+
+:global(.dark) .SearchInput {
+  --SearchIcon-fill: hsl(0, 0%, 100%);
+  background-color: hsla(0, 0%, 100%, 0.1);
+  border-color: hsla(0, 0%, 100%, 0.15);
+  color: #f5f5f5;
+  &::placeholder {
+    color: hsla(0, 0%, 100%, 0.15);
+  }
+  &::-webkit-search-cancel-button {
+    background-image: url(https://music.apple.com/assets/icons/sidebar-searchfield-close-on-dark.svg);
+  }
+}

@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent-x: #ff5500;
+    --accent: 20 100% 50%;
+    --accent-foreground: 20 100% 45%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 20 100% 50%;
+    --accent-foreground: 20 100% 45%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  ::-webkit-scrollbar {
+    width: 12px;
+    background: var(--background-x);
+  }
+
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 50px 50px transparent;
+    border: solid 3px transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    box-shadow: inset 0 0 50px 50px hsla(0, 0%, 100%, 0.1);
+    border: solid 3px transparent;
+  }
+  @media (display-mode: standalone) {
+    *:not(input):not(select):not(code):not(textarea):not([contenteditable]) {
+      webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  }
+}
+
+@media (display-mode: standalone) {
+  body {
+    min-height: calc(100% + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
+    &::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      width: 100%;
+      height: env(safe-area-inset-top);
+      /* background: var(--background); */
+      /* background: hsl(var(--background)); */
+    }
+  }
+}
+
+@font-face {
+  src: url("../../public/assets/fonts/SFNS.woff2") format("woff2-variations");
+  font-family: "SF Pro";
+  font-style: normal;
+}
+@font-face {
+  src: url("../../public/assets/fonts/SFNSItalic.woff2")
+    format("woff2-variations");
+  font-family: "SF Pro";
+  font-style: italic;
+}
+
+@font-face {
+  src: url("../../public/assets/fonts/SFNSRounded.woff2")
+    format("woff2-variations");
+  font-family: "SF Rounded";
+  font-style: normal;
+}
+
+.SFPro {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
+}
+
+input[type="range"] {
+  transition: all 0.1s ease;
+}
+
+/* Rework */
+body,
+html {
+  /* background: hsl(0, 0%, 10%); */
+  /* color: hsla(0, 0%, 100%, 0.92); */
+  background: hsl(var(--background));
+  color: hsla(var(--foreground));
+}
+
+body {
+  min-height: 100%;
+}
+@layer base {
+  :root {
+    --keyColor: #58a0fa;
+    --keyColor-RGB: 88, 160, 250;
+    --labelDivider: hsla(0, 0%, 0%, 0.15);
+    
+    --systemPrimary: hsla(0, 0%, 100%, .92);
+    --systemSecondary: hsla(0, 0%, 100%, .64);
+    /* --z-web-chrome: 9901; */
+    --z-web-chrome: 1;
+  }
+  .dark {
+    --labelDivider: hsla(0, 0%, 100%, 0.1);
+  }
+}

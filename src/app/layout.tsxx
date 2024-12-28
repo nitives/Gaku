@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { Navbar } from "@/components/mobile/Navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Viewport } from "next";
+import { PersistentAudioPlayer } from "@/components/PersistentAudioPlayer";
 import { Toaster } from "react-hot-toast";
 import { AudioPlayerNew } from "@/components/player/new/AudioPlayerNew";
-import "../rework/global.css";
-import { Sidebar } from "@/rework/components/navigation/Sidebar";
-import { ScrollPage } from "@/rework/components/main/ScrollPage";
-import { Content } from "@/rework/components/main/Content";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Gaku",
@@ -25,6 +27,10 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
+  // themeColor: [
+  //   { media: "(prefers-color-scheme: light)", color: "white" },
+  //   { media: "(prefers-color-scheme: dark)", color: "black" },
+  // ],
 };
 
 export default function RootLayout({
@@ -225,6 +231,7 @@ export default function RootLayout({
           media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
           href="/assets/splash_screens/iPhone_11_Pro_Max__iPhone_XS_Max_landscape.png"
         />
+
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta
@@ -237,11 +244,12 @@ export default function RootLayout({
         />
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
-      <body className={"SFPro"} suppressHydrationWarning>
+      <body className={"SFPro"}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {/* <AudioPlayerNew /> */}
-          {/* {children} */}
-          <Content>{children}</Content>
+          {/* <PersistentAudioPlayer /> */}
+          <AudioPlayerNew />
+          {children}
+          <Navbar />
           <Toaster
             position="bottom-center"
             toastOptions={{

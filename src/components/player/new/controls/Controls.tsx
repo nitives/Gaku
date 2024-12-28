@@ -270,14 +270,44 @@ const ExpandedPlayer = ({
               />
             </motion.span>
           </motion.div>
-          <motion.div>
+          {/* Controls & Info */}
+          <motion.div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignContent: "center",
+            }}
+          >
+            {/* Info */}
+            <motion.div>
+              <motion.h2 className="text-lg font-semibold text-center">
+                {song?.name}
+              </motion.h2>
+              <motion.h2 className="text-sm text-center text-white/75">
+                {song?.artistName}
+              </motion.h2>
+            </motion.div>
             {/* Controls */}
-            <ExpandedPlayerControls
-              onPlayPause={onPlayPause}
-              playing={isPlaying}
-              onNext={onNext}
-              onPrev={onPrev}
-            />
+            <motion.div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <DurationSlider
+                duration={duration}
+                currentTime={currentTime}
+                onChange={handleSeekChange}
+              />
+              <ExpandedPlayerControls
+                onPlayPause={onPlayPause}
+                playing={isPlaying}
+                onNext={onNext}
+                onPrev={onPrev}
+              />
+            </motion.div>
           </motion.div>
         </motion.div>
         {/* {lyricsVisible && (

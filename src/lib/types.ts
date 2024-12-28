@@ -11,3 +11,4 @@ export interface Lyric {
   x: string; // full lyric line
   translation?: string; // optional translation
 }
+

@@ -14,7 +14,7 @@ export default async function handler(
       // Determine the type of search (albums or songs)
       const searchType = type === "albums" ? "albums" : "songs";
 
-      console.log(`AppleKit API | Query ${query} | Type ${searchType}`);
+      console.log(`AppleKit API | Query: ${query} | Type: ${searchType}`);
 
       // First request to search for the song or album
       // Usage: /api/apple/song/[query]?type=albums or /api/apple/song/[query]?type=songs
