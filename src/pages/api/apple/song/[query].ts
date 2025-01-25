@@ -30,11 +30,6 @@ export default async function handler(
         }
       );
 
-      console.log(
-        "searchResponse | results.albums:",
-        searchResponse.data.results.albums
-      );
-
       const albumId = searchResponse.data.results.albums.data[0].id;
 
       // Finds ID by name

@@ -1,18 +1,15 @@
 import Image from "next/image";
 import style from "./Artist.module.css";
 import { SoundCloudArtist } from "@/lib/types/soundcloud";
-
-const song = {
-  title: "30 For 30 (with Kendrick Lamar)",
-  album: "SOS Deluxe: LANA",
-  cover:
-    "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/97/bd/88/97bd8804-7d3e-e6c8-0532-ff22877b931c/196871766890.jpg/48x48bb.webp",
-  year: "2024",
-  explicit: true,
-};
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import { usePlaylistFetcher } from "@/lib/audio/play";
+import { useRouter } from "next/navigation";
 
 export const Spotlight = ({ artist }: { artist: SoundCloudArtist | null }) => {
   const songs = artist?.spotlight || [];
+  const { handleFetchPlaylist } = usePlaylistFetcher();
+  const router = useRouter();
+  if (!songs.length) return null;
   return (
     <div className={style.Shelf}>
       <div className={style.ShelfHeader}>
@@ -25,8 +22,20 @@ export const Spotlight = ({ artist }: { artist: SoundCloudArtist | null }) => {
           {songs.map((song) => (
             <ShelfItem
               song={song}
-              key={song}
-              onClick={() => console.log("Clicked the ShelfItem")}
+              key={song.id}
+              link={() =>
+                router.push(
+                  song.tracks
+                    ? `/album/${song.permalink}/${song.id}`
+                    : `/song/${song.permalink}/${song.id}`
+                )
+              }
+              play={() =>
+                handleFetchPlaylist(
+                  song.tracks ? song.permalink_url : song.id,
+                  !song.tracks
+                )
+              }
             />
           ))}
         </ul>
@@ -35,48 +44,65 @@ export const Spotlight = ({ artist }: { artist: SoundCloudArtist | null }) => {
   );
 };
 
-export const ShelfItem = ({
-  song,
-  onClick,
-}: {
+export const ShelfItem: React.FC<{
   song: SoundCloudArtist["spotlight"][number];
-  onClick?: () => void;
-}) => {
+  play?: () => void;
+  link?: () => void;
+}> = ({ song, play, link }) => {
   const isPlaylist = song.kind === "playlist";
   const year = getYear(song);
   let subtitle = "";
-  if (isPlaylist) {
-    if (song.set_type === "album") {
-      subtitle = `Album · ${year}`;
-    } else if (song.set_type === "ep") {
-      subtitle = `EP · ${year}`;
-    } else {
-      subtitle = `${song.title} · ${year}`;
+  if (song.tracks && song.tracks.length > 0) {
+    subtitle = `Album · ${year}`;
+  } else {
+    if (isPlaylist) {
+      if (song.set_type === "album") {
+        subtitle = `Album · ${year}`;
+      } else if (song.set_type === "ep") {
+        subtitle = `EP · ${year}`;
+      } else {
+        subtitle = `${song.title} · ${year}`;
+      }
+    } else if (song.kind === "track") {
+      subtitle = `${song.title} - Single · ${year}`;
     }
-  } else if (song.kind === "track") {
-    subtitle = `${song.title} - Single · ${year}`;
   }
 
+  // console.log("ShelfItem", song);
+
   return (
-    <li onClick={onClick} className={style.ShelfItem}>
+    <button title={song.title} className={style.ShelfItem}>
       <div>
-        <div className={style.ShelfItemArtwork}>
-          <Image src={song.artwork_url_hd} alt={song.title} fill />
+        <div
+          data-type={song.set_type}
+          onClick={play}
+          className={style.ShelfItemArtwork}
+        >
+          <Image
+            style={{ aspectRatio: "1/1" }}
+            src={
+              song.tracks
+                ? song.tracks[0].artwork_url
+                : song.artwork_url_hd || PLACEHOLDER_IMAGE.dark.url
+            }
+            alt={song.title}
+            fill
+            draggable={false}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
         </div>
-        <ul>
-          {/* Primary title can still be "song.title" or "song.title + more" depending on your design */}
+        <ul onClick={link}>
           <li>{song.title}</li>
-          {/* The second line uses our logic above */}
           <li>
             <span>{subtitle}</span>
           </li>
         </ul>
       </div>
-    </li>
+    </button>
   );
 };
 
-function getYear(item: any) {
+export function getYear(item: any) {
   // For playlists, 'release_date' is typically the album/EP’s release
   // For tracks, fallback to 'display_date' if there's no 'release_date'
   const dateStr = item.release_date || item.display_date;

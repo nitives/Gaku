@@ -1,12 +1,10 @@
 .Banner {
   position: relative;
-  /* width: 100%; */
   width: 100%;
   background: rgba(255, 255, 255, 0.1);
   border-bottom: 1px solid var(--labelDivider);
   min-height: fit-content;
-  /* aspect-ratio: 1240 / 260; */
-  /* aspect-ratio: 1478 / 646; */
+  user-select: none;
 }
 
 .BannerOverlay {
@@ -17,10 +15,14 @@
   align-items: start;
   height: 100%;
   width: 100%;
-  background: linear-gradient(rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.1) 100%);
+  background: linear-gradient(rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.33) 100%);
   padding: 1rem;
   z-index: 1;
   & h1 {
+    z-index: 2;
+    user-select: auto;
+    -moz-user-select: auto;
+    -webkit-user-select: auto;
     font-weight: 700;
     font-size: 2rem;
     color: white;

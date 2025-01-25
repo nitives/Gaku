@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    /* --background: 0 0% 100%; */
+    /* --foreground: 0 0% 3.9%; */
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
@@ -33,8 +33,8 @@
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
+    /* --background: 0 0% 0%; */
+    /* --foreground: 0 0% 98%; */
     --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
@@ -140,10 +140,20 @@ input[type="range"] {
 /* Rework */
 body,
 html {
-  /* background: hsl(0, 0%, 10%); */
-  /* color: hsla(0, 0%, 100%, 0.92); */
-  background: hsl(var(--background));
-  color: hsla(var(--foreground));
+  background: var(--background);
+  color: var(--foreground);
+}
+
+body,
+html {
+  ::selection {
+    background: var(--keyColor);
+    color: inherit;
+  }
+}
+
+input {
+  caret-color: var(--keyColor);
 }
 
 body {
@@ -151,16 +161,67 @@ body {
 }
 @layer base {
   :root {
-    --keyColor: #58a0fa;
-    --keyColor-RGB: 88, 160, 250;
+    --keyColor: #fa5858;
+
+    --background: hsl(0, 0%, 100%);
+    --foreground: hsl(0, 0%, 3.9%);
+
     --labelDivider: hsla(0, 0%, 0%, 0.15);
-    
-    --systemPrimary: hsla(0, 0%, 100%, .92);
-    --systemSecondary: hsla(0, 0%, 100%, .64);
+    --systemPrimary: hsla(0, 0%, 0%, 0.92);
+    --systemSecondary: hsla(0, 0%, 0%, 0.5);
+    --systemToolbarTitlebar: hsla(0, 0%, 99%, 0.8);
+
     /* --z-web-chrome: 9901; */
     --z-web-chrome: 1;
   }
-  .dark {
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: hsl(0, 0%, 0%);
+      --foreground: hsl(0, 0%, 98%);
+
+      --labelDivider: hsla(0, 0%, 100%, 0.1);
+      --systemPrimary: hsla(0, 0%, 100%, 0.92);
+      --systemSecondary: hsla(0, 0%, 100%, 0.64);
+      --systemToolbarTitlebar: rgba(60, 60, 60, 0.4);
+    }
+  }
+  /* .dark {
     --labelDivider: hsla(0, 0%, 100%, 0.1);
+    --systemPrimary: hsla(0, 0%, 100%, 0.92);
+    --systemSecondary: hsla(0, 0%, 100%, 0.64);
+    --systemToolbarTitlebar: hsla(0, 0%, 24%, 0.8);
+  } */
+}
+
+@supports selector(:focus-visible) {
+  [type="button"]:focus,
+  a:focus,
+  button:focus {
+    box-shadow: none;
+    outline: none;
+  }
+
+  [type="button"]:focus-visible,
+  a:focus-visible,
+  button:focus-visible {
+    box-shadow: 0 0 0 4px color-mix(in oklch, var(--keyColor), transparent 60%);
+    border-radius: 0.5rem;
+    outline: none;
+  }
+}
+
+#TryAgainSearchButton {
+  margin: 0.5rem;
+  border: 1px solid var(--labelDivider);
+  background: var(--labelDivider);
+  color: var(--foreground);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  &:hover {
+    background: var(--labelDivider);
+    background: var(--systemToolbarTitlebar);
   }
 }

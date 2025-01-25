@@ -1,13 +1,23 @@
-:global(.dark) .PlayerBar {
-  --playerBackgroundColor: hsla(0, 0%, 10%, 0.5);
-  --playerSongTitleColor: inherit;
-  --playerSongArtistColor: hsla(0, 0%, 100%, 0.5);
+@media (prefers-color-scheme: dark) {
+  .PlayerBar {
+    --playerBackgroundColor: hsla(0, 0%, 10%, 0.5);
+    --playerSongTitleColor: inherit;
+    --playerSongArtistColor: hsla(0, 0%, 100%, 0.5);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .PlayerBar {
+    --playerBackgroundColor: hsla(0, 0%, 100%, 0.95);
+    --playerSongTitleColor: hsl(0, 0%, 0%);
+    --playerSongArtistColor: hsla(0, 0%, 0%, 0.5);
+  }
 }
 
 .PlayerBar {
-  --playerBackgroundColor: hsla(0, 0%, 100%, 0.95);
+  /* --playerBackgroundColor: hsla(0, 0%, 100%, 0.95);
   --playerSongTitleColor: hsl(0, 0%, 0%);
-  --playerSongArtistColor: hsla(0, 0%, 0%, 0.5);
+  --playerSongArtistColor: hsla(0, 0%, 0%, 0.5); */
   height: fit-content;
   display: flex;
   align-content: center;
@@ -22,6 +32,8 @@
 
 .Player {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   background-color: var(--playerBackgroundColor);
   -webkit-backdrop-filter: saturate(60%) blur(24px);
   backdrop-filter: saturate(60%) blur(24px);
@@ -42,11 +54,17 @@
 }
 
 .Artwork {
+  user-select: none;
   background: hsl(0, 0%, 15%);
   position: relative;
-  aspect-ratio: 1 / 1;
+  width: 44px; /* parent height (54px) - padding (2 * 0.25rem = 10px) */
+  height: 44px;
   overflow: hidden;
   border-radius: 0.75rem;
-  height: 100%;
+  flex-shrink: 0;
   box-shadow: 0 0 5px hsla(0, 0%, 0%, 0.1), 0 1px 10px rgba(0, 0, 0, 0.025);
+}
+
+.TrackInfoAndArtwork {
+  display: flex;
 }

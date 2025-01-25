@@ -1,32 +1,52 @@
-import React from "react";
+"use client";
+import { InputHTMLAttributes } from "react";
 import style from "./SearchBar.module.css";
 
-export const SearchBar = () => {
+interface SearchBarProps extends InputHTMLAttributes<HTMLInputElement> {
+  query: string;
+  placeholder: string;
+  handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur: () => void;
+  onSubmit: (event: React.FormEvent) => void;
+}
+
+export const SearchBar: React.FC<SearchBarProps> = ({
+  query,
+  placeholder,
+  handleInputChange,
+  onBlur,
+  onSubmit,
+  ...props
+}) => {
   return (
     <div className={style.SearchBarWrapper}>
       <div className={style.SearchBar}>
-        <form role="search">
+        <form role="search" onSubmit={onSubmit}>
           <SearchIcon />
           <input
+            value={query}
+            onChange={handleInputChange}
+            onBlur={onBlur}
+            placeholder={placeholder}
             className={style.SearchInput}
+            type="search"
             aria-autocomplete="list"
             aria-multiline="false"
             aria-label="Search"
             aria-controls="search-suggestions"
-            placeholder="Search"
             spellCheck="false"
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
-            type="search"
-          ></input>
+            {...props}
+          />
         </form>
       </div>
     </div>
   );
 };
 
-const SearchIcon = () => {
+export const SearchIcon = () => {
   return (
     <svg
       height="14"

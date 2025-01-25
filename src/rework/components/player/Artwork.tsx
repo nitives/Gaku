@@ -1,84 +1,122 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useRef, useEffect } from "react";
 import Image from "next/image";
-import { useTheme } from "next-themes";
-import { motion, useSpring } from "framer-motion";
-
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import style from "./PlayerBar.module.css";
-
-const DEFAULT_IMAGE = {
-  light:
-    "data:image/jpeg;base64,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",
-  dark: "data:image/jpeg;base64,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/97jiBXpepzv6upq+P5XwD98+GC7VvgPQacr9eaeGPSK1JwCddce8IvvawV+MdKukBt1w88RdLpS4UvcXOb8/LzN3eIDjZE33I/n0OlKTbsmSr1/DqyOoNOVWjGdpkbnRqXAQwk6XamFVWnxs3sZsAyCTneS7jcbnQPLIuh0p8ezt+9Sq7eNzoFlEXS6UyGsncB6VzE3OgeWRdDpUsWw5+eTa1V7ykwDMA2CTpdqcVyvQaw/+9nZWQNYJkGnWxX03k4om+p54UD/BJ1u1ZR7HdHZy9S7mANjEnS6VpF89epVm7qaSRBzYEyCTvdqgdmUo163BsQcGJvDWYhQG7TU1PvR0dFwWtcULGYP0o9FBaZB0IlRI/Wa2j45OVnrEav1waJG5fVy9CewKr8dHx9/bhDm8PBweK2SkAPrJOjE2traGqK+v7/fxlLhrpmB2rnO1DqwToJOvAr7wcFB29vbe/BUfC1s+/DhwzC1XwHv7Tl4IJegMyvb29ttZ2dneNXiuYr915GvEfft7e3wdXFUa0X76upq+GtT6cBUCToABPAcOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAQQdAAIIOgAEEHQACCDoABBA0AEggKADQABBB4AAgg4AAf4HisPfIrcNgcIAAAAASUVORK5CYII=",
-};
+import { useThemedPlaceholder } from "@/lib/utils/themedPlaceholder";
 
 interface ArtworkProps {
   src: string;
 }
 
+/**
+ * Slower overshoot flip:
+ *   forcibly sets rotateY=0, then 0→240→180
+ *   blurVal from 10→0 over 1s
+ */
 export const Artwork: React.FC<ArtworkProps> = ({ src }) => {
-  // Decide which default image to use based on theme
-  const { theme } = useTheme();
-  const THEMED_DEFAULT_IMAGE =
-    theme === "light" ? DEFAULT_IMAGE.light : DEFAULT_IMAGE.dark;
+  const THEMED_DEFAULT_IMAGE = useThemedPlaceholder();
+  const finalSrc = src || THEMED_DEFAULT_IMAGE;
+  const oldSrcRef = useRef(finalSrc);
 
-  const [imageSrc, setImageSrc] = useState<string>(THEMED_DEFAULT_IMAGE);
+  // Animate rotateY and blur values
+  const rotateY = useMotionValue(0);
+  const blurVal = useMotionValue(0);
+  const filter = useTransform(blurVal, (val) => `blur(${val}px)`);
 
   useEffect(() => {
-    setImageSrc(src || THEMED_DEFAULT_IMAGE);
-  }, [src, THEMED_DEFAULT_IMAGE, theme]);
-
-  const springConfig = { stiffness: 100, damping: 30 };
-  const rotateY = useSpring(0, springConfig);
-  const rotateX = useSpring(0, springConfig);
-
-  const handleRotate = (
-    _: PointerEvent | MouseEvent | TouchEvent,
-    info: any
-  ) => {
-    const rotationFactorY = 50;
-    const rotationFactorX = 2.5;
-    const currentY = rotateY.get();
-    const currentX = rotateX.get();
-    rotateY.set(currentY + info.delta.x * rotationFactorY);
-    rotateX.set(currentX - info.delta.y * rotationFactorX);
-  };
-
-  const handleRotateEnd = () => {
-    setTimeout(() => {
+    if (finalSrc !== oldSrcRef.current) {
+      // Reset rotation and set initial blur
       rotateY.set(0);
-      rotateX.set(0);
-    }, 1000);
-  };
+      const duration = 1;
+      blurVal.set(5);
+      animate(blurVal, 0, { duration });
+
+      // Animate rotation with overshoot
+      (async () => {
+        await animate(rotateY, 180, {
+          type: "spring",
+          stiffness: 60,
+          damping: 15,
+          mass: 1.5,
+          duration,
+        });
+        await animate(rotateY, 180, {
+          type: "spring",
+          stiffness: 60,
+          damping: 15,
+          mass: 1.5,
+          duration,
+        });
+      })();
+
+      oldSrcRef.current = finalSrc;
+    }
+  }, [finalSrc, rotateY, blurVal]);
 
   return (
     <motion.div
       className={style.Artwork}
-      onPan={handleRotate}
-      onPanEnd={handleRotateEnd}
       style={{
-        userSelect: "none",
-        msUserSelect: "none",
-        WebkitUserSelect: "none",
-        MozUserSelect: "none",
         rotateY,
-        rotateX,
         perspective: 1000,
         transformStyle: "preserve-3d",
-        backfaceVisibility: "visible",
+        // Removed filter from here
       }}
     >
-      <Image
-        src={imageSrc}
-        alt="Artwork"
-        fill
-        draggable={false} // prevent default browser image-drag
-        placeholder="blur"
-        blurDataURL={THEMED_DEFAULT_IMAGE}
-        onError={() => {
-          setImageSrc(THEMED_DEFAULT_IMAGE);
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          transformStyle: "preserve-3d",
+          filter: filter as any,
         }}
-      />
+      >
+        {/* FRONT image */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backfaceVisibility: "visible",
+          }}
+        >
+          <Image
+            src={finalSrc}
+            alt="Artwork Front"
+            fill
+            draggable={false}
+            placeholder="blur"
+            blurDataURL={THEMED_DEFAULT_IMAGE}
+            onError={(e) => {
+              e.currentTarget.src = THEMED_DEFAULT_IMAGE;
+            }}
+          />
+        </div>
+
+        {/* BACK image */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            transform: "rotateY(180deg)",
+            backfaceVisibility: "visible",
+          }}
+        >
+          <Image
+            src={finalSrc}
+            alt="Artwork Back"
+            fill
+            draggable={false}
+            placeholder="blur"
+            blurDataURL={THEMED_DEFAULT_IMAGE}
+            onError={(e) => {
+              e.currentTarget.src = THEMED_DEFAULT_IMAGE;
+            }}
+          />
+        </div>
+      </div>
     </motion.div>
   );
 };

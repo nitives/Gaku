@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Song } from "@/lib/audio/types";
-import { fetchSongMedia, fetchM3U8ForSong } from "@/lib/audio/fetchers";
+import { fetchM3U8ForSong, fetchSongData } from "@/lib/audio/fetchers";
 import React from "react";
 import ReactPlayer from "react-player";
 
@@ -33,6 +33,9 @@ interface AudioStateNew {
 
   startFineProgressUpdates: () => void;
   stopFineProgressUpdates: () => void;
+
+  isFullscreen: boolean;
+  setFullscreen: (fullscreen: boolean) => void;
 }
 
 const PREFETCH_COUNT = 2;
@@ -78,14 +81,16 @@ export const useAudioStoreNew = create<AudioStateNew>((set, get) => ({
     }
 
     let selectedSong = queue[index];
-    const media = await fetchSongMedia(selectedSong);
+
+    // Use the new consolidated function
+    const { HDCover, M3U8url } = await fetchSongData(selectedSong);
+
+    // Update song with fetched data
     selectedSong = {
       ...selectedSong,
-      artwork: { ...selectedSong.artwork, hdUrl: media.HDCover },
+      artwork: { ...selectedSong.artwork, hdUrl: HDCover },
+      src: M3U8url,
     };
-
-    const M3U8url = await fetchM3U8ForSong(selectedSong);
-    selectedSong = { ...selectedSong, src: M3U8url };
 
     const newQueue = [...queue];
     newQueue[index] = selectedSong;
@@ -135,11 +140,11 @@ export const useAudioStoreNew = create<AudioStateNew>((set, get) => ({
   prefetchNextN: async (n: number) => {
     const { queue, currentIndex } = get();
     const end = Math.min(currentIndex + n + 1, queue.length);
-
+    const fetchPromises = [];
     for (let i = currentIndex + 1; i < end; i++) {
       const song = queue[i];
       if (!song.src) {
-        fetchM3U8ForSong(song)
+        const promise = fetchM3U8ForSong(song)
           .then((M3U8url) => {
             const newQueue = [...get().queue];
             newQueue[i] = { ...song, src: M3U8url };
@@ -148,8 +153,10 @@ export const useAudioStoreNew = create<AudioStateNew>((set, get) => ({
           .catch((err) => {
             console.error(`Failed to prefetch M3U8 for ${song.name}:`, err);
           });
+        fetchPromises.push(promise);
       }
     }
+    await Promise.all(fetchPromises);
   },
 
   setDuration: (duration: number) => set({ duration }),
@@ -188,7 +195,7 @@ export const useAudioStoreNew = create<AudioStateNew>((set, get) => ({
           return;
         }
         const currentTime = playerRef.current.getCurrentTime();
-        set({ fineProgress: currentTime });
+        set({ currentTime: currentTime, fineProgress: currentTime });
         const newRafId = requestAnimationFrame(update);
         set({ rafId: newRafId });
       };
@@ -204,4 +211,7 @@ export const useAudioStoreNew = create<AudioStateNew>((set, get) => ({
       set({ rafId: null });
     }
   },
+
+  isFullscreen: false,
+  setFullscreen: (fullscreen: boolean) => set({ isFullscreen: fullscreen }),
 }));

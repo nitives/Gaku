@@ -4,6 +4,28 @@ import React, { useEffect, useState } from "react";
 import style from "./Banner.module.css";
 import { AppleKit } from "@/lib/audio/fetchers";
 
+function getFirstEditorialArtwork(appleData: any): {
+  url?: string;
+  bgColor?: string;
+} {
+  if (!appleData?.data?.length || !appleData?.resources) return {};
+  for (const item of appleData.data) {
+    const resourceType = item.type;
+    const resourceId = item.id;
+    const resource = appleData.resources[resourceType]?.[resourceId];
+
+    const editorial =
+      resource?.attributes?.editorialArtwork?.centeredFullscreenBackground;
+    if (editorial?.url) {
+      return {
+        url: editorial.url,
+        bgColor: editorial.bgColor,
+      };
+    }
+  }
+  return {};
+}
+
 export const Banner = ({ artist }: { artist: SoundCloudArtist | null }) => {
   const [apple, setAppleData] = useState<any | null>(null);
 
@@ -21,47 +43,43 @@ export const Banner = ({ artist }: { artist: SoundCloudArtist | null }) => {
   const bannerCon = "ea-60";
   const bannerFormat = "jpg";
 
-  // Safely check if Apple data exists and then retrieve banner
-  const appleBanner = {
-    src: apple?.data?.[0]
-      ? apple?.resources?.artists[
-          apple.data[0].id
-        ]?.attributes?.editorialArtwork?.centeredFullscreenBackground?.url?.replace(
-          /\/\{\w+\}x\{\w+\}\{\w*\}\.\{?\w+\}?/,
-          `/${bannerWidth}x${bannerHeight}${bannerCon}.${bannerFormat}`
-        )
-      : undefined,
-    bgColor: `#${
-      apple?.resources?.artists[apple.data[0].id].attributes?.editorialArtwork
-        ?.centeredFullscreenBackground?.bgColor
-    }`,
-  };
+  // 1) Get the first editorial artwork { url, bgColor } from Apple
+  const { url: editorialUrl, bgColor } = getFirstEditorialArtwork(apple);
 
-  // SoundCloud fallback
+  // 2) If editorialUrl exists, transform it by replacing /{w}x{h}{c}.{f} with your custom size
+  const appleBannerUrl = editorialUrl
+    ? editorialUrl.replace(
+        /\/\{\w+\}x\{\w+\}\{\w*\}\.\{?\w+\}?/,
+        `/${bannerWidth}x${bannerHeight}${bannerCon}.${bannerFormat}`
+      )
+    : undefined;
+
+  // 3) Fallback to SoundCloud banner if Apple doesn't exist
   const soundcloudBanner = artist?.visuals?.visuals[0]?.visual_url;
-
-  // If appleBanner is truthy, use it; otherwise fallback to SoundCloud
-  const bannerSrc = appleBanner.src || soundcloudBanner;
+  const bannerSrc =
+    appleBannerUrl ||
+    soundcloudBanner ||
+    "/assets/placeholders/banner-placeholder.svg";
+  const bannerBgColor = bgColor ? `#${bgColor}` : undefined;
 
   return (
     <div
       className={style.Banner}
       style={{
         position: "relative",
-        aspectRatio: appleBanner ? "1478/646" : "1240/260",
+        aspectRatio: appleBannerUrl ? "1478/646" : "1240/260",
       }}
     >
       <div className={style.BannerOverlay}>
         <h1>{artist?.username}</h1>
       </div>
       <Image
-        objectFit="cover"
-        loading="lazy"
+        // objectFit="cover"
+        // loading="lazy"
         fill
-        style={{ backgroundColor: appleBanner.bgColor }}
-        src={
-          bannerSrc ? bannerSrc : "/assets/placeholders/banner-placeholder.svg" // optional fallback if both are missing
-        }
+        priority
+        style={{ backgroundColor: bannerBgColor, objectFit: "cover" }}
+        src={bannerSrc}
         alt={`${artist?.username}'s Banner`}
       />
     </div>

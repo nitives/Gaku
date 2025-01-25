@@ -56,6 +56,7 @@
   flex: 1;
   overflow-y: auto;
   scroll-behavior: smooth;
+  scrollbar-width: thin;
   padding-bottom: 5rem;
   &::-webkit-scrollbar {
     width: 8px;
@@ -81,22 +82,70 @@
   fill: white;
 }
 
-:global(.dark) .SidebarFooter {
-  --blur-tint: hsla(0, 0%, 3%, 1);
-  --blur-tint-gradient: linear-gradient(
-    hsla(0, 0%, 3%, 0) 0%,
-    hsl(0, 0%, 3%) 100%
-  );
+@media (prefers-color-scheme: dark) {
+  .SidebarFooter {
+    --blur-tint: hsla(0, 0%, 3%, 1);
+    --blur-tint-gradient: linear-gradient(
+      hsla(0, 0%, 3%, 0) 0%,
+      hsl(0, 0%, 3%) 100%
+    );
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .SidebarFooter {
+    --blur-tint: hsla(0, 0%, 100%, 1);
+    --blur-tint-gradient: linear-gradient(
+      hsla(0, 0%, 100%, 0) 0%,
+      hsl(0, 0%, 100%) 100%
+    );
+  }
 }
 
 .SidebarFooter {
-  --blur-tint: hsla(0, 0%, 100%, 1);
-  --blur-tint-gradient: linear-gradient(
-    hsla(0, 0%, 100%, 0) 0%,
-    hsl(0, 0%, 100%) 100%
-  );
-  /* border-top: 1px solid var(--labelDivider); */
   position: relative;
   width: 100%;
   min-height: 100px;
+}
+
+/* ------------------------------------------------------------------------ */
+
+.SidebarList {
+  margin-inline: 12px;
+}
+
+.SidebarItem {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  & a {
+    font-size: 1rem;
+    border-radius: 9px;
+    padding: 0.25rem 0.563rem;
+    min-width: 100%;
+    min-height: 100%;
+    transition: background-color 0.2s;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .SidebarItem {
+    & a {
+      background-color: rgba(255, 255, 255, 0);
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .SidebarItem {
+    & a {
+      background-color: rgba(0, 0, 0, 0);
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.033);
+      }
+    }
+  }
 }

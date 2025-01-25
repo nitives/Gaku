@@ -3,48 +3,27 @@ import style from "./Sidebar.module.css";
 import { LinearBlur } from "progressive-blur";
 import Link from "next/link";
 
+const exampleItems = [
+  { href: "/artist/lilyeat/295329678", text: "Yeat" },
+  { href: "/artist/osamason/222077223", text: "Osamason" },
+  { href: "/artist/szababy2/312938480", text: "SZA" },
+  { href: "/album/sos/1928518223", text: "SOS - Album" },
+  { href: "/album/2093/1776273075", text: "2093 - Album" },
+];
+
 export const SidebarContent = () => {
   return (
     <div className={style.SidebarContent}>
       <div className={style.SidebarContentScrollArea}>
-      <ul>
-          <li>
-            {/* Home route */}
-            <Link href="/" className="navigation-item__link" aria-pressed="false">
-              Home
-            </Link>
-          </li>
-          <li>
-            {/* Example: Go to /playlist/abc123 */}
-            <Link href="/playlist/abc123" className="navigation-item__link">
-              Playlist "abc123"
-            </Link>
-          </li>
-          <li>
-            {/* Example: /album/spaceships/12345 */}
-            <Link href="/album/spaceships/12345" className="navigation-item__link">
-              Album "spaceships" (#12345)
-            </Link>
-          </li>
-          <li>
-            {/* Example: /artist/drake/768 */}
-            <Link href="/artist/drake/768" className="navigation-item__link">
-              Artist "drake" (#768)
-            </Link>
-          </li>
-          <li>
-            {/* Example: /library/albums */}
-            <Link href="/library/albums" className="navigation-item__link">
-              Your Albums
-            </Link>
-          </li>
-          <li>
-            {/* Example: /library/songs */}
-            <Link href="/library/songs" className="navigation-item__link">
-              Your Songs
-            </Link>
-          </li>
-          {/* etc. */}
+        <ul className={style.SidebarList}>
+          <Item href="/" text="Home" />
+          <div className="py-2">
+            {exampleItems.map((item, index) => (
+              <Item key={index} href={item.href} text={item.text} />
+            ))}
+          </div>
+          <Item href="/library/albums" text="Your Albums" />
+          <Item href="/library/songs" text="Your Songs" />
         </ul>
       </div>
       <div className={style.SidebarFooter}>
@@ -81,3 +60,9 @@ export const SidebarContent = () => {
     </div>
   );
 };
+
+const Item = ({ href, text }: { href: string; text: string }) => (
+  <li className={style.SidebarItem}>
+    <Link href={href}>{text}</Link>
+  </li>
+);

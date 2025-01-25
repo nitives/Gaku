@@ -54,4 +54,125 @@ export interface SoundCloudArtist {
   station_urn: string;
   station_permalink: string;
   spotlight: any[];
+  latest: any[];
+}
+
+export interface SoundCloudTrack {
+  artwork_url: string;
+  artwork_url_hd: string | null;
+  caption: string | null;
+  comment_count: number;
+  commentable: boolean;
+  created_at: string;
+  description: string;
+  display_date: string;
+  download_count: number;
+  downloadable: boolean;
+  duration: number;
+  embeddable_by: string;
+  full_duration: number;
+  genre: string;
+  has_downloads_left: boolean;
+  id: number;
+  kind: string;
+  label_name: string;
+  last_modified: string;
+  license: string;
+  likes_count: number;
+  media: {
+    transcodings: Array<{
+      duration: number;
+      format: {
+        mime_type: string;
+        protocol: string;
+      };
+      preset: string;
+      quality: string;
+      snipped: boolean;
+      url: string;
+    }>;
+  };
+  monetization_model: string;
+  permalink: string;
+  permalink_url: string;
+  playback_count: number;
+  policy: string;
+  public: boolean;
+  publisher_metadata: {
+    artist: string;
+    contains_music: boolean;
+    explicit: boolean;
+    id: number;
+    isrc: string;
+    urn: string;
+  };
+  purchase_title: string | null;
+  purchase_url: string | null;
+  release_date: string;
+  reposts_count: number;
+  secret_token: string | null;
+  sharing: string;
+  state: string;
+  station_permalink: string;
+  station_urn: string;
+  streamable: boolean;
+  tag_list: string;
+  title: string;
+  track_authorization: string;
+  uri: string;
+  urn: string;
+  user: SoundCloudArtist;
+  user_id: number;
+  visuals: any | null;
+  waveform_url: string;
+}
+
+export interface SoundCloudAlbum {
+  artwork_url: string;
+  created_at: string;
+  description: string | null;
+  display_date: string;
+  duration: number;
+  embeddable_by: string;
+  genre: string;
+  id: number;
+  is_album: boolean;
+  kind: string;
+  label_name: string | null;
+  last_modified: string;
+  license: string;
+  likes_count: number;
+  managed_by_feeds: boolean;
+  permalink: string;
+  permalink_url: string;
+  public: boolean;
+  published_at: string;
+  purchase_title: string | null;
+  purchase_url: string | null;
+  release_date: string;
+  reposts_count: number;
+  secret_token: string | null;
+  set_type: string;
+  sharing: string;
+  tag_list: string;
+  title: string;
+  track_count: number;
+  tracks: SoundCloudTrack[];
+  uri: string;
+  user: SoundCloudArtist;
+  user_id: number;
+}
+
+export interface SoundCloudSearchResult {
+  large: {
+    collection: SoundCloudTrack[];
+  };
+  small: {
+    collection: Array<{
+      output: string;
+      query: string;
+    }>;
+    next_href: string | null;
+    query_urn: string;
+  };
 }

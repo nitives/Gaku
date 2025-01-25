@@ -1,0 +1,11 @@
+.Banner {
+  background: var(--systemToolbarTitlebar);
+  padding: 0.25rem 0.5rem;
+  color: var(--systemSecondary);
+  border-bottom: 1px solid var(--labelDivider);
+  & mark {
+    background-color: transparent;
+    color: var(--systemPrimary);
+    font-weight: 600;
+  }
+}

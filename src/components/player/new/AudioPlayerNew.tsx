@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAudioStoreNew } from "@/context/AudioContextNew";
 import ReactPlayer from "react-player";
-import { mapSCDataToSongOrPlaylist } from "@/lib/audio/fetchers";
 import { Controls } from "./controls/Controls";
 
 export const AudioPlayerNew = () => {

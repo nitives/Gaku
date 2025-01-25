@@ -7,7 +7,7 @@ import {
   ScrollHeader,
 } from "@/components/mobile/SafeView";
 import { SearchCard } from "@/components/mobile/SearchCard";
-import { fetchPlaylistM3U8, FetchSearch } from "@/lib/utils";
+import { FetchSearch } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import useAudioStore from "@/context/AudioContext";
@@ -41,20 +41,6 @@ export default function Home() {
     handleSearch();
   }, []);
 
-  // const handleFetchPlaylist = async (item: any) => {
-  //   const data = await fetchPlaylistM3U8(item.permalink_url);
-  //   console.log("handleFetchPlaylist | data:", data);
-  //   setGlobalPlaylistUrl(data);
-  //   setGlobalCurrentTrack(item);
-  //   setIsPlaying(true);
-  //   setLocalPlaylistUrl(data);
-  //   setLocalCurrentTrack(item);
-  //   if (item.permalink_url) {
-  //     console.log("fetchPlaylist to fetchCover -", item.permalink_url);
-  //     fetchCover(item.permalink_url);
-  //   }
-  //   console.log("playlistUrl:", data);
-  // };
 
   const handleFetchPlaylist = async (url: string) => {
     if (!url) return;
@@ -151,7 +137,7 @@ export default function Home() {
                       } else if (item.kind === "playlist") {
                         navigateToAlbum(item);
                       } else {
-                        handleFetchPlaylist(item.permalink_url);
+                        handleFetchPlaylist(item.id);
                       }
                     }}
                     id={item.id}

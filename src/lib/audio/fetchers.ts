@@ -1,11 +1,15 @@
+import { Apple } from "lucide-react";
+import { artistMappings } from "../artist";
 import { Song } from "./types";
-import { fetchPlaylistM3U8 } from "@/lib/utils";
+import { fetchPlaylistM3U8, dev } from "@/lib/utils";
+import { EditorialVideo } from "../types/apple";
 
 /**
  * Fetch additional metadata (like HD cover) for a given song, without fetching M3U8.
  */
 export async function fetchSongMedia(song: Song): Promise<{ HDCover: string }> {
   try {
+    dev.log("fetchSongMedia", song);
     const trackInfoResponse = await fetch(`/api/track/info/${song.id}`);
     if (!trackInfoResponse.ok) {
       console.error(`Failed to fetch track info for song ID ${song.id}`);
@@ -28,6 +32,7 @@ export async function fetchSongMedia(song: Song): Promise<{ HDCover: string }> {
  */
 export async function fetchM3U8ForSong(song: Song): Promise<string> {
   try {
+    dev.log("fetchM3U8ForSong", song);
     const trackInfoResponse = await fetch(`/api/track/info/${song.id}`);
     if (!trackInfoResponse.ok) {
       console.error(
@@ -56,7 +61,8 @@ export async function mapSCDataToSongOrPlaylist(
   isID?: boolean
 ): Promise<{ initialSongs: Song[]; loadRemaining: () => Promise<Song[]> }> {
   try {
-    if (url.includes("/sets/")) {
+    dev.log("mapSCDataToSongOrPlaylist | url:", url, "isID:", isID);
+    if (!isID && url.includes("/sets/")) {
       return await mapPlaylistUrlToSongsIncrementally(url, initialCount);
     } else {
       const track = await mapTrackUrlToSong(url, isID ? true : false);
@@ -74,34 +80,63 @@ export async function mapSCDataToSongOrPlaylist(
  */
 async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
   try {
-    console.log("mapTrackUrlToSong", url);
-    const trackId = isID ? Number(url) : await getIDFromURL(url);
-    console.log("trackId", trackId);
+    dev.log("mapTrackUrlToSong | url:", url, "isID:", isID);
+    const trackId = Number(url);
     const response = await fetch(`/api/track/info/${trackId}`);
     if (!response.ok) {
-      console.error(`Failed to fetch track info for ID ${trackId}`);
+      console.error(
+        `mapTrackUrlToSong | Failed to fetch track info for ID ${trackId}`
+      );
       return createEmptySong(trackId);
     }
-
     const data = await response.json();
+    console.log("mapTrackUrlToSong data", data);
     const HDCover = await getHDCover(data.permalink_url);
 
+    const albumID = window.location.pathname.includes("/album/")
+      ? window.location.pathname.split("/").pop()
+      : data.publisher_metadata?.album_id || -1;
+    const fetchedAlbumName = await SoundCloudKit.getData(albumID, "albums");
+    const albumName =
+      data.publisher_metadata?.album_title || fetchedAlbumName.title;
+
+    const appleKitCover = await AppleKit.getMediaData(
+      albumName,
+      data.publisher_metadata.artist || data.user?.username,
+      "albums"
+    );
+    dev.log("appleKitCover", appleKitCover);
+    const animatedURL = (appleKitCover?.data[0]?.attributes?.editorialVideo as EditorialVideo)?.motionSquareVideo1x1?.video;
+    
     return {
       albumName: data.publisher_metadata?.album_title || "",
-      artistName: data.publisher_metadata?.artist || data.user?.username || "",
-      artistId: data.user?.id || -1,
+      artist: {
+        id: data.user?.id || -1,
+        name: data.user?.username || "",
+        url: `/artist/${data.user?.permalink}/${data.user?.id}`,
+        soundcloudURL: data.user?.permalink_url || "",
+        permalink: data.user?.permalink || "",
+        verified: false,
+        followers: 0,
+        city: "",
+        avatar: data.user?.avatar_url || "",
+      },
       artwork: {
         hdUrl: HDCover,
         url: data.artwork_url,
+        animatedURL: animatedURL,
       },
       id: data.id,
       songHref: data.permalink_url,
       name: data.title,
-      explicit: data.publisher_metadata.explicit || false,
+      explicit: data.publisher_metadata?.explicit || false,
       src: "",
     };
   } catch (error) {
-    console.error("Error mapping track URL to song:", error);
+    console.error(
+      "mapTrackUrlToSong | Error mapping track URL to song:",
+      error
+    );
     return createEmptySong(-1); // Use a default number for unknown ID
   }
 }
@@ -116,7 +151,7 @@ async function mapPlaylistUrlToSongsIncrementally(
   initialCount: number
 ): Promise<{ initialSongs: Song[]; loadRemaining: () => Promise<Song[]> }> {
   try {
-    console.log("mapPlaylistUrlToSongsIncrementally", url);
+    dev.log("mapPlaylistUrlToSongsIncrementally", url);
     const playlistId = await getIDFromURL(url);
     const response = await fetch(`/api/playlist/${playlistId}`);
     if (!response.ok) {
@@ -145,18 +180,28 @@ async function mapPlaylistUrlToSongsIncrementally(
  * Maps an array of track objects to Song objects without fetching M3U8.
  */
 async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
+  dev.log("mapTracksToSongs", tracks);
   const songs: Song[] = [];
   for (const track of tracks) {
     try {
       const HDCover = await getHDCover(track.permalink_url);
       const song: Song = {
         albumName: track.publisher_metadata?.album_title || "",
-        artistName:
-          track.publisher_metadata?.artist || track.user?.username || "",
-        artistId: track.user?.id || -1,
+        artist: {
+          id: track.user.id,
+          name: track.user.username,
+          url: `/artist/${track.user.permalink}/${track.user.id}`,
+          soundcloudURL: track.user.permalink_url,
+          permalink: track.user.permalink,
+          verified: false,
+          followers: 0,
+          city: "",
+          avatar: track.user.avatar_url,
+        },
         artwork: {
           hdUrl: HDCover,
           url: track.artwork_url,
+          animatedURL: "",
         },
         id: track.id,
         songHref: track.permalink_url,
@@ -178,6 +223,7 @@ async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
  * Fetches the HD cover image given a track/playlist permalink URL.
  */
 export async function getHDCover(url: string): Promise<string> {
+  dev.log("getHDCover", url);
   try {
     const response = await fetch(`/api/extra/cover/${encodeURIComponent(url)}`);
     if (!response.ok) {
@@ -199,6 +245,7 @@ export async function getHDCover(url: string): Promise<string> {
  */
 export async function getIDFromURL(url: string): Promise<number> {
   try {
+    dev.log("getIDFromURL", url);
     const response = await fetch(
       `/api/soundcloud/getid/${encodeURIComponent(url)}`
     );
@@ -216,6 +263,7 @@ export async function getIDFromURL(url: string): Promise<number> {
 }
 
 export async function getURLFromID(id: string) {
+  dev.log("getURLFromID", id);
   try {
     const response = await fetch(`/api/track/info/${id}`);
     if (!response.ok) {
@@ -235,13 +283,24 @@ export async function getURLFromID(id: string) {
  * Creates a minimal Song object with default values, useful for error fallback.
  */
 function createEmptySong(id: number): Song {
+  dev.log("createEmptySong", id);
   return {
     albumName: "",
-    artistName: "",
-    artistId: -1,
+    artist: {
+      id: -1,
+      name: "Unknown Artist",
+      url: "",
+      soundcloudURL: "",
+      permalink: "",
+      verified: false,
+      followers: 0,
+      city: "",
+      avatar: "",
+    },
     artwork: {
       hdUrl: "",
       url: "",
+      animatedURL: "",
     },
     id,
     songHref: "",
@@ -249,6 +308,26 @@ function createEmptySong(id: number): Song {
     explicit: false,
     src: "",
   };
+}
+
+export async function fetchSongData(
+  song: Song
+): Promise<{ HDCover: string; M3U8url: string }> {
+  try {
+    dev.log("fetchSongData", song);
+    const trackInfoResponse = await fetch(`/api/track/info/${song.id}`);
+    if (!trackInfoResponse.ok) throw new Error("Failed to fetch track info");
+
+    const trackInfo = await trackInfoResponse.json();
+
+    const HDCover = await getHDCover(trackInfo.permalink_url);
+    const M3U8url = await fetchPlaylistM3U8(trackInfo.permalink_url);
+
+    return { HDCover: HDCover ?? song.artwork.url, M3U8url };
+  } catch (error) {
+    console.error("Error fetching song data:", error);
+    return { HDCover: song.artwork.url ?? "", M3U8url: "" };
+  }
 }
 
 export const AppleKit = {
@@ -262,7 +341,9 @@ export const AppleKit = {
   ): Promise<string> {
     try {
       const cleanedTitle = title.split("(")[0].trim();
-      const cleanedArtist = artist
+      let cleanedArtist = artist;
+      cleanedArtist = artistMappings[cleanedArtist] || cleanedArtist;
+      cleanedArtist = cleanedArtist
         .replace(/&|feat\.|featuring/gi, "")
         .split(/[(),]/)
         .map((s) => s.trim())
@@ -305,7 +386,7 @@ export const AppleKit = {
     type: "albums" | "songs"
   ): Promise<any> {
     try {
-      const cleanedTitle = title.split("(")[0].trim();
+      const cleanedTitle = title;
       let cleanedArtist = artist;
       if (cleanedArtist.toLowerCase() === "octobersveryown") {
         cleanedArtist = "Drake";
@@ -319,7 +400,7 @@ export const AppleKit = {
       }
       const query = `${cleanedTitle.replace(/ /g, "+")}+${cleanedArtist}`;
       const response = await fetch(`/api/apple/song/${query}?type=${type}`);
-
+      dev.log(`AppleKit | ${title} | Response: `, response);
       if (!response.ok) {
         console.error(
           `Response not OK | Failed to get data from AppleKit: ${query}`
@@ -341,9 +422,9 @@ export const AppleKit = {
     try {
       const query = artist.replace(/ /g, "+");
       const response = await fetch(`/api/apple/artist/${query}`);
-      console.log("AppleKit | Artist | Query: ", query);
+      dev.log("AppleKit | Artist | Query: ", query);
       if (!response.ok) {
-        console.error(`Failed to get data from AppleKit: ${query}`);
+        dev.error(`Failed to get data for artist ${query} from AppleKit`);
         return "";
       }
       const data = await response.json();
@@ -395,6 +476,22 @@ export const SoundCloudKit = {
     } catch (error) {
       console.error("SoundCloudKit | getData | Error fetching data:", error);
       return "";
+    }
+  },
+  async findUserByPermalink(permalink: string) {
+    try {
+      // You may need to create your own Next API route that calls SoundCloud "resolve" or "search" endpoints
+      const response = await fetch(
+        `/api/soundcloud/resolve?permalink=${permalink}`
+      );
+      if (!response.ok) {
+        return null;
+      }
+      const userData = await response.json();
+      return userData; // expected to contain .id
+    } catch (err) {
+      console.error("findUserByPermalink error", err);
+      return null;
     }
   },
 };

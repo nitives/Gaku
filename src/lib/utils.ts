@@ -34,7 +34,6 @@ export async function FetchNewHotEvents() {
 export async function FetchSearch(query: string) {
   try {
     const response = await fetch(`/api/soundcloud?q=${query}`);
-    console.log("FetchSearch | response:", response);
     if (!response.ok) throw new Error("FetchSearch | Failed to fetch data");
     const data = await response.json();
     return data;
@@ -111,3 +110,56 @@ export async function fetchRichSyncLyrics(title: string, artist: string) {
     );
   }
 }
+
+export const dev = {
+  log: (message?: any, ...optionalParams: unknown[]) => {
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `%c[LOG]`,
+        "color: #9ae517; font-weight: bold",
+        message,
+        ...optionalParams
+      );
+    }
+  },
+  info: (message?: any, ...optionalParams: unknown[]) => {
+    if (process.env.NODE_ENV === "development") {
+      console.info(
+        `%c[INFO]`,
+        "color: blue; font-weight: bold",
+        message,
+        ...optionalParams
+      );
+    }
+  },
+  warn: (message?: any, ...optionalParams: unknown[]) => {
+    if (process.env.NODE_ENV === "development") {
+      console.warn(
+        `%c[WARN]`,
+        "color: orange; font-weight: bold",
+        message,
+        ...optionalParams
+      );
+    }
+  },
+  error: (message?: any, ...optionalParams: unknown[]) => {
+    if (process.env.NODE_ENV === "development") {
+      console.error(
+        `%c[ERROR]`,
+        "color: red; font-weight: bold",
+        message,
+        ...optionalParams
+      );
+    }
+  },
+  debug: (message?: any, ...optionalParams: unknown[]) => {
+    if (process.env.NODE_ENV === "development") {
+      console.debug(
+        `%c[DEBUG]`,
+        "color: purple; font-weight: bold",
+        message,
+        ...optionalParams
+      );
+    }
+  },
+};

@@ -1,7 +1,7 @@
 import React from "react";
 import { SidebarContent } from "./SidebarContent";
-import { SearchBar } from "./search/SearchBar";
 import style from "./Sidebar.module.css";
+import Search from "./search/Search";
 // TODO | Change the all the import paths with the @ symbol
 
 export const Sidebar = () => {
@@ -21,7 +21,7 @@ const SidebarHeader = () => {
       <div className={style.SidebarHeaderLogo}>
         <h1>Gaku</h1>
       </div>
-      <SearchBar />
+      <Search />
     </header>
   );
 };

@@ -1,11 +1,23 @@
 export interface Song {
   albumName: string;
-  artistName: string;
+  // artistId: number;
+  // artistName: string;
+  // artistUrl: string;
+  artist: {
+    id: number;
+    name: string;
+    url: string;
+    soundcloudURL: string;
+    permalink: string;
+    verified: boolean;
+    followers: number;
+    city: string;
+    avatar: string;
+  };
   artwork: Artwork;
   contentRating?: string;
   discNumber?: number;
   id: number;
-  artistId: number;
   songHref: string;
   name: string;
   color?: string[];

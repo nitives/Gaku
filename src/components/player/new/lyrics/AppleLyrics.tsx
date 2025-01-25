@@ -10,7 +10,7 @@ export const AppleLyrics = () => {
   const [isLoading, setIsLoading] = useState(false);
   const lyricPlayerRef = useRef<LyricPlayerRef>(null);
   const lastTimeRef = useRef<number>(-1);
-  const { fineProgress, currentSong } = useAudioStoreNew();
+  const { fineProgress, currentSong, isPlaying } = useAudioStoreNew();
 
   useEffect(() => {
     const loadLyrics = async () => {
@@ -20,7 +20,8 @@ export const AppleLyrics = () => {
         const currentTime = Date.now();
         const song = data.songs?.find(
           (s) =>
-            s.name === currentSong?.name && s.artist === currentSong?.artistName
+            s.name === currentSong?.name &&
+            s.artist === currentSong?.artist.name
         );
 
         if (song?.lyrics && song.expiresAt && song.expiresAt > currentTime) {
@@ -31,7 +32,7 @@ export const AppleLyrics = () => {
 
         const lyrics = await AppleKit.getLyrics(
           currentSong?.name || "",
-          currentSong?.artistName || "",
+          currentSong?.artist.name || "",
           true
         );
         const parsedLyrics = parseTTML(lyrics).lyricLines;
@@ -41,7 +42,7 @@ export const AppleLyrics = () => {
           const songIndex = data.songs.findIndex(
             (s) =>
               s.name === currentSong?.name &&
-              s.artist === currentSong?.artistName
+              s.artist === currentSong?.artist.name
           );
           if (songIndex >= 0) {
             data.songs[songIndex].lyrics = parsedLyrics;
@@ -49,7 +50,7 @@ export const AppleLyrics = () => {
           } else {
             data.songs.push({
               name: currentSong?.name,
-              artist: currentSong?.artistName,
+              artist: currentSong?.artist.name,
               lyrics: parsedLyrics,
               expiresAt: currentTime + 60 * 60 * 1000,
             });
@@ -64,7 +65,7 @@ export const AppleLyrics = () => {
       }
     };
     loadLyrics();
-  }, [currentSong?.artistName, currentSong?.name]);
+  }, [currentSong?.artist.name, currentSong?.name]);
 
   useEffect(() => {
     if (lyricPlayerRef.current?.lyricPlayer) {
@@ -110,14 +111,17 @@ export const AppleLyrics = () => {
           mixBlendMode: "plus-lighter",
           fontWeight: "bold",
         }}
-        ref={lyricPlayerRef}
+        // ref={lyricPlayerRef}
+        currentTime={fineProgress * 1000}
         alignAnchor="center"
+        playing={isPlaying}
         lyricLines={lyricLines}
+        onLyricLineClick={(line) => console.log(line)}
       />
     </div>
   );
 };
 
 const QueryText = ({ children }: { children: React.ReactNode }) => {
-  return <p className="opacity-50">{children}</p>;
+  return <p className="opacity-50 select-none">{children}</p>;
 };

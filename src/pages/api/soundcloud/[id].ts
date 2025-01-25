@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 
-// Artist IDs: Yeat-295329678, SZA-312938480
+// Artist IDs: Yeat-295329678, SZA-312938480, Osamason-222077223
 // Album IDs: SZA SOS-1928518223
 
 export default async function handler(
@@ -138,12 +138,18 @@ export default async function handler(
 
         // Example: attach processed “latest” data to artist
         const tracks = latestResponse.data.collection || [];
-        artist.latest = tracks.map((track: any) => ({
-          ...track,
-          artwork_url_hd: track.artwork_url
-            ? track.artwork_url.replace("large", "t500x500")
-            : null,
-        }));
+        artist.latest = tracks.map((track: any) => {
+          const trackData = track.track || track;
+          return {
+            ...track,
+            track: {
+              ...trackData,
+              artwork_url_hd: trackData.artwork_url
+                ? trackData.artwork_url.replace("large", "t500x500")
+                : null,
+            },
+          };
+        });
       }
 
       return res.status(200).json(artist);

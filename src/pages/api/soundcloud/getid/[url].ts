@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
-import { JSDOM } from "jsdom";
 
 export default async function handler(
   req: NextApiRequest,
@@ -20,24 +19,18 @@ export default async function handler(
 
   try {
     const response = await axios.get(decodedUrl);
-    const dom = new JSDOM(response.data);
-    const document = dom.window.document;
+    const html = response.data;
 
-    // Find the meta tag with property `al:ios:url`
-    const metaTag = document.querySelector('meta[property="al:ios:url"]');
-
-    if (metaTag) {
-      const content = metaTag.getAttribute("content");
-      if (content) {
-        const trackId = content.replace(
-          /soundcloud:\/\/(sounds|playlists):/,
-          ""
-        );
-        return res.status(200).json({ trackId });
-      }
+    // Use a regex to find the meta tag content quickly
+    const metaMatch = html.match(
+      /<meta property=["']al:ios:url["'] content=["']([^"']+)["']/
+    );
+    if (metaMatch && metaMatch[1]) {
+      const content = metaMatch[1];
+      const trackId = content.replace(/soundcloud:\/\/(sounds|playlists):/, "");
+      return res.status(200).json({ trackId });
     }
 
-    // If the meta tag or content is not found, return a 404 error
     return res.status(404).json({ error: "Track ID not found" });
   } catch (error) {
     console.error("Failed to fetch track ID:", error);

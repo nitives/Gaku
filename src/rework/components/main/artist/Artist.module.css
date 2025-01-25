@@ -8,7 +8,8 @@
 
 .ShelfHeader {
   display: flex;
-  padding-inline: 5px;
+  /* padding-inline: 5px; */
+  padding-bottom: 5px;
   & button {
     text-align: start;
     font-weight: 700;
@@ -18,7 +19,10 @@
 
 .ShelfGrid {
   column-gap: 20px;
-  grid-auto-columns: calc((100% - (3 - 1) * 20px) / 3);
+  /* grid-auto-columns: calc((100% - (3 - 1) * 20px) / 3); */
+  grid-auto-columns: 1fr;
+  /* grid-auto-columns: calc((100% - (3 - 1) * -7rem) / 3); */
+  /* grid-template-rows: repeat(3, max-content); */
   grid-template-rows: repeat(3, max-content);
   row-gap: 0px;
   align-items: stretch;
@@ -49,15 +53,15 @@
   scroll-snap-align: start;
   list-style: none;
   user-select: none;
-  padding: 5px;
+  /* padding: 5px; */
   & div {
     cursor: pointer;
     align-items: center;
     display: grid;
     grid-template-columns: auto auto 1fr auto;
-    padding-bottom: 7.5px;
+    padding-bottom: 7px;
     padding-inline-end: 14px;
-    padding-top: 7.5px;
+    padding-top: 7px;
     position: relative;
     width: 100%;
     & ul {
@@ -68,14 +72,14 @@
       justify-content: center;
       margin-inline-end: 8px;
       overflow: hidden;
-      padding-inline-end: 4px;
-      padding-inline-start: 4px;
+      padding-inline-end: 6px;
+      padding-inline-start: 6px;
       text-align: start;
       & li:first-of-type {
         color: var(--systemPrimary);
         align-items: baseline;
         display: inline-grid;
-        font-weight: 400;
+        font-weight: 600;
         font-size: 13px;
         grid-template-columns: 1fr auto auto;
       }
@@ -113,7 +117,7 @@
 .ShelfItemArtwork {
   aspect-ratio: 1 / 1;
   background-color: transparent;
-  border-radius: 5px;
+  border-radius: 7px;
   box-sizing: border-box;
   contain: content;
   height: 40px;
@@ -135,5 +139,52 @@
     top: 0;
     width: 100%;
     z-index: 1;
+    transition: opacity 0.1s ease;
+  }
+  &:after {
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect fill="rgba(0, 0, 0, 0.3)" width="60" height="60"></rect><path fill="white" d="M26.411 39.853c-1.21.753-2.528.157-2.528-1.094V21.47c0-1.24 1.435-1.858 2.528-1.094l15.265 8.235a1.69 1.69 0 0 1 0 3.065L26.411 39.853Z"></path></svg>');
+    height: 100%;
+    opacity: 0;
+    transform: translateX(-1px);
+    scale: 1.075;
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  &:hover:after {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+
+.Artwork {
+  background: hsl(0, 0%, 15%);
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  height: 100%;
+  box-shadow: 0 0 5px hsla(0, 0%, 0%, 0.1), 0 1px 10px rgba(0, 0, 0, 0.025);
+}
+
+.Date {
+  color: var(--systemSecondary);
+  font-weight: 600;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.LatestInfo {
+  & a:last-of-type {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    color: var(--systemSecondary);
+    display: -webkit-box;
+    overflow: hidden;
+    font-weight: 400;
+    font-size: 15px;
   }
 }

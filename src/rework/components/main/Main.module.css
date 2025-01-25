@@ -14,13 +14,24 @@
   display: flex;
   flex-direction: column;
   grid-area: structure-main-section;
-  height: auto;
+  min-height: 100vh; /* Ensure the container takes up the full viewport height */
   overflow-x: hidden;
   overflow-y: auto;
   transition: margin 0.1s linear, width 0.1s linear;
   width: 100%;
   z-index: var(--z-default);
 }
+
+/* .ScrollPage > :nth-child(1) {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.ScrollPage > :nth-child(2) {
+  flex-shrink: 0;
+  height: 5vh;
+  max-height: 5vh;
+} */
 
 .DynamicPage {
   /* padding: 1rem 20px; */

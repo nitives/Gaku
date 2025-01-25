@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Viewport } from "next";
 import { Toaster } from "react-hot-toast";
-import { AudioPlayerNew } from "@/components/player/new/AudioPlayerNew";
-import "../rework/global.css";
-import { Sidebar } from "@/rework/components/navigation/Sidebar";
-import { ScrollPage } from "@/rework/components/main/ScrollPage";
 import { Content } from "@/rework/components/main/Content";
+import ReactQueryWrapper from "@/providers/QueryWrapper";
+import "../rework/global.css";
+import { Audio } from "@/rework/components/player/Audio";
 
 export const metadata: Metadata = {
   title: "Gaku",
@@ -35,6 +34,28 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <head>
+        <link
+          rel="preload"
+          href="/assets/fonts/SFNS.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/assets/fonts/SFNSItalic.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/assets/fonts/SFNSRounded.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+
         <link
           rel="apple-touch-startup-image"
           media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
@@ -238,45 +259,46 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className={"SFPro"} suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {/* <AudioPlayerNew /> */}
-          {/* {children} */}
-          <Content>{children}</Content>
-          <Toaster
-            position="bottom-center"
-            toastOptions={{
-              style: {
-                padding: "12px 16px",
-                borderRadius: "15px",
-                background: "rgba(28, 28, 30, 0.85)",
-                color: "#fff",
-                fontSize: "15px",
-                fontWeight: "500",
-                maxWidth: "90%",
-                textAlign: "center",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                backdropFilter: "blur(10px)",
-              },
-              success: {
-                iconTheme: {
-                  primary: "#fff",
-                  secondary: "rgba(28, 28, 30, 0.85)",
+        <ReactQueryWrapper>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <Content>{children}</Content>
+            <Toaster
+              position="bottom-center"
+              toastOptions={{
+                style: {
+                  padding: "12px 16px",
+                  borderRadius: "15px",
+                  background: "rgba(28, 28, 30, 0.85)",
+                  color: "#fff",
+                  fontSize: "15px",
+                  fontWeight: "500",
+                  maxWidth: "90%",
+                  textAlign: "center",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                  backdropFilter: "blur(10px)",
                 },
-                duration: 2000,
-              },
-              error: {
-                iconTheme: {
-                  primary: "#fff",
-                  secondary: "rgba(28, 28, 30, 0.85)",
+                success: {
+                  iconTheme: {
+                    primary: "#fff",
+                    secondary: "rgba(28, 28, 30, 0.85)",
+                  },
+                  duration: 2000,
                 },
-                duration: 3000,
-              },
-            }}
-            containerStyle={{
-              bottom: 50,
-            }}
-          />
-        </ThemeProvider>
+                error: {
+                  iconTheme: {
+                    primary: "#fff",
+                    secondary: "rgba(28, 28, 30, 0.85)",
+                  },
+                  duration: 3000,
+                },
+              }}
+              containerStyle={{
+                bottom: 50,
+              }}
+            />
+            <Audio />
+          </ThemeProvider>
+        </ReactQueryWrapper>
       </body>
     </html>
   );

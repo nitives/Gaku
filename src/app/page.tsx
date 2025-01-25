@@ -1,5 +1,8 @@
-import React from "react";
+import { USER } from "@/lib/constants";
 
 export default function Home() {
-  return <div>Gaku</div>;
+  return <div>
+    <h1>Home</h1>
+    <p>Hello, {USER.name}</p>
+  </div>;
 }

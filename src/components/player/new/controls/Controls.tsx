@@ -16,7 +16,7 @@ import dynamic from "next/dynamic";
 import AnimatedCover from "@/components/AnimatedCover";
 import { LyricIcon } from "@/components/Icons/LyricIcon";
 import { Options } from "@/components/Icons/Options";
-import { exit } from "process";
+import { useThemedPlaceholder } from "@/lib/utils/themedPlaceholder";
 // import { AppleLyrics } from "../lyrics/AppleLyrics";
 // import { BackgroundRender } from "@applemusic-like-lyrics/react";
 
@@ -90,7 +90,7 @@ export const Controls: React.FC = () => {
   );
 };
 
-const playerImageProps = {
+export const playerImageProps = {
   initial: { filter: "blur(2px)" },
   animate: { filter: "blur(0px)" },
   exit: { filter: "blur(2px)" },
@@ -157,6 +157,16 @@ const MiniPlayer = ({
   );
 };
 
+export const buttonMotionProps = {
+  whileHover: { backgroundColor: "rgba(255, 255, 255, 0.05)" },
+  whileTap: {
+    scale: 0.85,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+  },
+  transition: { duration: 0.125, ease: "easeInOut" },
+  className: "flex flex-col items-center rounded-full p-2",
+};
+
 interface ControlButtonsProps {
   playing: boolean;
   onPlayPause: () => void;
@@ -169,16 +179,6 @@ const ControlButtons = ({
   onPlayPause,
   onNext,
 }: ControlButtonsProps) => {
-  const buttonMotionProps = {
-    whileHover: { backgroundColor: "rgba(255, 255, 255, 0.05)" },
-    whileTap: {
-      scale: 0.85,
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
-    },
-    transition: { duration: 0.125, ease: "easeInOut" },
-    className: "flex flex-col items-center rounded-full p-2",
-  };
-
   return (
     <div className="flex items-center pr-2 gap-2">
       <motion.button {...buttonMotionProps} onClick={onPlayPause}>
@@ -191,7 +191,7 @@ const ControlButtons = ({
   );
 };
 
-interface ExpandedPlayerProps {
+export interface ExpandedPlayerProps {
   song?: Song;
   isPlaying: boolean;
   onPlayPause: () => void;
@@ -263,7 +263,6 @@ const ExpandedPlayer = ({
             <motion.span>
               <AppleCover
                 imageSize={250}
-                theme={theme}
                 isDesktop={isDesktop}
                 song={song}
                 isAnimated={Boolean(song?.artwork?.animatedURL)}
@@ -284,7 +283,7 @@ const ExpandedPlayer = ({
                 {song?.name}
               </motion.h2>
               <motion.h2 className="text-sm text-center text-white/75">
-                {song?.artistName}
+                {song?.artist.name}
               </motion.h2>
             </motion.div>
             {/* Controls */}
@@ -379,7 +378,6 @@ const ExpandedPlayer = ({
             />
             <span className="absolute inset-0 flex items-center justify-center">
               <AppleCover
-                theme={theme}
                 isAnimated={Boolean(song?.artwork?.animatedURL)}
                 isDesktop={isDesktop}
                 song={song}
@@ -417,10 +415,10 @@ const ExpandedPlayer = ({
                   isDesktop ? "text-sm text-center" : "text-xs"
                 } text-white/75 cursor-pointer`}
                 onClick={() => {
-                  const artistUrl = `/artist/${song?.artistId}/${song?.artistName}`;
+                  const artistUrl = `/artist/${song?.artist.id}/${song?.artist.id}`;
                   if (
                     window.location.pathname.includes(
-                      song?.artistId.toString() || ""
+                      song?.artist.id.toString() || ""
                     )
                   ) {
                     onClose();
@@ -429,7 +427,7 @@ const ExpandedPlayer = ({
                   }
                 }}
               >
-                {song?.artistName}
+                {song?.artist.name}
               </motion.h2>
             </motion.div>
             <motion.div
@@ -505,7 +503,7 @@ const ExpandedPlayer = ({
 /**
  * Formats the given time in seconds to a mm:ss format.
  */
-function formatTime(seconds: number): string {
+export function formatTime(seconds: number): string {
   if (!seconds || isNaN(seconds)) return "0:00";
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60)
@@ -514,7 +512,7 @@ function formatTime(seconds: number): string {
   return `${m}:${s}`;
 }
 
-const ExpandedPlayerControls = ({
+export const ExpandedPlayerControls = ({
   playing,
   onPlayPause,
   onNext,
@@ -545,68 +543,57 @@ const ExpandedPlayerControls = ({
   );
 };
 
-const AppleCover = ({
+export const AppleCover = ({
   isDesktop,
-  theme,
   song,
   isAnimated,
   imageSize = 400,
 }: {
   isDesktop: boolean;
-  theme: string | undefined;
   song: Song | undefined;
   isAnimated: boolean;
   imageSize?: number;
 }) => {
+  const PLACEHOLDER_IMAGE = useThemedPlaceholder();
+
+  const squircleStyle = {
+    width: imageSize,
+    height: imageSize,
+    clipPath:
+      'path("M0.0,27.3 C0.0,12.26 12.26,0.0 27.3,0.0 L372.7,0.0 C387.74,0.0 400,12.26 400,27.3 L400,372.7 C400,387.74 387.74,400 372.7,400 L27.3,400 C12.26,400 0.0,387.74 0.0,372.7 Z")',
+    overflow: "hidden",
+  };
+
   if (isAnimated) {
     return (
-      <AnimatedCover
-        style={{
-          borderRadius: isDesktop ? "1rem" : "6px",
-          width: imageSize,
-          height: imageSize,
-          overflow: "hidden",
-        }}
-        url="https://mvod.itunes.apple.com/itunes-assets/HLSVideo221/v4/a1/5c/64/a15c640b-5177-821d-e72c-b35dae9fd0c6/P869282945_default.m3u8"
-      />
+      <div className="select-none" style={squircleStyle}>
+        <AnimatedCover
+          style={{
+            width: imageSize,
+            height: imageSize,
+          }}
+          url={song?.artwork?.animatedURL || ""}
+        />
+      </div>
     );
   }
+
   return (
-    <>
+    <div className="select-none" style={squircleStyle}>
       <Image
-        className={`${isDesktop ? "rounded-[1rem]" : "rounded-[6px]"}`}
-        src={
-          song?.artwork?.hdUrl ||
-          song?.artwork?.url ||
-          (theme === "light"
-            ? "/assets/placeholders/missing_song_light.png"
-            : "/assets/placeholders/missing_song_dark.png")
-        }
+        className={isDesktop ? "" : ""}
+        src={song?.artwork?.hdUrl || song?.artwork?.url || PLACEHOLDER_IMAGE}
         alt={song?.name || "Missing Image"}
         width={imageSize}
         height={imageSize}
         unoptimized={true}
         draggable={false}
       />
-      {/* <div
-        style={{
-          borderRadius: "1rem",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          pointerEvents: "none",
-          border: "1px solid rgba(255, 255, 255, 0.3)",
-          mixBlendMode: "overlay",
-          scale: "1",
-        }}
-      /> */}
-    </>
+    </div>
   );
 };
 
-const LyricButton = ({
+export const LyricButton = ({
   onClick,
   active,
 }: {
@@ -636,7 +623,7 @@ const LyricButton = ({
   );
 };
 
-const OptionsButton = ({ onClick }: { onClick: () => void }) => {
+export const OptionsButton = ({ onClick }: { onClick: () => void }) => {
   const buttonMotionProps = {
     whileHover: { backgroundColor: "rgba(255, 255, 255, 0.075)" },
     whileTap: {
@@ -657,7 +644,7 @@ const OptionsButton = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
-const DurationSlider = ({
+export const DurationSlider = ({
   duration,
   currentTime,
   onChange,

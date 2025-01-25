@@ -11,7 +11,7 @@ export const ScrollPage = ({ children }: ScrollPageProps) => {
   return (
     <div className={style.ScrollPage}>
       <DynamicPage>{children}</DynamicPage>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

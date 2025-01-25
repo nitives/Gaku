@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { IoHeartOutline, IoHeart } from "react-icons/io5";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { useLibrary } from "@/hooks/useLibrary"; // Adjust the path according to your structure
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useTheme } from "next-themes";
 
 export const SearchCard = ({
