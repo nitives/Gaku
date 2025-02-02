@@ -37,7 +37,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             spellCheck="false"
             autoComplete="off"
             autoCorrect="off"
-            autoCapitalize="off"
             {...props}
           />
         </form>

@@ -1,5 +1,13 @@
 import MillionLint from "@million/lint";
+import nextPWA from "next-pwa";
+
 /** @type {import('next').NextConfig} */
+const withPWA = nextPWA({
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+});
+
 const nextConfig = {
   devIndicators: {
     appIsrStatus: false,
@@ -37,5 +45,5 @@ const nextConfig = {
   },
 };
 
-// export default MillionLint.next()(nextConfig);
-export default nextConfig;
+// Apply PWA config
+export default withPWA(nextConfig);

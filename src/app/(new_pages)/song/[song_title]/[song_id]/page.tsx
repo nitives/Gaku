@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 
 export default function Song() {
   const [song, setSong] = useState<SoundCloudTrack | null>(null);
-  const router = useRouter();
   const { song_title, song_id } = useParams() as {
     song_title: string;
     song_id: string;

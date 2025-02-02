@@ -20,11 +20,16 @@ async function fetchArtistData(artistId: string, artistName: string) {
   return data;
 }
 
+const soundCloudOfficial = ["music-charts-us"];
+
 export default function ArtistPage() {
   const { artist_name, artist_id } = useParams() as {
     artist_name: string;
     artist_id: string;
   };
+  if (soundCloudOfficial.includes(artist_name)) {
+    return <div>This type of artist page is unavailable</div>;
+  }
   const router = useRouter();
 
   // 2) Query with the artist_id as key
@@ -54,7 +59,7 @@ export default function ArtistPage() {
 
   // 4) Render states
   if (isLoading) {
-    return <Spinner />
+    return <Spinner />;
   }
 
   if (error) {
@@ -74,7 +79,7 @@ export default function ArtistPage() {
   return (
     <div>
       <Banner artist={artist} />
-      <div className="flex">
+      <div className="flex pb-12">
         <Latest artist={artist} />
         <Spotlight artist={artist} />
       </div>

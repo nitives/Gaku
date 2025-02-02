@@ -3,6 +3,7 @@ import { artistMappings } from "../artist";
 import { Song } from "./types";
 import { fetchPlaylistM3U8, dev } from "@/lib/utils";
 import { EditorialVideo } from "../types/apple";
+import { showToast } from "@/hooks/useToast";
 
 /**
  * Fetch additional metadata (like HD cover) for a given song, without fetching M3U8.
@@ -93,21 +94,48 @@ async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
     console.log("mapTrackUrlToSong data", data);
     const HDCover = await getHDCover(data.permalink_url);
 
-    const albumID = window.location.pathname.includes("/album/")
-      ? window.location.pathname.split("/").pop()
-      : data.publisher_metadata?.album_id || -1;
-    const fetchedAlbumName = await SoundCloudKit.getData(albumID, "albums");
-    const albumName =
-      data.publisher_metadata?.album_title || fetchedAlbumName.title;
+    if (window.location.pathname.includes("/album/")) {
+      const albumID = window.location.pathname.includes("/album/")
+        ? window.location.pathname.split("/").pop()
+        : data.publisher_metadata?.album_id || 222;
+      const fetchedAlbumName = await SoundCloudKit.getData(albumID, "albums");
+      const albumName =
+        data.publisher_metadata?.album_title || fetchedAlbumName.title;
+      const appleKitCover = await AppleKit.getMediaData(
+        albumName,
+        data.publisher_metadata.artist || data.user?.username,
+        "albums"
+      );
+      dev.log("appleKitCover", appleKitCover);
+      const animatedURL = (
+        appleKitCover?.data[0]?.attributes?.editorialVideo as EditorialVideo
+      )?.motionSquareVideo1x1?.video;
+      return {
+        albumName: albumName,
+        artist: {
+          id: data.user?.id || -1,
+          name: data.user?.username || "",
+          url: `/artist/${data.user?.permalink}/${data.user?.id}`,
+          soundcloudURL: data.user?.permalink_url || "",
+          permalink: data.user?.permalink || "",
+          verified: false,
+          followers: 0,
+          city: "",
+          avatar: data.user?.avatar_url || "",
+        },
+        artwork: {
+          hdUrl: HDCover,
+          url: data.artwork_url,
+          animatedURL: animatedURL,
+        },
+        id: data.id,
+        songHref: data.permalink_url,
+        name: data.title,
+        explicit: data.publisher_metadata?.explicit || false,
+        src: "",
+      };
+    }
 
-    const appleKitCover = await AppleKit.getMediaData(
-      albumName,
-      data.publisher_metadata.artist || data.user?.username,
-      "albums"
-    );
-    dev.log("appleKitCover", appleKitCover);
-    const animatedURL = (appleKitCover?.data[0]?.attributes?.editorialVideo as EditorialVideo)?.motionSquareVideo1x1?.video;
-    
     return {
       albumName: data.publisher_metadata?.album_title || "",
       artist: {
@@ -124,7 +152,6 @@ async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
       artwork: {
         hdUrl: HDCover,
         url: data.artwork_url,
-        animatedURL: animatedURL,
       },
       id: data.id,
       songHref: data.permalink_url,
@@ -425,6 +452,10 @@ export const AppleKit = {
       dev.log("AppleKit | Artist | Query: ", query);
       if (!response.ok) {
         dev.error(`Failed to get data for artist ${query} from AppleKit`);
+        showToast(
+          "error",
+          "Failed to get data for artist ${query} from AppleKit"
+        );
         return "";
       }
       const data = await response.json();
@@ -493,5 +524,15 @@ export const SoundCloudKit = {
       console.error("findUserByPermalink error", err);
       return null;
     }
+  },
+  /**
+   * Fetch SoundCloud home page sections.
+   */
+  async getHomeSections() {
+    const response = await fetch(`/api/soundcloud/home/section`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch home page | ${response.status}`);
+    }
+    return response.json();
   },
 };

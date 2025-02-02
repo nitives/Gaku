@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   background: rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid var(--labelDivider);
+  /* border-bottom: 1px solid var(--labelDivider); */
   min-height: fit-content;
   user-select: none;
 }
@@ -26,5 +26,12 @@
     font-weight: 700;
     font-size: 2rem;
     color: white;
+  }
+}
+
+.BannerVideo {
+  position: inherit;
+  & video {
+    height: auto !important;
   }
 }

@@ -15,9 +15,7 @@ export default function SeeAllPage({ params }: SeeAllPageProps) {
 
   return (
     <div>
-      <h2>
-        {/* Artist: {params.artist_name} (ID: {params.artist_id}) */}
-      </h2>
+      <h2>{/* Artist: {params.artist_name} (ID: {params.artist_id}) */}</h2>
       {/* <p>Section requested: {section}</p> */}
       {/* ...render "full-albums", "singles", "top-songs", etc. based on section... */}
     </div>

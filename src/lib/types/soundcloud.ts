@@ -176,3 +176,94 @@ export interface SoundCloudSearchResult {
     query_urn: string;
   };
 }
+
+// Sections
+
+export interface SoundCloudSections {
+  collection: {
+    urn: string;
+    query_urn?: string;
+    title: string;
+    description?: string | null;
+    tracking_feature_name: string;
+    last_updated?: string | null;
+    style?: string | null;
+    social_proof?: string | null;
+    social_proof_users?: string | null;
+    items: {
+      collection: {
+        artwork_url?: string | null;
+        artwork_url_hd?: string | null;
+        created_at: string;
+        duration: number;
+        id: number;
+        kind: "user" | "playlist";
+        last_modified: string;
+        likes_count: number;
+        managed_by_feeds: boolean;
+        permalink: string;
+        permalink_url: string;
+        public: boolean;
+        reposts_count: number;
+        secret_token?: string | null;
+        sharing: string;
+        title: string;
+        track_count: number;
+        uri: string;
+        user_id: number;
+        set_type: string;
+        is_album: boolean;
+        published_at?: string | null;
+        release_date?: string | null;
+        display_date: string;
+        // User ------------------------------------------------
+        avatar_url_hd?: string | null;
+        avatar_url?: string | null;
+        first_name: string;
+        followers_count: number;
+        full_name: string;
+        last_name: string;
+        urn: string;
+        username: string;
+        verified: boolean;
+        city: string | null;
+        country_code: string;
+        badges: {
+          pro: false;
+          creator_mid_tier: false;
+          pro_unlimited: true;
+          verified: true;
+        };
+        // User - End ------------------------------------------
+        user: {
+          avatar_url: string;
+          first_name: string;
+          followers_count: number;
+          full_name: string;
+          id: number;
+          kind: string;
+          last_modified: string;
+          last_name: string;
+          permalink: string;
+          permalink_url: string;
+          uri: string;
+          urn: string;
+          username: string;
+          verified: boolean;
+          city?: string | null;
+          country_code?: string | null;
+          badges: {
+            pro: boolean;
+            creator_mid_tier: boolean;
+            pro_unlimited: boolean;
+            verified: boolean;
+          };
+        };
+      }[];
+      next_href?: string | null;
+      query_urn?: string | null;
+    };
+    kind: string;
+    id: string;
+  }[];
+}

@@ -15,6 +15,8 @@ import {
   LyricButton,
   OptionsButton,
 } from "@/components/player/new/controls/Controls";
+import { showToast } from "@/hooks/useToast";
+import Link from "next/link";
 
 // Also fixing document not defined error
 const AppleLyrics = dynamic(
@@ -66,6 +68,9 @@ const Screen = () => {
 
   const [lyricsVisible, setLyricsVisible] = useState(false);
   const toggleLyrics = () => setLyricsVisible((prev) => !prev);
+
+  const optionsButton = () =>
+    showToast("warning", "Options not implemented yet");
 
   const controlsBaseProps = {
     className:
@@ -135,20 +140,24 @@ const Screen = () => {
                     layout="position"
                     layoutId="playerArtist"
                     className="text-sm text-center text-white/75 cursor-pointer hover:underline"
-                    onClick={() => {
-                      const artistUrl = `/artist/${currentSong?.artist.id}/${currentSong?.artist.id}`;
-                      if (
-                        window.location.pathname.includes(
-                          currentSong?.artist.id.toString() || ""
-                        )
-                      ) {
-                        setFullscreen(false);
-                      } else {
-                        window.location.href = artistUrl;
-                      }
-                    }}
                   >
-                    {currentSong?.artist.name}
+                    <Link
+                      href={`/artist/${currentSong?.artist.id}/${currentSong?.artist.id}`}
+                      onClick={(e) => {
+                        // If we're already on the artist page, don't navigate:
+                        setFullscreen(false);
+                        if (
+                          window.location.pathname.includes(
+                            currentSong?.artist.id?.toString() || ""
+                          )
+                        ) {
+                          e.preventDefault(); // Prevent Link’s normal routing
+                          setFullscreen(false);
+                        }
+                      }}
+                    >
+                      {currentSong?.artist.name}
+                    </Link>
                   </motion.h2>
                 </motion.div>
                 <motion.div
@@ -185,7 +194,7 @@ const Screen = () => {
                       active={lyricsVisible}
                       onClick={toggleLyrics}
                     />
-                    <OptionsButton onClick={toggleLyrics} />
+                    <OptionsButton onClick={optionsButton} />
                   </div>
                 </motion.div>
               </motion.div>

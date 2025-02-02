@@ -1,8 +1,11 @@
-import { USER } from "@/lib/constants";
+import { Sections } from "@/rework/components/main/home/Sections";
+import { Welcome } from "@/rework/components/main/home/Welcome";
 
 export default function Home() {
-  return <div>
-    <h1>Home</h1>
-    <p>Hello, {USER.name}</p>
-  </div>;
+  return (
+    <div>
+      <Welcome />
+      <Sections />
+    </div>
+  );
 }

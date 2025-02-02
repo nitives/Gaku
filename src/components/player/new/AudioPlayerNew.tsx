@@ -36,7 +36,7 @@ export const AudioPlayerNew = () => {
           : currentSong?.name;
       navigator.mediaSession.metadata = new MediaMetadata({
         title: displayTitle || "Unknown Title",
-        artist: currentSong?.artistName || "Unknown Artist",
+        artist: currentSong?.artist.name || "Unknown Artist",
         album: currentSong?.albumName || "",
         artwork: [
           {

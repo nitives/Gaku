@@ -31,7 +31,7 @@ export default function Search() {
   const query = searchParams?.get("q") || "";
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["soundcloudSearchx", query],
+    queryKey: ["soundcloudSearch", query],
     queryFn: () => fetchSoundCloudResults(query),
     enabled: Boolean(query),
     staleTime: 60_000, // 1 minute

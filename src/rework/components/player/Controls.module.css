@@ -3,3 +3,11 @@
   justify-content: space-between;
   align-items: center;
 }
+
+@media not all and (min-width: 640px) {
+  .ControlsContainer {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+  }
+}

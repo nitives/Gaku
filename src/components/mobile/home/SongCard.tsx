@@ -36,14 +36,6 @@ export const SongCard = ({
   id,
   kind,
 }: SongCard) => {
-  // const router = useRouter();
-  // const navigateToTrack = (id: string | undefined) => {
-  //   if (id && kind) {
-  //     router.push(`/${kind}/${id}`);
-  //   } else {
-  //     router.push(`/`);
-  //   }
-  // };
   if (!img && !title && !artist) return <SongCardSkeleton />;
   return (
     <div onClick={onClick} className="min-w-[15rem] h-[22rem] max-sm:h-[20rem]">

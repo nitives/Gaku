@@ -68,3 +68,11 @@
 .TrackInfoAndArtwork {
   display: flex;
 }
+
+@media not all and (min-width: 640px) {
+  .Player {
+    margin-bottom: 1.5rem;
+    margin-inline: 1.25rem;
+    border-radius: 1rem;;
+  }
+}

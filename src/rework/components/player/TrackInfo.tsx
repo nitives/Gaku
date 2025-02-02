@@ -1,10 +1,10 @@
 "use client";
 import { useAudioStoreNew } from "@/context/AudioContextNew";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export const TrackInfo = () => {
   const { currentSong } = useAudioStoreNew();
-  const router = useRouter();
   if (!currentSong) {
     return (
       <div className="px-2 grid items-center" aria-label="Track Info">
@@ -23,14 +23,14 @@ export const TrackInfo = () => {
         <h2 style={{ fontWeight: 500 }}>{currentSong.name}</h2>
         {currentSong.explicit && <span className="text-[#aeaeae]">🅴</span>}
       </span>
-      <a
-        onClick={() => router.push(currentSong.artist.url)}
+      <Link
+        href={currentSong.artist.url}
         style={{ fontWeight: 400, opacity: 0.7 }}
         aria-label={`Name of the artist: ${currentSong.artist.name}`}
         className="w-fit hover:underline cursor-pointer -mt-2"
       >
         {currentSong.artist.name}
-      </a>
+      </Link>
     </div>
   );
 };

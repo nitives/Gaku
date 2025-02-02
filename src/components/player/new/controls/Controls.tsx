@@ -1,6 +1,6 @@
 import { useAudioStoreNew } from "@/context/AudioContextNew";
 import React, { useEffect, useState } from "react";
-import styles from "./Controls.module.css";
+import style from "./Controls.module.css";
 
 import { IoPlay, IoPlayBack, IoPlayForward } from "react-icons/io5";
 import { PiPauseFill } from "react-icons/pi";
@@ -58,8 +58,8 @@ export const Controls: React.FC = () => {
       <LayoutGroup>
         {/* Minimized Player */}
         {!isExpanded && (
-          <div className={styles.controlsContainer}>
-            <div className={styles.controls}>
+          <div className={style.controlsContainer}>
+            <div className={style.controls}>
               <MiniPlayer
                 song={currentSong || undefined}
                 playing={isPlaying}
@@ -117,7 +117,7 @@ const MiniPlayer = ({
 
   return (
     <div className="fixed bottom-[5rem] left-0 right-0">
-      <div className={styles.miniPlayer}>
+      <div className={style.miniPlayer}>
         <motion.div
           onClick={onExpand}
           layout
