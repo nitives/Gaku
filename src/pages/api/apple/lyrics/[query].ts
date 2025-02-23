@@ -1,15 +1,15 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
+import { conf } from "@/lib/config";
 
-const APPLE_AUTH = process.env.APPLE_AUTH;
-const USER_TOKEN = process.env.APPLE_MEDIA_USER_TOKEN;
+const APPLE_AUTH = conf().APPLE.MUSIC.AUTH;
+const USER_TOKEN = conf().APPLE.MUSIC.USER_TOKEN;
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   const { query } = req.query;
-
   if (req.method === "GET") {
     try {
       // First request to search for the song
@@ -27,6 +27,8 @@ export default async function handler(
       );
 
       const songID = searchResponse.data.results.songs.data[0].id;
+
+      console.log("Apple | Lyrics | Found song ID:", songID);
 
       const songResponse = await axios.get(
         `https://amp-api.music.apple.com/v1/catalog/us/songs/${songID}/syllable-lyrics`,
@@ -55,6 +57,7 @@ export default async function handler(
     } catch (error) {
       res.status(500).json({
         error: "An error occurred while fetching the song info | MusicKit",
+        message: error,
       });
     }
   } else {

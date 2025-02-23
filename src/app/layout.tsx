@@ -34,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <head>
+        <link rel="manifest" href="/manifest.json" />
         <link
           rel="preload"
           href="/assets/fonts/SFNS.woff2"

@@ -30,7 +30,7 @@ const getGreeting = () => {
   if (hours < 12) return "Good morning";
   if (hours < 18) return "Good afternoon";
   if (hours < 22) return "Good evening";
-  return "Good night";
+  return "Goodnight";
 };
 
 export const Welcome = () => {

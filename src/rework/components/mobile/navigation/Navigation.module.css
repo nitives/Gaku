@@ -1,0 +1,61 @@
+@media (prefers-color-scheme: dark) {
+  .NavigationBar {
+    --navbarBackgroundColor: hsla(0, 0%, 10%, 0.5);
+    --navbarSongTitleColor: inherit;
+    --navbarSongArtistColor: hsla(0, 0%, 100%, 0.5);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .NavigationBar {
+    --navbarBackgroundColor: hsla(0, 0%, 100%, 0.95);
+    --navbarSongTitleColor: hsl(0, 0%, 0%);
+    --navbarSongArtistColor: hsla(0, 0%, 0%, 0.5);
+  }
+}
+
+.NavigationBar {
+  height: 54px;
+  display: flex;
+  align-content: center;
+  bottom: 0;
+  flex-shrink: 0;
+  inset-inline-end: 0;
+  position: fixed;
+  transition: opacity 0.25s, transform 0.25s;
+  width: 100%;
+  z-index: 1;
+}
+
+.NavigationContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--navbarBackgroundColor);
+  -webkit-backdrop-filter: saturate(60%) blur(24px);
+  backdrop-filter: saturate(60%) blur(24px);
+  height: 54px;
+  padding: 0.25rem;
+  margin-bottom: 1rem;
+  margin-inline: 0.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  & h2 {
+    color: var(--navbarSongTitleColor);
+  }
+  & p {
+    color: var(--navbarSongArtistColor);
+  }
+}
+
+.TrackContent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.TrackInfo {
+  font-weight: 600;
+}
