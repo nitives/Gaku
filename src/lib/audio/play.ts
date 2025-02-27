@@ -28,9 +28,8 @@ export const usePlaylistFetcher = () => {
     },
     [setQueue, addToQueue]
   );
-
   const shufflePlaylist = useCallback(
-    async (url: string, id?: boolean) => {
+    async (url: any, id?: boolean) => {
       if (!url) return;
       let allSongs = [];
       if (id) {
@@ -55,6 +54,5 @@ export const usePlaylistFetcher = () => {
     },
     [setQueue]
   );
-
   return { handleFetchPlaylist, shufflePlaylist };
 };

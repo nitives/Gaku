@@ -32,5 +32,8 @@ export const USER = {
     search: {
       highlightedQueries: false,
     },
+    sidebar: {
+      showIcons: false,
+    },
   },
 };

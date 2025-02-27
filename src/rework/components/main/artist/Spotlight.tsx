@@ -4,6 +4,7 @@ import { SoundCloudArtist } from "@/lib/types/soundcloud";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { usePlaylistFetcher } from "@/lib/audio/play";
 import { useRouter } from "next/navigation";
+import ContextMenu from "../../contextmenus/ContextMenu";
 
 export const Spotlight = ({ artist }: { artist: SoundCloudArtist | null }) => {
   const songs = artist?.spotlight || [];
@@ -20,23 +21,25 @@ export const Spotlight = ({ artist }: { artist: SoundCloudArtist | null }) => {
       <section>
         <ul className={style.ShelfGrid}>
           {songs.map((song) => (
-            <ShelfItem
-              song={song}
-              key={song.id}
-              link={() =>
-                router.push(
-                  song.tracks
-                    ? `/album/${song.permalink}/${song.id}`
-                    : `/song/${song.permalink}/${song.id}`
-                )
-              }
-              play={() =>
-                handleFetchPlaylist(
-                  song.tracks ? song.permalink_url : song.id,
-                  !song.tracks
-                )
-              }
-            />
+            <ContextMenu type="song" itemId={song.id} key={song.id}>
+              <ShelfItem
+                song={song}
+                key={song.id}
+                link={() =>
+                  router.push(
+                    song.tracks
+                      ? `/album/${song.permalink}/${song.id}`
+                      : `/song/${song.permalink}/${song.id}`
+                  )
+                }
+                play={() =>
+                  handleFetchPlaylist(
+                    song.tracks ? song.permalink_url : song.id,
+                    !song.tracks
+                  )
+                }
+              />
+            </ContextMenu>
           ))}
         </ul>
       </section>

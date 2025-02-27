@@ -79,7 +79,7 @@
 }
 
 .SidebarContentScrollArea svg {
-  fill: white;
+  fill: var(--systemSecondary);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -112,6 +112,7 @@
 
 .SidebarList {
   margin-inline: 12px;
+  padding-top: 0.5rem;
 }
 
 .SidebarItem {
@@ -148,4 +149,27 @@
       }
     }
   }
+}
+
+.SidebarSectionLabel {
+  color: var(--systemSecondary, rgba(235, 235, 235, 0.6));
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025rem;
+  padding: 1rem 0.25rem 0.25rem 0.25rem;
+}
+
+.SidebarItemLink {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.SidebarItemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  min-width: 20px;
 }

@@ -2,11 +2,11 @@
 import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { SoundCloudAlbum } from "@/lib/types/soundcloud";
 import { dev } from "@/lib/utils";
-import { SongList } from "@/rework/components/main/album/SongList";
+import { Album } from "@/rework/components/main/album/Album";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function Album() {
+export default function AlbumPage() {
   const [album, setAlbum] = useState<SoundCloudAlbum | null>(null);
   const router = useRouter();
   const { album_title, album_id } = useParams() as {
@@ -31,9 +31,7 @@ export default function Album() {
   }, [album_id, album_title]);
   return (
     <div>
-      {/* <h2>Album ID: {album_id}</h2>
-      <h2>Album Name: {decodeURIComponent(album_title)}</h2> */}
-      {album && <SongList data={album} />}
+      {album && <Album data={album} />}
     </div>
   );
 }

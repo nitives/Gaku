@@ -1,0 +1,165 @@
+.AlbumHeader {
+  --albumHeaderHeight: 250px;
+  display: flex;
+  height: var(--albumHeaderHeight);
+  gap: 20px;
+}
+
+.AlbumArtwork {
+  user-select: none;
+  --albumArtworkSize: var(--albumHeaderHeight);
+  aspect-ratio: 1 / 1;
+  background-color: transparent;
+  border-radius: 12px;
+  box-sizing: border-box;
+  contain: content;
+  height: var(--albumArtworkSize);
+  width: calc(var(--albumArtworkSize) * 1);
+  overflow: hidden;
+  position: relative;
+  &:after {
+    content: "";
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px hsla(0, 0%, 50%, 0.1);
+    display: block;
+    height: 0;
+    max-height: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    min-width: 100%;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+    transition: opacity 0.1s ease;
+  }
+}
+
+.AlbumInfoNControls {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.AlbumInfo {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+}
+
+.AlbumTitle {
+  font-size: 30px;
+  line-height: 1.25;
+  font-weight: 700;
+  margin-top: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.AlbumArtist {
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 500;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--keyColor);
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.SongList {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.Song:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.6rem;
+  user-select: none;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.Song:nth-child(even) {
+  border-radius: 8px;
+  padding: 0.6rem;
+  user-select: none;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.SongIndex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  --songIndexSize: 12px;
+  height: var(--songIndexSize);
+  min-width: var(--songIndexSize);
+  font-size: 0.75rem;
+  color: var(--systemSecondary);
+  cursor: pointer;
+  position: relative;
+  &:hover {
+    color: transparent;
+  }
+  &:hover:after {
+    opacity: 1;
+  }
+  &:after {
+    content: " ";
+    position: absolute;
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect fill="rgba(0, 0, 0, 0)" width="60" height="60"></rect><path fill="white" d="M26.411 39.853c-1.21.753-2.528.157-2.528-1.094V21.47c0-1.24 1.435-1.858 2.528-1.094l15.265 8.235a1.69 1.69 0 0 1 0 3.065L26.411 39.853Z"></path></svg>');
+    height: var(--songIndexSize);
+    width: var(--songIndexSize);
+    opacity: 0;
+    transform: translateX(0px);
+    scale: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.SongInfo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  padding-bottom: 0.5px;
+}
+
+.Controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.Controls button {
+  border: 1.5px solid var(--labelDivider);
+  background-color: rgba(255, 255, 255, 0.1);
+  padding-inline: 14px;
+  padding-block: 6px;
+  border-radius: 12px;
+  gap: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  user-select: none;
+  transition: color 0.1s ease;
+  &:hover {
+    color: var(--keyColor);
+  }
+}

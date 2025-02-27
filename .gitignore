@@ -39,3 +39,6 @@ next-env.d.ts
 
 # Million Lint
 .million
+
+# clerk configuration (can include secrets)
+/.clerk/

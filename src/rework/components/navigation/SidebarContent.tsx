@@ -2,13 +2,31 @@ import React from "react";
 import style from "./Sidebar.module.css";
 import { LinearBlur } from "progressive-blur";
 import Link from "next/link";
+import { SidebarUserFooter } from "./SidebarUserFooter";
+import { AiFillHome, AiFillClockCircle, AiFillHeart } from "react-icons/ai";
+import { BiSolidAlbum, BiSolidPlaylist, BiSolidMusic } from "react-icons/bi";
+import { FaUserAlt, FaListAlt } from "react-icons/fa";
+import { USER } from "@/lib/constants";
 
-const exampleItems = [
-  { href: "/artist/lilyeat/295329678", text: "Yeat" },
-  { href: "/artist/osamason/222077223", text: "Osamason" },
-  { href: "/artist/szababy2/312938480", text: "SZA" },
-  { href: "/album/sos/1928518223", text: "SOS - Album" },
-  { href: "/album/2093/1776273075", text: "2093 - Album" },
+const libraryItems = [
+  {
+    href: "/library/recently-added",
+    text: "Recently Added",
+    icon: <AiFillClockCircle />,
+  },
+  { href: "/library/artists", text: "Artists", icon: <FaUserAlt /> },
+  { href: "/library/albums", text: "Albums", icon: <BiSolidAlbum /> },
+  { href: "/library/songs", text: "Songs", icon: <BiSolidMusic /> },
+];
+
+const playlistItems = [
+  { href: "/playlists", text: "All Playlists", icon: <FaListAlt /> },
+  { href: "/favorite-songs", text: "Favorite Songs", icon: <AiFillHeart /> },
+  {
+    href: "/2093-all-parts",
+    text: "2093 (All Parts)",
+    icon: <BiSolidPlaylist />,
+  },
 ];
 
 export const SidebarContent = () => {
@@ -16,23 +34,31 @@ export const SidebarContent = () => {
     <div className={style.SidebarContent}>
       <div className={style.SidebarContentScrollArea}>
         <ul className={style.SidebarList}>
-          <Item href="/" text="Home" />
-          <div className="py-2">
-            {exampleItems.map((item, index) => (
-              <Item key={index} href={item.href} text={item.text} />
-            ))}
-          </div>
-          <Item href="/library/albums" text="Your Albums" />
-          <Item href="/library/songs" text="Your Songs" />
+          <Item href="/" text="Home" icon={<AiFillHome />} />
+
+          <SectionLabel label="Library" />
+          {libraryItems.map((item, index) => (
+            <Item
+              key={`library-${index}`}
+              href={item.href}
+              text={item.text}
+              icon={item.icon}
+            />
+          ))}
+
+          <SectionLabel label="Playlists" />
+          {playlistItems.map((item, index) => (
+            <Item
+              key={`playlist-${index}`}
+              href={item.href}
+              text={item.text}
+              icon={item.icon}
+            />
+          ))}
         </ul>
       </div>
       <div className={style.SidebarFooter}>
-        <div className="z-10 relative">
-          {/* <p>
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Officiis
-            temporibus cupiditate?
-          </p> */}
-        </div>
+        <SidebarUserFooter />
         <span className="z-0 relative w-full grid">
           <div
             style={{
@@ -61,8 +87,28 @@ export const SidebarContent = () => {
   );
 };
 
-const Item = ({ href, text }: { href: string; text: string }) => (
-  <li className={style.SidebarItem}>
-    <Link href={href}>{text}</Link>
-  </li>
+const SectionLabel = ({ label }: { label: string }) => (
+  <div className={style.SidebarSectionLabel}>{label}</div>
 );
+
+const Item = ({
+  href,
+  text,
+  icon,
+}: {
+  href: string;
+  text: string;
+  icon?: React.ReactNode;
+}) => {
+  const showIcons = USER.settings.sidebar.showIcons;
+  return (
+    <li className={style.SidebarItem}>
+      <Link href={href} className={style.SidebarItemLink}>
+        {showIcons && icon && (
+          <span className={style.SidebarItemIcon}>{icon}</span>
+        )}
+        <span>{text}</span>
+      </Link>
+    </li>
+  );
+};

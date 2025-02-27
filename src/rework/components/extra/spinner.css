@@ -13,26 +13,6 @@
   align-items: center;
 }
 
-/* .loading-spinner:not(.inset) {
-  left: 50%;
-  position: absolute;
-  top: 50%;
-} */
-
-/* @media (min-width: 1000px) {
-  .loading-spinner:not(.inset):not(.loading-spinner--small) {
-    transform: translate(-50%, -50%);
-  }
-}
-
-.loading-spinner.inset {
-  transform: translate(50%);
-}
-
-html[dir="rtl"] .loading-spinner.inset {
-  transform: translate(-50%);
-} */
-
 @keyframes spinner-fade-in {
   0% {
     opacity: 0;

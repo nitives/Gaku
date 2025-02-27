@@ -33,6 +33,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "is1-ssl.mzstatic.com",
       },
+      {
+        protocol: "https",
+        hostname: "img.clerk.com",
+      },
     ],
   },
 };

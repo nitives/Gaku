@@ -2,7 +2,7 @@
 import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { SoundCloudTrack } from "@/lib/types/soundcloud";
 import { dev } from "@/lib/utils";
-import { SongList } from "@/rework/components/main/album/SongList";
+import { SongList } from "@/rework/components/main/album/Album";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 

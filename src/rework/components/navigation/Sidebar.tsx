@@ -1,4 +1,3 @@
-import React from "react";
 import { SidebarContent } from "./SidebarContent";
 import style from "./Sidebar.module.css";
 import Search from "./search/Search";

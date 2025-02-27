@@ -1,5 +1,4 @@
-import React from "react";
-import { USER } from "@/lib/constants";
+import { currentUser } from "@clerk/nextjs/server";
 
 const getGreeting = () => {
   const now = new Date();
@@ -33,14 +32,15 @@ const getGreeting = () => {
   return "Goodnight";
 };
 
-export const Welcome = () => {
+export const Welcome = async () => {
   const greeting = getGreeting();
-
+  const user = await currentUser();
   return (
     <div className="py-8 px-10">
       <h1 className="text-2xl font-[700]">Home</h1>
       <p className="text-lg font-[500] text-[--systemSecondary]">
-        {greeting}, {USER.name}
+        {greeting}
+        {user && `, ${user?.username || user?.fullName || user?.firstName}`}
       </p>
     </div>
   );
