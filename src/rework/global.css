@@ -161,7 +161,7 @@ body {
 }
 @layer base {
   :root {
-    --keyColor: #7efa58;
+    --keyColor: #5891fa;
 
     --background: hsl(0, 0%, 100%);
     --foreground: hsl(0, 0%, 3.9%);

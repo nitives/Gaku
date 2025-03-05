@@ -1,0 +1,67 @@
+.libraryItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 10px;
+  margin-top: 0px;
+  padding-bottom: 10px;
+  width: 100%;
+  gap: 10px;
+  border-bottom: 1px solid var(--labelDivider);
+}
+
+.details {
+  display: grid;
+  align-items: center;
+  user-select: none;
+  & h3 {
+    font-size: 1.2rem;
+  }
+  & a {
+    color: var(--systemSecondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-top: -5px;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.image {
+  --imageSize: 50px;
+  width: var(--imageSize);
+  height: var(--imageSize);
+  position: relative;
+
+  user-select: none;
+  --albumArtworkSize: var(--albumHeaderHeight);
+  aspect-ratio: 1 / 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  box-sizing: border-box;
+  contain: content;
+  overflow: hidden;
+  position: relative;
+  &:after {
+    content: "";
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px hsla(0, 0%, 75%, 0.1);
+    display: block;
+    height: 0;
+    max-height: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    min-width: 100%;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+    transition: opacity 0.1s ease;
+  }
+}
+
+.libraryList {
+  display: grid;
+}

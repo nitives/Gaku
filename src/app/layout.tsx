@@ -7,6 +7,9 @@ import ReactQueryWrapper from "@/providers/QueryWrapper";
 import "../rework/global.css";
 import { Audio } from "@/rework/components/player/Audio";
 import { ClerkProvider } from "@clerk/nextjs";
+import "react-contexify/dist/ReactContexify.css";
+import "../styles/contexifyGaku.css";
+import { contextMenus } from "@/rework/components/contextmenus/contextMenus";
 
 export const metadata: Metadata = {
   title: "Gaku",
@@ -264,7 +267,10 @@ export default function RootLayout({
         <body className={"SFPro"} suppressHydrationWarning>
           <ReactQueryWrapper>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <Content>{children}</Content>
+              <Content>
+                {children}
+                {contextMenus}
+              </Content>
               <Toaster
                 position="bottom-center"
                 toastOptions={{
@@ -279,6 +285,7 @@ export default function RootLayout({
                     textAlign: "center",
                     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
                     backdropFilter: "blur(10px)",
+                    filter: "grayscale(1)",
                   },
                   success: {
                     iconTheme: {

@@ -34,7 +34,7 @@ export const Sections = () => {
       </>
     );
 
-  return <div>{sections && <Section data={sections} />}</div>;
+  return sections && <Section data={sections} />;
 };
 
 const Section = ({ data }: { data: SoundCloudSections["collection"] }) => {
@@ -139,7 +139,9 @@ const SectionItems = ({ items }: { items: SectionItem[] }) => {
               </Link>
             </span>
             {item.kind === "user" ? (
-              <p className="w-fit">{formatter.format(item.followers_count) + " followers"}</p>
+              <p className="w-fit">
+                {formatter.format(item.followers_count) + " followers"}
+              </p>
             ) : (
               <Link
                 className="hover:underline decoration-[--keyColor]"

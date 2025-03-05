@@ -1,15 +1,36 @@
 "use client";
+import { dev } from "@/lib/utils";
 import { useContextMenu } from "react-contexify";
 
 type ContextMenuProps = {
   type: "song" | "album" | "artist";
   itemId: string;
   children: React.ReactNode;
+  as?: React.ElementType;
+  className?: string;
+  title?: string;
 };
 
-const ContextMenu = ({ type, itemId, children }: ContextMenuProps) => {
-  let menuId: string;
+export const handleContextMenu = (
+  e: React.MouseEvent,
+  type: "song" | "album" | "artist",
+  itemId: string,
+  show: (props: { event: React.MouseEvent; props: { itemId: string } }) => void
+) => {
+  e.preventDefault();
+  dev.log("Context menu |", "type:", type, "id:", itemId);
+  show({ event: e, props: { itemId } });
+};
 
+const ContextMenu = ({
+  type,
+  itemId,
+  children,
+  as: Element = "div",
+  className = "",
+  title = "",
+}: ContextMenuProps) => {
+  let menuId: string;
   switch (type) {
     case "song":
       menuId = "songMenu";
@@ -21,23 +42,25 @@ const ContextMenu = ({ type, itemId, children }: ContextMenuProps) => {
       menuId = "artistMenu";
       break;
     default:
-      throw new Error("Invalid type");
+      throw new Error("Invalid menu type");
   }
 
-  const { show } = useContextMenu({
-    id: menuId,
-  });
+  const { show } = useContextMenu({ id: menuId });
 
   return (
-    <div
-      onContextMenu={(e) => {
+    <Element
+      title={title}
+      onContextMenu={(e: React.MouseEvent<HTMLElement>) => {
         e.preventDefault();
-        show({ event: e });
+        // Pass itemId to the menu
+        dev.log("Context menu |", "type:", type, "id:", itemId);
+        show({ event: e, props: { itemId } });
       }}
-      style={{ position: "relative" }}
+      // style={{ width: "100%" }}
+      className={className}
     >
       {children}
-    </div>
+    </Element>
   );
 };
 

@@ -10,6 +10,7 @@ import "./SearchDropDown.css";
 import Image from "next/image";
 import { PLACEHOLDER_IMAGE, USER } from "@/lib/constants";
 import { userAgent } from "next/server";
+import { dev } from "@/lib/utils";
 
 interface SearchDropdownProps {
   results: SoundCloudSearchResult;
@@ -57,7 +58,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
         {results.small.collection.slice(0, 3).map((result, index) => (
           <Link
             href={`/search?q=${result.query}`}
-            key={result.query + index}
+            key={result.query + "-" + index}
             aria-selected="false"
             className="search-hint"
             role="option"
@@ -91,7 +92,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
                 ? `/artist/${result.permalink}/${result.id}`
                 : `/song/${result.permalink}/${result.id}`
             }
-            key={result.title + index}
+            key={result.title + "-" + result.id}
             aria-selected="false"
             className="search-hint"
             role="option"

@@ -1,4 +1,5 @@
 "use client";
+import { dev } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
 interface SeeAllPageProps {
@@ -11,7 +12,7 @@ interface SeeAllPageProps {
 export default function SeeAllPage({ params }: SeeAllPageProps) {
   const searchParams = useSearchParams();
   const section = searchParams?.get("section");
-  console.log("params", params);
+  dev.log("params", params);
 
   return (
     <div>

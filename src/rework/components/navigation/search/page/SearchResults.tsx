@@ -6,6 +6,8 @@ import { getYear } from "@/rework/components/main/artist/Spotlight";
 import { useThemedPlaceholder } from "@/lib/utils/themedPlaceholder";
 import { usePlaylistFetcher } from "@/lib/audio/play";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import ContextMenu from "@/rework/components/contextmenus/ContextMenu";
 
 type SoundCloudItem = {
   kind: string;
@@ -43,6 +45,7 @@ type SearchResultsProps = {
 
 export default function SearchResults({ data }: SearchResultsProps) {
   const { handleFetchPlaylist } = usePlaylistFetcher();
+  const router = useRouter();
   if (!data || !data.full || !data.full.collection) return null;
 
   let topArtist: SoundCloudItem | null = null;
@@ -75,9 +78,10 @@ export default function SearchResults({ data }: SearchResultsProps) {
           <AlbumCard
             key={`top-album-${idx}`}
             item={album}
-            onPlay={() =>
-              handleFetchPlaylist(album.permalink_url, false /* isID? */)
-            }
+            onClick={() => router.push(`/album/${album.permalink}/${album.id}`)}
+            // onPlay={() =>
+            //   handleFetchPlaylist(album.permalink_url, false /* isID? */)
+            // }
           />
         ))}
       </ul>
@@ -107,7 +111,10 @@ export default function SearchResults({ data }: SearchResultsProps) {
               <AlbumCard
                 key={`album-${idx}`}
                 item={album}
-                onPlay={() => handleFetchPlaylist(album.permalink_url, false)}
+                onClick={() =>
+                  router.push(`/album/${album.permalink}/${album.id}`)
+                }
+                // onClick={() => handleFetchPlaylist(album.permalink_url, false)}
               />
             ))}
           </div>
@@ -141,10 +148,10 @@ function ArtistCard({ item }: { item: SoundCloudItem }) {
 /** Playlist/Album Card */
 function AlbumCard({
   item,
-  onPlay,
+  onClick,
 }: {
   item: SoundCloudItem;
-  onPlay: () => void;
+  onClick: () => void;
 }) {
   const THEMED_DEFAULT_IMAGE = useThemedPlaceholder();
   const artwork =
@@ -152,7 +159,7 @@ function AlbumCard({
 
   return (
     <button className={styles.albumCard}>
-      <div onClick={onPlay} className={styles.albumArtworkWrapper}>
+      <div onClick={onClick} className={styles.albumArtworkWrapper}>
         <Image src={artwork} alt={item.title || "Album"} fill />
         <div className={styles.artworkOverlay} />
       </div>
@@ -178,15 +185,21 @@ function SongCard({
   const THEMED_DEFAULT_IMAGE = useThemedPlaceholder();
   const artwork = item.artwork_url || THEMED_DEFAULT_IMAGE;
   const artist = item.publisher_metadata?.artist || item.user?.username;
+
   return (
-    <li className={styles.songCard}>
+    <ContextMenu
+      className={styles.songCard}
+      as={"li"}
+      type="song"
+      title={item.title}
+      itemId={String(item.id)}
+    >
       <button onClick={onPlay} className={styles.songArtworkWrapper}>
         <Image
           src={artwork}
           alt={item.title || "Track"}
           width={150}
           height={150}
-          className={styles.rounded}
         />
       </button>
       <div className={styles.songInfo}>
@@ -200,12 +213,8 @@ function SongCard({
             <span className="text-[#aeaeae]">🅴</span>
           )}
         </span>
-        {(artist) && (
-          <p title={artist}>
-            {artist}
-          </p>
-        )}
+        {artist && <p title={artist}>{artist}</p>}
       </div>
-    </li>
+    </ContextMenu>
   );
 }

@@ -102,6 +102,7 @@ export interface SoundCloudTrack {
     artist: string;
     contains_music: boolean;
     explicit: boolean;
+    album_title: string;
     id: number;
     isrc: string;
     urn: string;

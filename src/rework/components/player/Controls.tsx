@@ -46,7 +46,7 @@ const ControlButtons = ({
   };
 
   return (
-    <div className="flex items-center pr-2 gap-2">
+    <div className="flex items-center gap-2">
       <motion.button {...buttonMotionProps} onClick={onPrev}>
         <IoPlayBack size={26} />
       </motion.button>

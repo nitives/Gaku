@@ -1,6 +1,7 @@
 .section {
   --bodyGutter: 40px;
   --itemSize: 200px;
+  padding-bottom: 2.5rem;
 }
 
 .sectionHeader {

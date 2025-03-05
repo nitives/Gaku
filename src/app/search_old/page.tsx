@@ -41,12 +41,11 @@ export default function Home() {
     handleSearch();
   }, []);
 
-
   const handleFetchPlaylist = async (url: string) => {
     if (!url) return;
     const { initialSongs, loadRemaining } = await mapSCDataToSongOrPlaylist(
       url,
-      3,
+      3
     );
     await setQueue(initialSongs);
     const remainingSongs = await loadRemaining();
@@ -126,10 +125,7 @@ export default function Home() {
           <SafeView className="w-full pb-[2rem] !pt-0">
             {search.collection.map((item: any, index: number) => (
               <div key={index} className="w-full flex flex-col gap-4">
-                <div
-                  key={index}
-                  className="w-full flex flex-col gap-4 border-b active:bg-background/5 transition-colors duration-100 cursor-pointer"
-                >
+                <div className="w-full flex flex-col gap-4 border-b active:bg-background/5 transition-colors duration-100 cursor-pointer">
                   <SearchCard
                     onClick={() => {
                       if (item.kind === "user") {

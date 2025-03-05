@@ -21,25 +21,23 @@ export const Spotlight = ({ artist }: { artist: SoundCloudArtist | null }) => {
       <section>
         <ul className={style.ShelfGrid}>
           {songs.map((song) => (
-            <ContextMenu type="song" itemId={song.id} key={song.id}>
-              <ShelfItem
-                song={song}
-                key={song.id}
-                link={() =>
-                  router.push(
-                    song.tracks
-                      ? `/album/${song.permalink}/${song.id}`
-                      : `/song/${song.permalink}/${song.id}`
-                  )
-                }
-                play={() =>
-                  handleFetchPlaylist(
-                    song.tracks ? song.permalink_url : song.id,
-                    !song.tracks
-                  )
-                }
-              />
-            </ContextMenu>
+            <ShelfItem
+              song={song}
+              key={song.id}
+              link={() =>
+                router.push(
+                  song.tracks
+                    ? `/album/${song.permalink}/${song.id}`
+                    : `/song/${song.permalink}/${song.id}`
+                )
+              }
+              play={() =>
+                handleFetchPlaylist(
+                  song.tracks ? song.permalink_url : song.id,
+                  !song.tracks
+                )
+              }
+            />
           ))}
         </ul>
       </section>
@@ -74,7 +72,14 @@ export const ShelfItem: React.FC<{
   // console.log("ShelfItem", song);
 
   return (
-    <button title={song.title} className={style.ShelfItem}>
+    <ContextMenu
+      title={song.title}
+      className={style.ShelfItem}
+      as={"button"}
+      type="song"
+      itemId={song.id}
+      key={song.id}
+    >
       <div>
         <div
           data-type={song.set_type}
@@ -101,7 +106,7 @@ export const ShelfItem: React.FC<{
           </li>
         </ul>
       </div>
-    </button>
+    </ContextMenu>
   );
 };
 

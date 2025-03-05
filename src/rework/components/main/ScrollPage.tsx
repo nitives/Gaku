@@ -10,7 +10,7 @@ interface ScrollPageProps {
 export const ScrollPage = ({ children }: ScrollPageProps) => {
   return (
     <div className={style.ScrollPage}>
-      <DynamicPage>{children}</DynamicPage>
+      <DynamicPage key={1}>{children}</DynamicPage>
       {/* <Footer /> */}
     </div>
   );

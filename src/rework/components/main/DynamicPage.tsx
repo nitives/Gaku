@@ -6,5 +6,9 @@ interface DynamicPageProps {
 }
 
 export const DynamicPage = ({ children }: DynamicPageProps) => {
-  return <main className={style.DynamicPage}>{children}</main>;
+  return (
+    <main className={style.DynamicPage}>
+      {children}
+    </main>
+  );
 };

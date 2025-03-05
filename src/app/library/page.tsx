@@ -56,7 +56,7 @@ import { fetchUserData } from "@/lib/utils";
 import { useAudioStoreNew } from "@/context/AudioContextNew"; // Import the new AudioContext
 import { usePlaylistFetcher } from "@/lib/audio/play";
 
-export default function Library() {
+export default function OldLibrary() {
   const {
     setQueue,
     addToQueue,

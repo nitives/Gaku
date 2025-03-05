@@ -11,6 +11,7 @@ import {
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import toast from "react-hot-toast";
 import { usePlaylistFetcher } from "@/lib/audio/play";
+import { dev } from "@/lib/utils";
 
 export default function PlaylistPage() {
   const params = useParams();
@@ -32,21 +33,21 @@ export default function PlaylistPage() {
   const fetchArtist = async (artistId: string) => {
     const response = await fetch(`/api/artist/info/${artistId}`);
     const data = await response.json();
-    console.log("fetchArtist | data: ", data);
+    dev.log("fetchArtist | data: ", data);
     setArtist(data);
   };
 
   const fetchRecent = async (artistId: string) => {
     const response = await fetch(`/api/artist/recent/${artistId}`);
     const data = await response.json();
-    console.log("fetchRecent | data: ", data);
+    dev.log("fetchRecent | data: ", data);
     setRecent(data);
   };
 
   const fetchSpotlight = async (artistId: string) => {
     const response = await fetch(`/api/artist/spotlight/${artistId}`);
     const data = await response.json();
-    console.log("fetchSpotlight | data: ", data);
+    dev.log("fetchSpotlight | data: ", data);
     setSpotlight(data);
   };
 
@@ -150,7 +151,7 @@ export default function PlaylistPage() {
             <MediaCard
               playSong={() => handleFetchPlaylist(song.permalink_url)}
               song={song}
-              key={index}
+              key={song.id}
             />
           ))}
         </ScrollContainer>
@@ -160,7 +161,7 @@ export default function PlaylistPage() {
             <MediaCard
               playSong={() => handleFetchPlaylist(song.permalink_url)}
               song={song}
-              key={index}
+              key={song.id}
             />
           ))}
         </ScrollContainer>

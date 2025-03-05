@@ -8,6 +8,9 @@ export const Latest = ({ artist }: { artist: SoundCloudArtist | null }) => {
   const latestTracks = artist?.latest || [];
   const latest = latestTracks.find((item) => item.type === "track");
   const track = latest.track as SoundCloudTrack;
+  const HD_ARTWORK = track.artwork_url
+    ? track.artwork_url.replace("-large.jpg", "-t500x500.jpg")
+    : PLACEHOLDER_IMAGE.dark.url;
   return (
     <div className={style.Shelf} style={{ width: "fit-content" }}>
       <div className={style.ShelfHeader}>
@@ -18,11 +21,7 @@ export const Latest = ({ artist }: { artist: SoundCloudArtist | null }) => {
       <div style={{ display: "flex", flexDirection: "column", width: "15rem" }}>
         <div className={style.Artwork}>
           <Image
-            src={
-              track.artwork_url_hd ||
-              track.artwork_url ||
-              PLACEHOLDER_IMAGE.dark.url
-            }
+            src={HD_ARTWORK}
             fill
             draggable={false}
             alt={track.title}
@@ -37,12 +36,10 @@ export const Latest = ({ artist }: { artist: SoundCloudArtist | null }) => {
             href={`/song/${track.permalink}/${track?.id}`}
             className="flex gap-1 items-center"
           >
-            <span>
-              <button className="hover:underline">{track.title}</button>
-              {!track.publisher_metadata?.explicit && (
-                <span className="text-[#aeaeae]">🅴</span>
-              )}
-            </span>
+            <button className="hover:underline text-left">{track.title}</button>
+            {!track.publisher_metadata?.explicit && (
+              <span className="text-[#aeaeae]">🅴</span>
+            )}
           </Link>
           <Link
             id="artist-link"

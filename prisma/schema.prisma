@@ -23,7 +23,6 @@ model User {
 
 model Library {
   id        String   @id @default(cuid())
-  key       String   @unique
   name      String?
   songs     Song[]
   user      User     @relation(fields: [userId], references: [id])

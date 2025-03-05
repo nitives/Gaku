@@ -7,6 +7,7 @@ import { AiFillHome, AiFillClockCircle, AiFillHeart } from "react-icons/ai";
 import { BiSolidAlbum, BiSolidPlaylist, BiSolidMusic } from "react-icons/bi";
 import { FaUserAlt, FaListAlt } from "react-icons/fa";
 import { USER } from "@/lib/constants";
+import { IoMusicalNote } from "react-icons/io5";
 
 const libraryItems = [
   {
@@ -27,6 +28,15 @@ const playlistItems = [
     text: "2093 (All Parts)",
     icon: <BiSolidPlaylist />,
   },
+];
+
+const pinnedItems = [
+  {
+    href: "/album/eternal-atake-2-1/1899041115",
+    text: "Eternal Atake 2",
+    icon: <IoMusicalNote />,
+  },
+  
 ];
 
 export const SidebarContent = () => {
@@ -50,6 +60,16 @@ export const SidebarContent = () => {
           {playlistItems.map((item, index) => (
             <Item
               key={`playlist-${index}`}
+              href={item.href}
+              text={item.text}
+              icon={item.icon}
+            />
+          ))}
+
+          <SectionLabel label="Pinned" />
+          {pinnedItems.map((item, index) => (
+            <Item
+              key={`pinned-${index}`}
               href={item.href}
               text={item.text}
               icon={item.icon}

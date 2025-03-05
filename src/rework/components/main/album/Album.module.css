@@ -54,6 +54,7 @@
   font-size: 30px;
   line-height: 1.25;
   font-weight: 700;
+  width: fit-content;
   margin-top: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -64,6 +65,7 @@
   font-size: 24px;
   line-height: 1.25;
   font-weight: 500;
+  width: fit-content;
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -72,6 +74,14 @@
   &:hover {
     text-decoration: underline;
   }
+}
+
+.AlbumGenreNYear {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--systemSecondary);
 }
 
 .SongList {

@@ -155,13 +155,34 @@
   user-select: none;
   position: relative;
   overflow: hidden;
-  width: 50px;
-  height: 50px;
+  --songArtworkSize: 50px;
+  width: var(--songArtworkSize);
+  height: var(--songArtworkSize);
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
   & img {
     object-fit: cover;
     width: 100%;
     height: auto;
+  }
+  &:hover {
+    color: transparent;
+  }
+  &:hover:after {
+    opacity: 0.75;
+  }
+  &:after {
+    content: " ";
+    position: absolute;
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect fill="rgba(0, 0, 0, 0)" width="60" height="60"></rect><path fill="white" d="M26.411 39.853c-1.21.753-2.528.157-2.528-1.094V21.47c0-1.24 1.435-1.858 2.528-1.094l15.265 8.235a1.69 1.69 0 0 1 0 3.065L26.411 39.853Z"></path></svg>');
+    height: var(--songArtworkSize);
+    width: var(--songArtworkSize);
+    opacity: 0;
+    transform: translateX(-1px);
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease-in-out;
   }
 }
 
