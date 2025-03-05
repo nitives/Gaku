@@ -149,7 +149,7 @@ export default function SettingsPage() {
   if (!isLoaded) {
     return (
       <SafeView className="w-full">
-        <h1 className="text-2xl font-bold mb-4">Settings</h1>
+        <h1 className="text-3xl font-bold mb-4">Settings</h1>
         <Spinner />
       </SafeView>
     );
@@ -158,7 +158,7 @@ export default function SettingsPage() {
   return (
     <div className="pb-20 p-4 w-full">
       <div className="mb-4">
-        <h1 className="text-2xl font-bold">Settings</h1>
+        <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-[--systemSecondary]">
           Manage your personal details and preferences
         </p>

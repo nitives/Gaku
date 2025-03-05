@@ -1,4 +1,4 @@
-import { LibraryAlbums } from "@/rework/components/main/library/albums/LibraryAlbums";
+import { LibraryArtists } from "@/rework/components/main/library/artist/LibraryArtists";
 import { conf } from "@/lib/config";
 import { Metadata } from "next";
 
@@ -7,6 +7,6 @@ export const metadata: Metadata = {
   title: `Library | ${config.APP_NAME}`,
 };
 
-export default async function LibraryAlbumsPage() {
-  return <LibraryAlbums />;
+export default async function LibraryArtistsPage() {
+  return <LibraryArtists />;
 }

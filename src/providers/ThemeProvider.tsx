@@ -1,9 +1,12 @@
 "use client";
+import { useUser as GakuUser } from "@/hooks/useUser";
 import { useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useUser();
+  const { settings } = GakuUser();
+  const userThemeColor = settings?.themeColor;
 
   // Fetch user settings and apply theme when component mounts
   useEffect(() => {
@@ -16,19 +19,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [isLoaded, isSignedIn]);
 
   const fetchAndApplyUserTheme = async () => {
-    try {
-      const response = await fetch("/api/user/settings");
-      if (response.ok) {
-        const data = await response.json();
-        if (data.themeColor) {
-          document.documentElement.style.setProperty(
-            "--keyColor",
-            data.themeColor
-          );
-        }
-      }
-    } catch (error) {
-      console.error("Failed to load user theme settings:", error);
+    if (userThemeColor) {
+      document.documentElement.style.setProperty("--keyColor", userThemeColor);
     }
   };
 

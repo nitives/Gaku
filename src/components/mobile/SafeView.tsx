@@ -67,7 +67,7 @@ export const SubHeading = ({
 }) => {
   return (
     <div onClick={onClick} className={`${className}`}>
-      <h1 className="text-2xl font-bold flex items-center gap-2">
+      <h1 className="text-3xl font-bold flex items-center gap-2">
         {link ? (
           <motion.button
             whileTap={{

@@ -72,7 +72,7 @@ export default function LibrarySongs() {
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Library</h2>
+      <h2 className="text-3xl font-bold mb-4">Library</h2>
       {merged.length === 0 ? (
         <EmptyLibrary />
       ) : (

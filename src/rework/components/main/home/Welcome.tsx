@@ -36,8 +36,8 @@ export const Welcome = async () => {
   const greeting = getGreeting();
   const user = await currentUser();
   return (
-    <div className="py-8 px-10">
-      <h1 className="text-2xl font-[700]">Home</h1>
+    <div className="p-4">
+      <h1 className="text-3xl font-[700]">Home</h1>
       <p className="text-lg font-[500] text-[--systemSecondary]">
         {greeting}
         {user && `, ${user?.username || user?.fullName || user?.firstName}`}
