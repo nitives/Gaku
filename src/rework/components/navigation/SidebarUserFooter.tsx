@@ -36,7 +36,7 @@ export const SidebarUserFooter = () => {
   }
 
   return (
-    <FooterContainer href="/account">
+    <FooterContainer href="/settings">
       <div className="flex gap-2 items-center">
         {user.imageUrl && (
           <div className="bg-white/5 rounded-full size-8 overflow-hidden">

@@ -11,14 +11,26 @@ datasource db {
 }
 
 model User {
-  id         String     @id // Clerk's user ID
-  email      String     @unique
-  username   String?    @unique
+  id         String        @id // Clerk's user ID
+  email      String        @unique
+  username   String?       @unique
   firstName  String?
   lastName   String?
   libraries  Library[]
   playlists  Playlist[]
-  likedSongs Song[]     @relation("UserLikedSongs")
+  likedSongs Song[]        @relation("UserLikedSongs")
+  settings   UserSettings? // Relation to user settings
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}
+
+model UserSettings {
+  id         String   @id @default(cuid())
+  themeColor String   @default("#5891fa") // Default theme color
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @unique // One-to-one relationship
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Library {

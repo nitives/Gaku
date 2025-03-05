@@ -161,6 +161,7 @@ body {
 }
 @layer base {
   :root {
+    /* Default theme color that can be overridden dynamically */
     --keyColor: #5891fa;
 
     --background: hsl(0, 0%, 100%);
