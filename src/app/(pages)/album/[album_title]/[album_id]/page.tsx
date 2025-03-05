@@ -1,7 +1,7 @@
 "use client";
 import { Album } from "@/rework/components/main/album/Album";
 import { Spinner } from "@/rework/components/extra/Spinner";
-import { TryAgain } from "@/app/(new_pages)/search/page";
+import { TryAgain } from "@/app/(pages)/search/page";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
@@ -39,4 +39,3 @@ export default function AlbumPage() {
   }
   return album && <Album data={album} />;
 }
-

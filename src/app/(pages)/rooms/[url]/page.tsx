@@ -7,5 +7,10 @@ export default function Rooms() {
     url: string;
   };
 
-  return <div>{url}</div>;
+  return (
+    <div>
+      {url}
+      <p>Rooms page isn&apos;t finished yet</p>
+    </div>
+  );
 }

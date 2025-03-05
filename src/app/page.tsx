@@ -3,9 +3,9 @@ import { Welcome } from "@/rework/components/main/home/Welcome";
 
 export default function Home() {
   return (
-    <div>
+    <>
       <Welcome />
       <Sections />
-    </div>
+    </>
   );
 }

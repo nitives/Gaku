@@ -3,7 +3,7 @@ import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { SoundCloudSections } from "@/lib/types/soundcloud";
 import { useQuery } from "@tanstack/react-query";
 import { Spinner } from "../../extra/Spinner";
-import { TryAgain } from "@/app/(new_pages)/search/page";
+import { TryAgain } from "@/app/(pages)/search/page";
 import style from "./Sections.module.css";
 import Link from "next/link";
 import Image from "next/image";

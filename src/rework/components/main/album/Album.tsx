@@ -111,7 +111,6 @@ const convertTrackToSong = (track: any): Song => {
 
 const SongList = ({ data }: { data: SoundCloudAlbum["tracks"] }) => {
   const { setQueue } = useAudioStoreNew();
-  const { handleFetchPlaylist } = usePlaylistFetcher();
   const { currentSong } = useAudioStoreNew();
 
   const handlePlayFromIndex = async (index: number) => {

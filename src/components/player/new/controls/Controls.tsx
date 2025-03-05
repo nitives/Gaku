@@ -10,7 +10,7 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { TitleOverflowAnimator } from "@/components/mobile/TitleOverflowAnimator";
 import { Song } from "@/lib/audio/types";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { CloseButton } from "./components/CloseButton";
 import dynamic from "next/dynamic";
 import AnimatedCover from "@/components/AnimatedCover";

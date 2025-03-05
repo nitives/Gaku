@@ -4,7 +4,7 @@ import { Spotlight } from "@/rework/components/main/artist/Spotlight";
 import { Latest } from "@/rework/components/main/artist/Latest";
 import { Spinner } from "@/rework/components/extra/Spinner";
 import { SoundCloudArtist } from "@/lib/types/soundcloud";
-import { TryAgain } from "@/app/(new_pages)/search/page";
+import { TryAgain } from "@/app/(pages)/search/page";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
