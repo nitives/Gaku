@@ -21,16 +21,18 @@ model User {
   likedSongs Song[]        @relation("UserLikedSongs")
   settings   UserSettings? // Relation to user settings
   createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  updatedAt  DateTime      @default(now()) // Added default value to resolve migration issue
 }
 
 model UserSettings {
-  id         String   @id @default(cuid())
-  themeColor String   @default("#5891fa") // Default theme color
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String   @unique // One-to-one relationship
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  themeColor         String   @default("#5891fa") // Settings | Default theme color
+  highlightedQueries Boolean  @default(false) // Settings | Search setting - highlight queries
+  showSidebarIcons   Boolean  @default(true) // Settings | Sidebar setting - show icons
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String   @unique // One-to-one relationship
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now()) // Added default value to resolve migration issue
 }
 
 model Library {
@@ -40,7 +42,7 @@ model Library {
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) // Added default value to resolve migration issue
 }
 
 model Song {
@@ -53,7 +55,7 @@ model Song {
   playlists Playlist[] // Songs can be in multiple playlists
   likedBy   User[]     @relation("UserLikedSongs")
   createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  updatedAt DateTime   @default(now()) // Added default value to resolve migration issue
 }
 
 model Playlist {
@@ -65,5 +67,5 @@ model Playlist {
   userId      String
   songs       Song[]
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now()) // Added default value to resolve migration issue
 }

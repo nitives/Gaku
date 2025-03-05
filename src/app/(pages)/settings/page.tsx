@@ -1,16 +1,25 @@
 "use client";
 import { SafeView } from "@/components/mobile/SafeView";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
-import { IoColorPaletteOutline, IoPersonOutline } from "react-icons/io5";
+import {
+  IoColorPaletteOutline,
+  IoPersonOutline,
+  IoSearchOutline,
+  IoMenuOutline,
+} from "react-icons/io5";
 import { showToast } from "@/hooks/useToast";
 import { Spinner } from "@/rework/components/extra/Spinner";
+import { Switch } from "@/rework/components/controls/Switch";
 
 export default function SettingsPage() {
   const { user, isLoaded } = useUser();
   const [username, setUsername] = useState("");
   const [themeColor, setThemeColor] = useState("#5891fa"); // Default color
+  const [highlightedQueries, setHighlightedQueries] = useState(false);
+  const [showSidebarIcons, setShowSidebarIcons] = useState(true);
   const [saving, setSaving] = useState(false);
+  const colorInputRef = useRef<HTMLInputElement>(null);
 
   // Predefined color options
   const colorOptions = [
@@ -24,16 +33,13 @@ export default function SettingsPage() {
   ];
 
   useEffect(() => {
-    // Load user data
     if (isLoaded && user) {
       setUsername(user.username || "");
-
-      // Try to fetch settings from our database
       fetchUserSettings();
     }
   }, [isLoaded, user]);
 
-  // Apply the theme color to the CSS variable
+  // Set the CSS variable when themeColor changes (e.g., on mount or save)
   useEffect(() => {
     if (themeColor) {
       document.documentElement.style.setProperty("--keyColor", themeColor);
@@ -48,6 +54,8 @@ export default function SettingsPage() {
         if (data.themeColor) {
           setThemeColor(data.themeColor);
         }
+        setHighlightedQueries(data.highlightedQueries || false);
+        setShowSidebarIcons(data.showSidebarIcons !== false); // Default to true if not set
       }
     } catch (error) {
       console.error("Error fetching user settings:", error);
@@ -57,41 +65,85 @@ export default function SettingsPage() {
   const updateUsername = async () => {
     if (!user) return;
     setSaving(true);
-
     try {
-      await user.update({
-        username: username,
-      });
+      await user.update({ username });
       showToast("success", "Username updated successfully");
     } catch (error) {
       console.error("Error updating username:", error);
-      showToast("error", "Failed to update username");
+      const errorMessage = error instanceof Error ? error.message : "";
+      if (
+        errorMessage.includes(
+          "Username must be between 4 and 64 characters long"
+        )
+      ) {
+        showToast("error", "Username must be between 4 and 64 characters long");
+      } else {
+        showToast("error", "Failed to update username");
+      }
     } finally {
       setSaving(false);
     }
   };
 
-  const updateThemeColor = async (color: string) => {
-    setThemeColor(color);
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Update CSS variable directly for real-time preview
+    document.documentElement.style.setProperty("--keyColor", e.target.value);
+  };
 
+  const handleSaveThemeColor = async () => {
+    if (colorInputRef.current) {
+      const selectedColor = colorInputRef.current.value;
+      setThemeColor(selectedColor); // Update state
+      try {
+        const response = await fetch("/api/user/settings", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ themeColor: selectedColor }),
+        });
+        if (response.ok) {
+          showToast("success", "Theme color updated");
+        } else {
+          showToast("error", "Failed to save theme color");
+        }
+      } catch (error) {
+        console.error("Error updating theme color:", error);
+        showToast("error", "Failed to save theme color");
+      }
+    }
+  };
+
+  const updateSetting = async (settingName: string, value: any) => {
     try {
       const response = await fetch("/api/user/settings", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ themeColor: color }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [settingName]: value }),
       });
 
       if (response.ok) {
-        showToast("success", "Theme color updated");
+        showToast("success", "Setting updated");
+        return true;
       } else {
-        showToast("error", "Failed to save theme color");
+        showToast("error", "Failed to save setting");
+        return false;
       }
     } catch (error) {
-      console.error("Error updating theme color:", error);
-      showToast("error", "Failed to save theme color");
+      console.error(`Error updating ${settingName}:`, error);
+      showToast("error", "Failed to save setting");
+      return false;
     }
+  };
+
+  const toggleHighlightedQueries = async () => {
+    const newValue = !highlightedQueries;
+    setHighlightedQueries(newValue);
+    await updateSetting("highlightedQueries", newValue);
+  };
+
+  const toggleShowSidebarIcons = async () => {
+    const newValue = !showSidebarIcons;
+    setShowSidebarIcons(newValue);
+    await updateSetting("showSidebarIcons", newValue);
   };
 
   if (!isLoaded) {
@@ -104,21 +156,25 @@ export default function SettingsPage() {
   }
 
   return (
-    <SafeView className="w-full">
-      <h1 className="text-2xl font-bold mb-4">Settings</h1>
+    <div className="pb-20 p-4 w-full">
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold">Settings</h1>
+        <p className="text-[--systemSecondary]">
+          Manage your personal details and preferences
+        </p>
+      </div>
 
       <div className="space-y-8">
         {/* Profile Section */}
         <section>
-          <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
+          <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
             <IoPersonOutline /> Profile
           </h2>
-
           <div className="space-y-4">
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium mb-1"
+                className="block select-none text-sm font-medium mb-1"
               >
                 Username
               </label>
@@ -128,13 +184,22 @@ export default function SettingsPage() {
                   id="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="p-2 bg-background border border-labelDivider rounded-md w-full placeholder:text-[--systemSecondary]"
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === "Enter" &&
+                      username &&
+                      username !== user?.username
+                    ) {
+                      updateUsername();
+                    }
+                  }}
+                  className="p-2 bg-background border border-labelDivider rounded-xl w-full placeholder:text-[--systemSecondary]"
                   placeholder="Enter username"
                 />
                 <button
                   onClick={updateUsername}
                   disabled={saving || !username || username === user?.username}
-                  className="px-4 py-2 bg-background border border-labelDivider rounded-md hover:bg-systemToolbarTitlebar transition-colors disabled:opacity-50"
+                  className="px-4 py-2 select-none bg-background border border-labelDivider rounded-xl hover:bg-systemToolbarTitlebar transition-colors disabled:opacity-50"
                 >
                   Save
                 </button>
@@ -145,19 +210,26 @@ export default function SettingsPage() {
 
         {/* Appearance Section */}
         <section>
-          <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
+          <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
             <IoColorPaletteOutline /> Appearance
           </h2>
-
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 select-none">
               Theme Color
             </label>
             <div className="flex flex-wrap gap-2">
               {colorOptions.map((color) => (
                 <button
                   key={color.value}
-                  onClick={() => updateThemeColor(color.value)}
+                  onClick={() => {
+                    if (colorInputRef.current) {
+                      colorInputRef.current.value = color.value;
+                      document.documentElement.style.setProperty(
+                        "--keyColor",
+                        color.value
+                      );
+                    }
+                  }}
                   className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform ${
                     themeColor === color.value
                       ? "ring-2 ring-offset-2 scale-110"
@@ -174,7 +246,7 @@ export default function SettingsPage() {
           <div className="mt-4">
             <label
               htmlFor="custom-color"
-              className="block text-sm font-medium mb-2"
+              className="block select-none text-sm font-medium mb-2"
             >
               Custom Color
             </label>
@@ -182,15 +254,66 @@ export default function SettingsPage() {
               <input
                 type="color"
                 id="custom-color"
-                value={themeColor}
-                onChange={(e) => updateThemeColor(e.target.value)}
+                defaultValue={themeColor} // Uncontrolled input
+                ref={colorInputRef}
+                onChange={handleColorChange}
                 className="w-10 h-10 rounded cursor-pointer"
               />
               <span className="text-sm">{themeColor}</span>
+              <button
+                onClick={handleSaveThemeColor}
+                className="px-4 py-2 select-none bg-background border border-labelDivider rounded-xl hover:bg-systemToolbarTitlebar transition-colors disabled:opacity-50"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Search Settings */}
+        <section>
+          <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
+            <IoSearchOutline /> Search
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium">Highlight search queries</h3>
+                <p className="text-sm text-[--systemSecondary]">
+                  Highlight matching text in search results
+                </p>
+              </div>
+              <Switch
+                checked={highlightedQueries}
+                onCheckedChange={toggleHighlightedQueries}
+                id="show-sidebar-icons"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Sidebar Settings */}
+        <section>
+          <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
+            <IoMenuOutline /> Sidebar
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium">Show sidebar icons</h3>
+                <p className="text-sm text-[--systemSecondary]">
+                  Display icons next to sidebar menu items
+                </p>
+              </div>
+              <Switch
+                checked={showSidebarIcons}
+                onCheckedChange={toggleShowSidebarIcons}
+                id="show-sidebar-icons"
+              />
             </div>
           </div>
         </section>
       </div>
-    </SafeView>
+    </div>
   );
 }

@@ -8,6 +8,7 @@ import { BiSolidAlbum, BiSolidPlaylist, BiSolidMusic } from "react-icons/bi";
 import { FaUserAlt, FaListAlt } from "react-icons/fa";
 import { USER } from "@/lib/constants";
 import { IoMusicalNote } from "react-icons/io5";
+import { useUser } from "@/hooks/useUser";
 
 const libraryItems = [
   {
@@ -36,7 +37,6 @@ const pinnedItems = [
     text: "Eternal Atake 2",
     icon: <IoMusicalNote />,
   },
-  
 ];
 
 export const SidebarContent = () => {
@@ -120,11 +120,11 @@ const Item = ({
   text: string;
   icon?: React.ReactNode;
 }) => {
-  const showIcons = USER.settings.sidebar.showIcons;
+  const { settings } = useUser();
   return (
     <li className={style.SidebarItem}>
       <Link href={href} className={style.SidebarItemLink}>
-        {showIcons && icon && (
+        {settings?.showSidebarIcons && icon && (
           <span className={style.SidebarItemIcon}>{icon}</span>
         )}
         <span>{text}</span>

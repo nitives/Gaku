@@ -82,6 +82,7 @@
   font-size: 14px;
   text-transform: uppercase;
   color: var(--systemSecondary);
+  gap: 0.125rem;
 }
 
 .SongList {
@@ -91,7 +92,7 @@
 }
 
 .Song:nth-child(odd) {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.025);
   border-radius: 8px;
   padding: 0.6rem;
   user-select: none;
@@ -107,6 +108,12 @@
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .Song:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.05);
+  }
 }
 
 .SongIndex {

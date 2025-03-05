@@ -8,6 +8,16 @@ interface Song {
   updatedAt: string;
 }
 
+interface UserSettings {
+  createdAt: Date;
+  highlightedQueries: boolean;
+  id: string;
+  showSidebarIcons: boolean;
+  themeColor: string;
+  updatedAt: Date;
+  userId: string;
+}
+
 // Define the type for the library songs
 type LibrarySongs = Song[];
 
@@ -35,7 +45,16 @@ export const useUser = () => {
     },
   });
 
+  const settings = useQuery<UserSettings>({
+    queryKey: ["userSettings"],
+    queryFn: async () => {
+      const response = await axios.get("/api/user/settings");
+      return response.data;
+    },
+  });
+
   return {
+    settings: settings.data,
     librarySongs: data, // Array of songs or undefined if not loaded
     isLoading, // Boolean indicating loading state
     error, // Any error from fetching songs

@@ -8,9 +8,8 @@ import {
 import Link from "next/link";
 import "./SearchDropDown.css";
 import Image from "next/image";
-import { PLACEHOLDER_IMAGE, USER } from "@/lib/constants";
-import { userAgent } from "next/server";
-import { dev } from "@/lib/utils";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import { useUser } from "@/hooks/useUser";
 
 interface SearchDropdownProps {
   results: SoundCloudSearchResult;
@@ -39,6 +38,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   typedQuery,
   setShowDropdown,
 }) => {
+  const { settings } = useUser();
   const formatter = new Intl.NumberFormat("en-US", {
     notation: "compact",
     compactDisplay: "short",
@@ -68,7 +68,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
             }}
           >
             <span className="flex flex-col">
-              {USER.settings.search.highlightedQueries ? (
+              {settings?.highlightedQueries ? (
                 <p
                   className="search-hint-text truncate"
                   // Dangerously set the HTML with the highlight

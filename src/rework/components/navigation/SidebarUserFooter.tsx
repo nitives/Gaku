@@ -39,12 +39,13 @@ export const SidebarUserFooter = () => {
     <FooterContainer href="/settings">
       <div className="flex gap-2 items-center">
         {user.imageUrl && (
-          <div className="bg-white/5 rounded-full size-8 overflow-hidden">
+          <div className="dark:bg-white/5 bg-black/5 flex items-center rounded-full size-8 overflow-hidden">
             <Image
               src={user.imageUrl}
               alt="User profile image"
               width={40}
               height={40}
+              className="object-xx"
             />
           </div>
         )}

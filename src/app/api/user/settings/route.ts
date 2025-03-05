@@ -36,6 +36,8 @@ async function getOrCreateUserSettings(userId: string) {
       data: {
         userId,
         themeColor: "#5891fa", // Default theme color
+        highlightedQueries: false, // Default search setting
+        showSidebarIcons: true, // Default sidebar setting
       },
     });
   }
@@ -88,7 +90,14 @@ export async function PUT(req: Request) {
     const settings = await prisma.userSettings.update({
       where: { userId },
       data: {
-        themeColor: data.themeColor,
+        // Only update fields that were provided in the request
+        ...(data.themeColor !== undefined && { themeColor: data.themeColor }),
+        ...(data.highlightedQueries !== undefined && {
+          highlightedQueries: data.highlightedQueries,
+        }),
+        ...(data.showSidebarIcons !== undefined && {
+          showSidebarIcons: data.showSidebarIcons,
+        }),
       },
     });
 
