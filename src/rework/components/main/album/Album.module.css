@@ -128,14 +128,15 @@
   cursor: pointer;
   position: relative;
   &:hover {
-    color: transparent;
+    color: transparent !important;
   }
   &:hover:after {
-    opacity: 1;
+    opacity: 0.5;
   }
   &:after {
     content: " ";
     position: absolute;
+    filter: invert(1);
     background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect fill="rgba(0, 0, 0, 0)" width="60" height="60"></rect><path fill="white" d="M26.411 39.853c-1.21.753-2.528.157-2.528-1.094V21.47c0-1.24 1.435-1.858 2.528-1.094l15.265 8.235a1.69 1.69 0 0 1 0 3.065L26.411 39.853Z"></path></svg>');
     height: var(--songIndexSize);
     width: var(--songIndexSize);
@@ -145,6 +146,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .SongIndex {
+    &:after {
+      filter: invert(0);
+    }
+    &:hover:after {
+      opacity: 1;
+    }
   }
 }
 
@@ -164,7 +176,7 @@
 
 .Controls button {
   border: 1.5px solid var(--labelDivider);
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.025);
   padding-inline: 14px;
   padding-block: 6px;
   border-radius: 12px;
@@ -178,5 +190,11 @@
   transition: color 0.1s ease;
   &:hover {
     color: var(--keyColor);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .Controls button {
+    background-color: rgba(255, 255, 255, 0.1);
   }
 }

@@ -265,7 +265,7 @@ export default function RootLayout({
           />
           <link rel="icon" href="/favicon.ico" sizes="any" />
         </head>
-        <body className={"SFPro"} suppressHydrationWarning>
+        <body className="SFPro" suppressHydrationWarning>
           <ReactQueryWrapper>
             <ThemeProvider>
               <NextThemeProvider

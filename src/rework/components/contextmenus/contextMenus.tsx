@@ -1,18 +1,28 @@
 "use client";
-import { Menu, Item, ItemParams } from "react-contexify";
+import { Menu, Item, ItemParams, PredicateParams } from "react-contexify";
 import { useUser } from "@/hooks/useUser";
 import { showToast } from "@/hooks/useToast";
+import { useCallback } from "react";
 
-// We'll reference this ID in <ContextMenu type="song" ...>
 export const SONG_MENU_ID = "songMenu";
 
-export function SongMenu() {
-  const { addSongToLibrary } = useUser();
+// Define the shape of props passed to the menu
+interface SongMenuProps {
+  itemId: string;
+}
 
-  // This callback handles the click on "Add to library"
-  // `ItemParams` is the shape of the data we receive
-  const handleAddToLibrary = ({ props }: ItemParams) => {
-    // `props` is whatever we pass to `show({ props: {...} })`
+export function SongMenu() {
+  const { addSongToLibrary, removeSongFromLibrary, librarySongs } = useUser();
+
+  const isInLibrary = useCallback(
+    (songId: string) => {
+      return librarySongs?.some((song) => song.id === songId) || false;
+    },
+    [librarySongs]
+  );
+
+  // Handle adding a song, expecting ItemParams with SongMenuProps
+  const handleAddToLibrary = ({ props }: ItemParams<SongMenuProps>) => {
     const itemId = props?.itemId;
     if (itemId) {
       addSongToLibrary(itemId);
@@ -20,17 +30,40 @@ export function SongMenu() {
     }
   };
 
+  // Handle removing a song, expecting ItemParams with SongMenuProps
+  const handleRemoveFromLibrary = ({ props }: ItemParams<SongMenuProps>) => {
+    const itemId = props?.itemId;
+    if (itemId) {
+      removeSongFromLibrary(itemId);
+      showToast("success", `Song removed from library`);
+    }
+  };
+
   return (
-    <Menu id={SONG_MENU_ID} theme="dark" animation="fade">
-      <Item onClick={handleAddToLibrary}>Add to Library</Item>
+    <Menu id={SONG_MENU_ID} animation="fade">
+      {/* Show "Add to Library" only if song is not in library */}
+      <Item
+        hidden={({ props }: PredicateParams<SongMenuProps>) => {
+          const songId = props?.itemId;
+          return !songId || isInLibrary(songId);
+        }}
+        onClick={handleAddToLibrary}
+      >
+        Add to Library
+      </Item>
+      {/* Show "Remove from Library" only if song is in library */}
+      <Item
+        hidden={({ props }: PredicateParams<SongMenuProps>) => {
+          const songId = props?.itemId;
+          return !songId || !isInLibrary(songId);
+        }}
+        onClick={handleRemoveFromLibrary}
+      >
+        Remove from Library
+      </Item>
     </Menu>
   );
 }
-
-// You can create similar menus for albumMenu, artistMenu, etc.
-// For example:
-// export const ALBUM_MENU_ID = "albumMenu";
-// export function AlbumMenu() { /* ... */ }
 
 export const contextMenus = (
   <>

@@ -1,21 +1,43 @@
+.contexify {
+  backdrop-filter: blur(10px);
+}
+
 :root {
+  --contexify-menu-bgColor: rgba(255, 255, 255, 0.493);
+  --contexify-separator-color: #4c4c4c;
+  --contexify-item-color: var(--foreground)
+  --contexify-activeItem-bgColor: var(--keyColor);
+
   --contexify-zIndex: 666;
   --contexify-menu-minWidth: 220px;
   --contexify-menu-padding: 6px;
-  --contexify-menu-radius: 6px;
-  --contexify-menu-bgColor: #fff;
-  --contexify-menu-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1),
-    2px 4px 4px rgba(0, 0, 0, 0.1), 3px 6px 6px rgba(0, 0, 0, 0.1);
+  --contexify-menu-radius: 14px;
+  --contexify-menu-shadow: 0px 0px 4px rgba(0, 0, 0, 0.05),
+    3px 3px 4px rgba(0, 0, 0, 0.05);
   --contexify-menu-negatePadding: var(--contexify-menu-padding);
-  --contexify-separator-color: rgba(0, 0, 0, 0.2);
   --contexify-separator-margin: 5px;
   --contexify-itemContent-padding: 6px;
-  --contexify-activeItem-radius: 4px;
-  --contexify-item-color: #333;
+  --contexify-activeItem-radius: 8px;
   --contexify-activeItem-color: #fff;
-  --contexify-activeItem-bgColor: var(--keyColor);
   --contexify-rightSlot-color: #6f6e77;
   --contexify-activeRightSlot-color: #fff;
   --contexify-arrow-color: #6f6e77;
   --contexify-activeArrow-color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --contexify-menu-bgColor: rgba(44, 44, 44, 0.5);
+    --contexify-separator-color: #4c4c4c;
+    --contexify-item-color: var(--foreground)
+
+    --contexify-menu-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1),
+      2px 4px 4px rgba(0, 0, 0, 0.1), 3px 6px 6px rgba(0, 0, 0, 0.1);
+    --contexify-activeItem-color: #fff;
+    --contexify-activeItem-bgColor: var(--keyColor);
+    --contexify-rightSlot-color: #6f6e77;
+    --contexify-activeRightSlot-color: #fff;
+    --contexify-arrow-color: #6f6e77;
+    --contexify-activeArrow-color: #fff;
+  }
 }

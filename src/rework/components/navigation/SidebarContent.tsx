@@ -6,7 +6,6 @@ import { SidebarUserFooter } from "./SidebarUserFooter";
 import { AiFillHome, AiFillClockCircle, AiFillHeart } from "react-icons/ai";
 import { BiSolidAlbum, BiSolidPlaylist, BiSolidMusic } from "react-icons/bi";
 import { FaUserAlt, FaListAlt } from "react-icons/fa";
-import { USER } from "@/lib/constants";
 import { IoMusicalNote } from "react-icons/io5";
 import { useUser } from "@/hooks/useUser";
 
@@ -24,11 +23,11 @@ const libraryItems = [
 const playlistItems = [
   { href: "/playlists", text: "All Playlists", icon: <FaListAlt /> },
   { href: "/favorite-songs", text: "Favorite Songs", icon: <AiFillHeart /> },
-  {
-    href: "/2093-all-parts",
-    text: "2093 (All Parts)",
-    icon: <BiSolidPlaylist />,
-  },
+  // {
+  //   href: "/2093-all-parts",
+  //   text: "2093 (All Parts)",
+  //   icon: <BiSolidPlaylist />,
+  // },
 ];
 
 const pinnedItems = [

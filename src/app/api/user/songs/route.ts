@@ -120,8 +120,10 @@ export async function DELETE(req: Request) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    console.log("DELETE | userId", userId);
 
     const { soundcloudId } = await req.json();
+    console.log("DELETE | soundcloudId", soundcloudId);
     if (!soundcloudId) {
       return NextResponse.json(
         { error: "SoundCloud ID is required" },
@@ -130,8 +132,8 @@ export async function DELETE(req: Request) {
     }
 
     const library = await getOrCreateLibrary(userId);
+    console.log("DELETE | library", library);
 
-    // Remove song from library (not from database)
     await prisma.library.update({
       where: { id: library.id },
       data: {

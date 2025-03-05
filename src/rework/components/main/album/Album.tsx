@@ -10,6 +10,7 @@ import { IoPlay } from "react-icons/io5";
 import { PiShuffleBold } from "react-icons/pi";
 import { Spinner } from "../../extra/Spinner";
 import { Song } from "@/lib/audio/types";
+import ContextMenu from "../../contextmenus/ContextMenu";
 
 export const Album = ({ data }: { data: SoundCloudAlbum }) => {
   if (!data) return <Spinner />;
@@ -131,7 +132,14 @@ const SongList = ({ data }: { data: SoundCloudAlbum["tracks"] }) => {
   return (
     <div className={style.SongList}>
       {data.map((track, index) => (
-        <div key={track.id} className={style.Song}>
+        <ContextMenu
+          title={track.title}
+          className={style.Song}
+          as={"div"}
+          type="song"
+          itemId={String(track.id)}
+          key={track.id}
+        >
           <div
             onClick={() => handlePlayFromIndex(index)}
             className={style.SongIndex}
@@ -147,7 +155,7 @@ const SongList = ({ data }: { data: SoundCloudAlbum["tracks"] }) => {
           <div className={style.SongInfo}>
             <h3 className={style.SongTitle}>{track.title}</h3>
           </div>
-        </div>
+        </ContextMenu>
       ))}
     </div>
   );
