@@ -2,8 +2,8 @@
 import { useUser } from "@/hooks/useUser";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { Spinner } from "@/rework/components/extra/Spinner";
+import { TryAgain } from "@/rework/components/extra/TryAgain";
 import { useQuery } from "@tanstack/react-query";
-import { TryAgain } from "../../search/page";
 
 export default function UserPlaylist() {
   const { settings } = useUser();

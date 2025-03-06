@@ -3,11 +3,11 @@ import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { SoundCloudSections } from "@/lib/types/soundcloud";
 import { useQuery } from "@tanstack/react-query";
 import { Spinner } from "../../extra/Spinner";
-import { TryAgain } from "@/app/(pages)/search/page";
 import style from "./Sections.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import { useThemedPlaceholder } from "@/lib/utils/themedPlaceholder";
+import { TryAgain } from "../../extra/TryAgain";
 
 export const Sections = () => {
   const { data, isLoading, error, refetch } = useQuery<SoundCloudSections>({

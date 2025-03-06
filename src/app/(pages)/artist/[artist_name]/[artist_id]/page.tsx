@@ -4,10 +4,10 @@ import { Spotlight } from "@/rework/components/main/artist/Spotlight";
 import { Latest } from "@/rework/components/main/artist/Latest";
 import { Spinner } from "@/rework/components/extra/Spinner";
 import { SoundCloudArtist } from "@/lib/types/soundcloud";
-import { TryAgain } from "@/app/(pages)/search/page";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
+import { TryAgain } from "@/rework/components/extra/TryAgain";
 
 async function fetchArtistData(artistId: string, _artistName: string) {
   const data = (await SoundCloudKit.getData(artistId, "artist", {

@@ -1,10 +1,11 @@
 "use client";
-
 import { Banner } from "@/rework/components/navigation/search/page/Banner";
 import { Spinner } from "@/rework/components/extra/Spinner";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import SearchResults from "@/rework/components/navigation/search/page/SearchResults";
+import { TryAgain } from "@/rework/components/extra/TryAgain";
+import { Suspense } from "react";
 
 const fetchSoundCloudResults = async (query: string | null) => {
   if (!query) return null;
@@ -26,7 +27,8 @@ const fetchSoundCloudResults = async (query: string | null) => {
   }
 };
 
-export default function Search() {
+// Create a separate component that uses useSearchParams
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams?.get("q") || "";
 
@@ -68,26 +70,17 @@ export default function Search() {
   }
 }
 
-type TryAgainProps = {
-  errorName: string;
-  errorMessage: string;
-  onTryAgain: () => void;
-};
-
-export function TryAgain({
-  errorMessage,
-  errorName,
-  onTryAgain,
-}: TryAgainProps) {
+// Main page component with Suspense
+export default function Search() {
   return (
-    <div className="w-fit h-[95vh] flex flex-col items-center justify-center text-center m-auto">
-      <p style={{ textAlign: "center", fontWeight: 600 }}>{errorName}</p>
-      <p style={{ color: "var(--systemSecondary)", maxWidth: "10rem" }}>
-        {errorMessage}
-      </p>
-      <button id="TryAgainSearchButton" onClick={onTryAgain}>
-        Try again
-      </button>
-    </div>
+    <Suspense
+      fallback={
+        <div className="w-full h-screen flex items-center justify-center">
+          <Spinner />
+        </div>
+      }
+    >
+      <SearchContent />
+    </Suspense>
   );
 }
