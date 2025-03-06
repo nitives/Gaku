@@ -4,6 +4,7 @@ import { Song } from "./types";
 import { fetchPlaylistM3U8, dev } from "@/lib/utils";
 import { EditorialVideo } from "../types/apple";
 import { showToast } from "@/hooks/useToast";
+import toast from "react-hot-toast";
 
 /**
  * Fetch additional metadata (like HD cover) for a given song, without fetching M3U8.
@@ -534,5 +535,21 @@ export const SoundCloudKit = {
       throw new Error(`Failed to fetch home page | ${response.status}`);
     }
     return response.json();
+  },
+  async getUserData(userId: string) {
+    try {
+      const response = await fetch(
+        `/api/soundcloud/user?profileUrl=${userId}&type=id`
+      );
+      if (!response.ok) {
+        return null;
+      }
+      const userData = await response.json();
+      return userData;
+    } catch (err) {
+      toast.error("Error fetching user data");
+      console.error("getUserData error", err);
+      return null;
+    }
   },
 };

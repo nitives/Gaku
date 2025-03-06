@@ -22,7 +22,16 @@ const libraryItems = [
 
 const playlistItems = [
   { href: "/playlists", text: "All Playlists", icon: <FaListAlt /> },
-  { href: "/favorite-songs", text: "Favorite Songs", icon: <AiFillHeart /> },
+  // {
+  //   href: "/2093-all-parts",
+  //   text: "2093 (All Parts)",
+  //   icon: <BiSolidPlaylist />,
+  // },
+];
+
+const meItems = [
+  { href: "/me/likes", text: "Your Likes", icon: <AiFillHeart /> },
+  { href: "/me/playlists", text: "Your Playlists", icon: <FaListAlt /> },
   // {
   //   href: "/2093-all-parts",
   //   text: "2093 (All Parts)",
@@ -49,6 +58,16 @@ export const SidebarContent = () => {
           {libraryItems.map((item, index) => (
             <Item
               key={`library-${index}`}
+              href={item.href}
+              text={item.text}
+              icon={item.icon}
+            />
+          ))}
+
+          <SectionLabel title="Your Soundcloud Content" label="Me" />
+          {meItems.map((item, index) => (
+            <Item
+              key={`me-${index}`}
               href={item.href}
               text={item.text}
               icon={item.icon}
@@ -106,8 +125,10 @@ export const SidebarContent = () => {
   );
 };
 
-const SectionLabel = ({ label }: { label: string }) => (
-  <div className={style.SidebarSectionLabel}>{label}</div>
+const SectionLabel = ({ label, title }: { label: string; title?: string }) => (
+  <div title={title} className={style.SidebarSectionLabel}>
+    {label}
+  </div>
 );
 
 const Item = ({

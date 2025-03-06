@@ -17,6 +17,7 @@ interface UserSettings {
   themeColor: string;
   updatedAt: Date;
   userId: string;
+  soundcloudUserId: string;
 }
 
 // Define the type for the library songs

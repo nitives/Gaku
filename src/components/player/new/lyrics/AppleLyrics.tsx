@@ -1,16 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAudioStoreNew } from "@/context/AudioContextNew";
 import { LyricPlayer, LyricPlayerRef } from "@applemusic-like-lyrics/react";
+import { type LyricLineMouseEvent } from "@applemusic-like-lyrics/core";
 import { LyricLine, parseTTML } from "./lrc/utils/TTMLparser";
 import { AppleKit } from "@/lib/audio/fetchers";
 import { GakuStorage } from "@/lib/utils/storage";
+import { dev } from "@/lib/utils";
 
 export const AppleLyrics = () => {
   const [lyricLines, setLyricLines] = useState<LyricLine[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const lyricPlayerRef = useRef<LyricPlayerRef>(null);
   const lastTimeRef = useRef<number>(-1);
-  const { fineProgress, currentSong, isPlaying } = useAudioStoreNew();
+  const { fineProgress, currentSong, isPlaying, seek } = useAudioStoreNew();
 
   useEffect(() => {
     const loadLyrics = async () => {
@@ -97,6 +99,11 @@ export const AppleLyrics = () => {
     );
   }
 
+  const onLyricLineClick = (line: LyricLineMouseEvent) => {
+    dev.log("onLyricLineClick | Clicked on line:", line);
+    seek(line.line.lyricLine.startTime / 1000);
+  };
+
   return (
     <div className="h-screen w-full flex flex-col">
       <LyricPlayer
@@ -116,7 +123,7 @@ export const AppleLyrics = () => {
         alignAnchor="center"
         playing={isPlaying}
         lyricLines={lyricLines}
-        onLyricLineClick={(line) => console.log(line)}
+        onLyricLineClick={onLyricLineClick}
       />
     </div>
   );

@@ -111,9 +111,6 @@ export default function SearchResults({ data }: SearchResultsProps) {
               <AlbumCard
                 key={`album-${idx}`}
                 item={album}
-                onClick={() =>
-                  router.push(`/album/${album.permalink}/${album.id}`)
-                }
                 // onClick={() => handleFetchPlaylist(album.permalink_url, false)}
               />
             ))}
@@ -151,26 +148,37 @@ function AlbumCard({
   onClick,
 }: {
   item: SoundCloudItem;
-  onClick: () => void;
+  onClick?: () => void;
 }) {
   const THEMED_DEFAULT_IMAGE = useThemedPlaceholder();
   const artwork =
     item.artwork_url || item.tracks?.[0]?.artwork_url || THEMED_DEFAULT_IMAGE;
-
+  const isPlaylist = item.kind === "playlist" ? true : false;
   return (
-    <button className={styles.albumCard}>
+    <Link
+      href={
+        isPlaylist
+          ? `/playlist/${item.id}`
+          : `/album/${item.permalink}/${item.id}`
+      }
+      className={styles.albumCard}
+    >
       <div onClick={onClick} className={styles.albumArtworkWrapper}>
-        <Image src={artwork} alt={item.title || "Album"} fill />
+        <Image
+          src={artwork}
+          alt={item.title || isPlaylist ? "Playlist" : "Album"}
+          fill
+        />
         <div className={styles.artworkOverlay} />
       </div>
       <div title={item.title} className={styles.albumInfo}>
         <h1>{item.title}</h1>
         <p>
-          Album ·{" "}
+          {isPlaylist ? "Playlist" : "Album"} ·{" "}
           {item.release_date || item.display_date ? getYear(item) : null}
         </p>
       </div>
-    </button>
+    </Link>
   );
 }
 

@@ -29,6 +29,7 @@ model UserSettings {
   themeColor         String   @default("#5891fa") // Settings | Default theme color
   highlightedQueries Boolean  @default(false) // Settings | Search setting - highlight queries
   showSidebarIcons   Boolean  @default(true) // Settings | Sidebar setting - show icons
+  soundcloudUserId   String? // SoundCloud User ID for accessing user's SoundCloud data
   user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId             String   @unique // One-to-one relationship
   createdAt          DateTime @default(now())

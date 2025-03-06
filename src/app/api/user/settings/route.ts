@@ -38,6 +38,7 @@ async function getOrCreateUserSettings(userId: string) {
         themeColor: "#5891fa", // Default theme color
         highlightedQueries: false, // Default search setting
         showSidebarIcons: true, // Default sidebar setting
+        soundcloudUserId: null, // Default to no SoundCloud User ID
       },
     });
   }
@@ -97,6 +98,9 @@ export async function PUT(req: Request) {
         }),
         ...(data.showSidebarIcons !== undefined && {
           showSidebarIcons: data.showSidebarIcons,
+        }),
+        ...(data.soundcloudUserId !== undefined && {
+          soundcloudUserId: data.soundcloudUserId,
         }),
       },
     });

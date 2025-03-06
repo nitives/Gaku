@@ -1,8 +1,8 @@
-// File: src/app/(new_pages)/album/[album_title]/[album_id]/page.tsx
+// File: src/app/(pages)/album/[album_title]/[album_id]/page.tsx
 "use client";
 import { Album } from "@/rework/components/main/album/Album";
 import { Spinner } from "@/rework/components/extra/Spinner";
-import { TryAgain } from "@/app/(new_pages)/search/page";
+import { TryAgain } from "@/app/(pages)/search/page";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
@@ -41,15 +41,14 @@ export default function AlbumPage() {
   return album && <Album data={album} />;
 }
 
-
-// File: src/app/(new_pages)/artist/[artist_name]/[artist_id]/page.tsx
+// File: src/app/(pages)/artist/[artist_name]/[artist_id]/page.tsx
 "use client";
 import { Banner } from "@/rework/components/main/artist/banner/Banner";
 import { Spotlight } from "@/rework/components/main/artist/Spotlight";
 import { Latest } from "@/rework/components/main/artist/Latest";
 import { Spinner } from "@/rework/components/extra/Spinner";
 import { SoundCloudArtist } from "@/lib/types/soundcloud";
-import { TryAgain } from "@/app/(new_pages)/search/page";
+import { TryAgain } from "@/app/(pages)/search/page";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
@@ -110,18 +109,19 @@ export default function ArtistPage() {
   }
 
   return (
-    <div>
+    <>
       <Banner artist={artist} />
       <div className="flex pb-12">
         <Latest artist={artist} />
         <Spotlight artist={artist} />
       </div>
-    </div>
+    </>
   );
 }
 
-// File: src/app/(new_pages)/artist/[artist_name]/[artist_id]/see-all/page.tsx
+// File: src/app/(pages)/artist/[artist_name]/[artist_id]/see-all/page.tsx
 "use client";
+import { dev } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
 interface SeeAllPageProps {
@@ -133,134 +133,169 @@ interface SeeAllPageProps {
 
 export default function SeeAllPage({ params }: SeeAllPageProps) {
   const searchParams = useSearchParams();
-  const section = searchParams?.get("section");
-  console.log("params", params);
+  dev.log("params", params);
 
   return (
     <div>
       <h2>{/* Artist: {params.artist_name} (ID: {params.artist_id}) */}</h2>
+      <p>See All Page isn&apos;t finished yet</p>
       {/* <p>Section requested: {section}</p> */}
       {/* ...render "full-albums", "singles", "top-songs", etc. based on section... */}
     </div>
   );
 }
 
-// File: src/app/(new_pages)/library/albums/page.tsx
-interface LibraryAlbumsPageProps {
-  params: {
-    id: string;
-  };
+// File: src/app/(pages)/library/albums/page.tsx
+import { LibraryAlbums } from "@/rework/components/main/library/albums/LibraryAlbums";
+import { conf } from "@/lib/config";
+import { Metadata } from "next";
+
+const config = conf();
+export const metadata: Metadata = {
+  title: `Library | ${config.APP_NAME}`,
+};
+
+export default async function LibraryAlbumsPage() {
+  return <LibraryAlbums />;
 }
 
-export default function LibraryAlbums({ params }: LibraryAlbumsPageProps) {
-  return (
-    <div>
-      <h2>LibraryAlbums ID: {params.id}</h2>
-      {/* Your playlist detail content goes here */}
-    </div>
-  );
+// File: src/app/(pages)/library/artists/page.tsx
+import { LibraryArtists } from "@/rework/components/main/library/artist/LibraryArtists";
+import { conf } from "@/lib/config";
+import { Metadata } from "next";
+
+const config = conf();
+export const metadata: Metadata = {
+  title: `Library | ${config.APP_NAME}`,
+};
+
+export default async function LibraryArtistsPage() {
+  return <LibraryArtists />;
 }
 
-// File: src/app/(new_pages)/library/songs/page.tsx
+// File: src/app/(pages)/library/recently-added/page.tsx
+import { RecentlyAdded } from "@/rework/components/main/library/recently-added/RecentlyAdded";
+import { conf } from "@/lib/config";
+import { Metadata } from "next";
+
+const config = conf();
+export const metadata: Metadata = {
+  title: `Library | ${config.APP_NAME}`,
+};
+
+export default async function LibraryRecentlyAddedPage() {
+  return <RecentlyAdded />;
+}
+
+// File: src/app/(pages)/library/songs/page.tsx
+import LibrarySongs from "@/rework/components/main/library/LibraryPage";
+import { conf } from "@/lib/config";
+import { Metadata } from "next";
+
+const config = conf();
+export const metadata: Metadata = {
+  title: `Library | ${config.APP_NAME}`,
+};
+
+export default async function LibrarySongsPage() {
+  return <LibrarySongs />;
+}
+
+// File: src/app/(pages)/me/likes/page.tsx
 "use client";
 import { useUser } from "@/hooks/useUser";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
-import type { SoundCloudTrack } from "@/lib/types/soundcloud";
 import { Spinner } from "@/rework/components/extra/Spinner";
-import { LibraryItem } from "@/rework/components/main/library/LibraryItem";
-import { useEffect, useState } from "react";
-import style from "../../../../rework/components/main/library/Library.module.css";
+import { useQuery } from "@tanstack/react-query";
+import { TryAgain } from "../../search/page";
+import UserLikedSongs from "@/rework/components/main/library/me/UserLikesPage";
+import LibrarySongs from "@/rework/components/main/library/LibraryPage";
 
-export default function LibrarySongsPage() {
-  const { librarySongs, isLoading, error, addSongToLibrary } = useUser();
-  const [scTracks, setSCTracks] = useState<SoundCloudTrack[]>([]);
-
-  useEffect(() => {
-    // If we have no librarySongs or still loading from the DB, skip
-    if (!librarySongs) return;
-    if (librarySongs.length === 0) {
-      // If the user has no songs in their library, no need to fetch SC data
-      setSCTracks([]);
-      return;
-    }
-    // Sort library songs by createdAt (descending: newest first)
-    const sorted = [...librarySongs].sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-    // Build comma-separated ID list
-    // Fetch each track individually
-    const fetchTracks = async () => {
-      try {
-        const trackPromises = sorted.map((song) =>
-          SoundCloudKit.getData(song.id, "songs")
-        );
-
-        const results = await Promise.all(trackPromises);
-        setSCTracks(results);
-      } catch (err) {
-        console.error("Failed to fetch SoundCloud data:", err);
-        setSCTracks([]);
-      }
-    };
-
-    fetchTracks();
-  }, [librarySongs]);
-
-  // Merge DB songs + SC data
-  const sortedLibrarySongs = [...(librarySongs ?? [])].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
-
-  const merged = sortedLibrarySongs.map((dbSong) => {
-    const scTrack = scTracks.find(
-      (track) => track.id === parseInt(dbSong.id, 10)
-    );
-    return {
-      ...dbSong,
-      scTrack,
-    };
+export default function UserLikes() {
+  const { settings } = useUser();
+  console.log("Settings", settings);
+  const {
+    data: user,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["soundcloudUserID", settings?.soundcloudUserId],
+    queryFn: () => SoundCloudKit.getUserData(settings!.soundcloudUserId),
+    enabled: !!settings,
+    retry: false,
+    refetchOnWindowFocus: false,
   });
-
+  if (!settings) return <p className="text-[--systemSecondary]">User found.</p>;
   if (isLoading) return <Spinner />;
-  if (error) return <div>Error: {(error as Error).message}</div>;
+  if (error) {
+    return (
+      <TryAgain
+        errorName={(error as Error).name}
+        errorMessage={(error as Error).message}
+        onTryAgain={() => refetch()}
+      />
+    );
+  }
+  console.log("User", user);
 
-  const handleAddSong = async () => {
-    try {
-      await addSongToLibrary("1996361439");
-      console.log("Song added successfully");
-    } catch (err) {
-      console.error("Failed to add song:", err);
-    }
-  };
+  const likedTracks = user.userLikes.collection.map((like: any) => ({
+    id: like.track.id,
+    title: like.track.title,
+    artwork_url: like.track.artwork_url,
+    duration: like.track.duration,
+    permalink_url: like.track.permalink_url,
+    user: like.track.user,
+  }));
+
+  return  <LibrarySongs likedTrackss={likedTracks} />;
+}
+
+// File: src/app/(pages)/me/playlists/page.tsx
+"use client";
+import { useUser } from "@/hooks/useUser";
+import { SoundCloudKit } from "@/lib/audio/fetchers";
+import { Spinner } from "@/rework/components/extra/Spinner";
+import { useQuery } from "@tanstack/react-query";
+import { TryAgain } from "../../search/page";
+
+export default function UserPlaylist() {
+  const { settings } = useUser();
+  console.log("Settings", settings);
+  const {
+    data: user,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["soundcloudUserID", settings?.soundcloudUserId],
+    queryFn: () => SoundCloudKit.getUserData(settings!.soundcloudUserId),
+    enabled: !!settings,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  if (!settings) return <p className="text-[--systemSecondary]">User found.</p>;
+  if (isLoading) return <Spinner />;
+  if (error) {
+    return (
+      <TryAgain
+        errorName={(error as Error).name}
+        errorMessage={(error as Error).message}
+        onTryAgain={() => refetch()}
+      />
+    );
+  }
+  console.log("User", user);
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Library</h2>
-      {merged.length === 0 ? (
-        <div className="text-[--systemSecondary]">Library is empty</div>
-      ) : (
-        <ul className={style.libraryList}>
-          {merged.map((item) => (
-            <LibraryItem 
-              key={item.id} 
-              item={item} 
-              allItems={merged}
-            />
-          ))}
-        </ul>
-      )}
-      <button
-        onClick={handleAddSong}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Add Song
-      </button>
+    <div>
+      <h1>User Playlist</h1>
+      <h2>Settings COlor:</h2>
     </div>
   );
 }
 
-// File: src/app/(new_pages)/playlist/[playlist_id]/page.tsx
+// File: src/app/(pages)/playlist/[playlist_id]/page.tsx
 interface PlaylistPageProps {
   params: {
     playlist_id: string;
@@ -271,16 +306,15 @@ export default function PlaylistPage({ params }: PlaylistPageProps) {
   return (
     <div>
       <h2>Playlist ID: {params.playlist_id}</h2>
+      <p>Playlist page isn&apos;t finished yet</p>
       {/* Your playlist detail content goes here */}
     </div>
   );
 }
 
-// File: src/app/(new_pages)/rooms/[url]/page.tsx
+// File: src/app/(pages)/rooms/[url]/page.tsx
 "use client";
-import { dev } from "@/lib/utils";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
 
 export default function Rooms() {
   //   const [song, setSong] = useState<SoundCloudTrack | null>(null);
@@ -288,10 +322,15 @@ export default function Rooms() {
     url: string;
   };
 
-  return <div>{url}</div>;
+  return (
+    <div>
+      {url}
+      <p>Rooms page isn&apos;t finished yet</p>
+    </div>
+  );
 }
 
-// File: src/app/(new_pages)/search/page.tsx
+// File: src/app/(pages)/search/page.tsx
 "use client";
 
 import { Banner } from "@/rework/components/navigation/search/page/Banner";
@@ -386,19 +425,394 @@ export function TryAgain({
   );
 }
 
-// File: src/app/(new_pages)/sign-in/[[...sign-in]]/page.tsx
+// File: src/app/(pages)/settings/page.tsx
+"use client";
+import { SafeView } from "@/components/mobile/SafeView";
+import { useState, useEffect, useRef } from "react";
+import { useUser } from "@clerk/nextjs";
+import {
+  IoColorPaletteOutline,
+  IoPersonOutline,
+  IoSearchOutline,
+  IoMenuOutline,
+  IoMusicalNotesOutline,
+} from "react-icons/io5";
+import { showToast } from "@/hooks/useToast";
+import { Spinner } from "@/rework/components/extra/Spinner";
+import { Switch } from "@/rework/components/controls/Switch";
+
+export default function SettingsPage() {
+  const { user, isLoaded } = useUser();
+  const [username, setUsername] = useState("");
+  const [themeColor, setThemeColor] = useState("#5891fa"); // Default color
+  const [highlightedQueries, setHighlightedQueries] = useState(false);
+  const [showSidebarIcons, setShowSidebarIcons] = useState(true);
+  const [soundcloudUserId, setSoundcloudUserId] = useState("");
+  const [saving, setSaving] = useState(false);
+  const colorInputRef = useRef<HTMLInputElement>(null);
+
+  // Predefined color options
+  const colorOptions = [
+    { name: "Blue", value: "#5891fa" },
+    { name: "Purple", value: "#8a4fff" },
+    { name: "Green", value: "#4caf50" },
+    { name: "Pink", value: "#ff4fa9" },
+    { name: "Orange", value: "#ff9800" },
+    { name: "Red", value: "#f44336" },
+    { name: "Teal", value: "#009688" },
+  ];
+
+  useEffect(() => {
+    if (isLoaded && user) {
+      setUsername(user.username || "");
+      fetchUserSettings();
+    }
+  }, [isLoaded, user]);
+
+  // Set the CSS variable when themeColor changes (e.g., on mount or save)
+  useEffect(() => {
+    if (themeColor) {
+      document.documentElement.style.setProperty("--keyColor", themeColor);
+    }
+  }, [themeColor]);
+
+  const fetchUserSettings = async () => {
+    try {
+      const response = await fetch("/api/user/settings");
+      if (response.ok) {
+        const data = await response.json();
+        if (data.themeColor) {
+          setThemeColor(data.themeColor);
+        }
+        setHighlightedQueries(data.highlightedQueries || false);
+        setShowSidebarIcons(data.showSidebarIcons !== false); // Default to true if not set
+        setSoundcloudUserId(data.soundcloudUserId || "");
+      }
+    } catch (error) {
+      console.error("Error fetching user settings:", error);
+    }
+  };
+
+  const updateUsername = async () => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      await user.update({ username });
+      showToast("success", "Username updated successfully");
+    } catch (error) {
+      console.error("Error updating username:", error);
+      const errorMessage = error instanceof Error ? error.message : "";
+      if (
+        errorMessage.includes(
+          "Username must be between 4 and 64 characters long"
+        )
+      ) {
+        showToast("error", "Username must be between 4 and 64 characters long");
+      } else {
+        showToast("error", "Failed to update username");
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Update CSS variable directly for real-time preview
+    document.documentElement.style.setProperty("--keyColor", e.target.value);
+  };
+
+  const handleSaveThemeColor = async () => {
+    if (colorInputRef.current) {
+      const selectedColor = colorInputRef.current.value;
+      setThemeColor(selectedColor); // Update state
+      try {
+        const response = await fetch("/api/user/settings", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ themeColor: selectedColor }),
+        });
+        if (response.ok) {
+          showToast("success", "Theme color updated");
+        } else {
+          showToast("error", "Failed to save theme color");
+        }
+      } catch (error) {
+        console.error("Error updating theme color:", error);
+        showToast("error", "Failed to save theme color");
+      }
+    }
+  };
+
+  const updateSetting = async (settingName: string, value: any) => {
+    try {
+      const response = await fetch("/api/user/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [settingName]: value }),
+      });
+
+      if (response.ok) {
+        showToast("success", "Setting updated");
+        return true;
+      } else {
+        showToast("error", "Failed to save setting");
+        return false;
+      }
+    } catch (error) {
+      console.error(`Error updating ${settingName}:`, error);
+      showToast("error", "Failed to save setting");
+      return false;
+    }
+  };
+
+  const toggleHighlightedQueries = async () => {
+    const newValue = !highlightedQueries;
+    setHighlightedQueries(newValue);
+    await updateSetting("highlightedQueries", newValue);
+  };
+
+  const toggleShowSidebarIcons = async () => {
+    const newValue = !showSidebarIcons;
+    setShowSidebarIcons(newValue);
+    await updateSetting("showSidebarIcons", newValue);
+  };
+
+  const saveSoundcloudUserId = async () => {
+    const trimmedId = soundcloudUserId.trim();
+    await updateSetting("soundcloudUserId", trimmedId || null);
+  };
+
+  if (!isLoaded) {
+    return (
+      <SafeView className="w-full">
+        <h1 className="text-3xl font-bold mb-4">Settings</h1>
+        <Spinner />
+      </SafeView>
+    );
+  }
+
+  return (
+    <div className="pb-20 p-4 w-full">
+      <div className="mb-4">
+        <h1 className="text-3xl font-bold">Settings</h1>
+        <p className="text-[--systemSecondary]">
+          Manage your personal details and preferences
+        </p>
+      </div>
+
+      <div className="space-y-8">
+        {/* Profile Section */}
+        <section>
+          <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
+            <IoPersonOutline /> Profile
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="username"
+                className="block select-none text-sm font-medium mb-1"
+              >
+                Username
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === "Enter" &&
+                      username &&
+                      username !== user?.username
+                    ) {
+                      updateUsername();
+                    }
+                  }}
+                  className="p-2 bg-background border border-labelDivider rounded-xl w-full placeholder:text-[--systemSecondary]"
+                  placeholder="Enter username"
+                />
+                <button
+                  onClick={updateUsername}
+                  disabled={saving || !username || username === user?.username}
+                  className="px-4 py-2 select-none bg-background border border-labelDivider rounded-xl hover:bg-systemToolbarTitlebar transition-colors disabled:opacity-50"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SoundCloud Section */}
+        <section>
+          <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
+            <IoMusicalNotesOutline /> SoundCloud Integration
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="soundcloud-userid"
+                className="block select-none text-sm font-medium mb-1"
+              >
+                SoundCloud User ID
+              </label>
+              <p className="text-sm text-[--systemSecondary] mb-2">
+                Enter your SoundCloud User ID to access your playlists, likes,
+                and more
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  id="soundcloud-userid"
+                  value={soundcloudUserId}
+                  onChange={(e) => setSoundcloudUserId(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      saveSoundcloudUserId();
+                    }
+                  }}
+                  className="p-2 bg-background border border-labelDivider rounded-xl w-full placeholder:text-[--systemSecondary]"
+                  placeholder="e.g. 123456789"
+                />
+                <button
+                  onClick={saveSoundcloudUserId}
+                  className="px-4 py-2 select-none bg-background border border-labelDivider rounded-xl hover:bg-systemToolbarTitlebar transition-colors"
+                >
+                  Save
+                </button>
+              </div>
+              <p className="text-xs text-[--systemSecondary] mt-1">
+                You can find your User ID in your SoundCloud profile URL or
+                settings
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Appearance Section */}
+        <section>
+          <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
+            <IoColorPaletteOutline /> Appearance
+          </h2>
+          <div>
+            <label className="block text-sm font-medium mb-2 select-none">
+              Theme Color
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {colorOptions.map((color) => (
+                <button
+                  key={color.value}
+                  onClick={() => {
+                    if (colorInputRef.current) {
+                      colorInputRef.current.value = color.value;
+                      document.documentElement.style.setProperty(
+                        "--keyColor",
+                        color.value
+                      );
+                    }
+                  }}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform ${
+                    themeColor === color.value
+                      ? "ring-2 ring-offset-2 scale-110"
+                      : ""
+                  }`}
+                  style={{ backgroundColor: color.value }}
+                  title={color.name}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Custom color picker */}
+          <div className="mt-4">
+            <label
+              htmlFor="custom-color"
+              className="block select-none text-sm font-medium mb-2"
+            >
+              Custom Color
+            </label>
+            <div className="flex gap-2 items-center">
+              <input
+                type="color"
+                id="custom-color"
+                defaultValue={themeColor} // Uncontrolled input
+                ref={colorInputRef}
+                onChange={handleColorChange}
+                className="w-10 h-10 rounded cursor-pointer"
+              />
+              <span className="text-sm">{themeColor}</span>
+              <button
+                onClick={handleSaveThemeColor}
+                className="px-4 py-2 select-none bg-background border border-labelDivider rounded-xl hover:bg-systemToolbarTitlebar transition-colors disabled:opacity-50"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Search Settings */}
+        <section>
+          <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
+            <IoSearchOutline /> Search
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium">Highlight search queries</h3>
+                <p className="text-sm text-[--systemSecondary]">
+                  Highlight matching text in search results
+                </p>
+              </div>
+              <Switch
+                checked={highlightedQueries}
+                onCheckedChange={toggleHighlightedQueries}
+                id="show-sidebar-icons"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Sidebar Settings */}
+        <section>
+          <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
+            <IoMenuOutline /> Sidebar
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium">Show sidebar icons</h3>
+                <p className="text-sm text-[--systemSecondary]">
+                  Display icons next to sidebar menu items
+                </p>
+              </div>
+              <Switch
+                checked={showSidebarIcons}
+                onCheckedChange={toggleShowSidebarIcons}
+                id="show-sidebar-icons"
+              />
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+// File: src/app/(pages)/sign-in/[[...sign-in]]/page.tsx
 import { SignIn } from "@clerk/nextjs";
 
 export default function Page() {
   return <SignIn />;
 }
 
-// File: src/app/(new_pages)/song/[song_title]/[song_id]/page.tsx
+// File: src/app/(pages)/song/[song_title]/[song_id]/page.tsx
 "use client";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { SoundCloudTrack } from "@/lib/types/soundcloud";
 import { dev } from "@/lib/utils";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Song() {
@@ -421,681 +835,122 @@ export default function Song() {
   return <div>{song?.title}</div>;
 }
 
-// File: src/app/(pages)/artist_old/[id]/[name]/page.tsx
-"use client";
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import Image from "next/image";
-import {
-  Heading,
-  SafeView,
-  ScrollContainer,
-  SubHeading,
-} from "@/components/mobile/SafeView";
-import { RiVerifiedBadgeFill } from "react-icons/ri";
-import toast from "react-hot-toast";
-import { usePlaylistFetcher } from "@/lib/audio/play";
+// File: src/app/api/user/settings/route.ts
+"use server";
+import { NextResponse } from "next/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import prisma from "@/lib/prisma";
 
-export default function PlaylistPage() {
-  const params = useParams();
-  const id = params?.id as string;
-  const [artist, setArtist] = useState<any>(null);
-  const [spotlight, setSpotlight] = useState<any>(null);
-  const [recent, setRecent] = useState<any>(null);
+// Get or create user settings for the current user
+async function getOrCreateUserSettings(userId: string) {
+  // First check if the user exists, if not create them
+  let user = await prisma.user.findUnique({ where: { id: userId } });
 
-  const { handleFetchPlaylist } = usePlaylistFetcher();
-
-  useEffect(() => {
-    if (id) {
-      fetchArtist(id);
-      fetchRecent(id);
-      fetchSpotlight(id);
+  // If user doesn't exist yet, we need to create them
+  if (!user) {
+    const clerkUser = await currentUser();
+    if (!clerkUser) {
+      throw new Error("Failed to get current user");
     }
-  }, [id]);
 
-  const fetchArtist = async (artistId: string) => {
-    const response = await fetch(`/api/artist/info/${artistId}`);
-    const data = await response.json();
-    console.log("fetchArtist | data: ", data);
-    setArtist(data);
-  };
-
-  const fetchRecent = async (artistId: string) => {
-    const response = await fetch(`/api/artist/recent/${artistId}`);
-    const data = await response.json();
-    console.log("fetchRecent | data: ", data);
-    setRecent(data);
-  };
-
-  const fetchSpotlight = async (artistId: string) => {
-    const response = await fetch(`/api/artist/spotlight/${artistId}`);
-    const data = await response.json();
-    console.log("fetchSpotlight | data: ", data);
-    setSpotlight(data);
-  };
-
-  // const playSong = async (item: any) => {
-  //   if (!item || !item.permalink_url) {
-  //     toast.error("Song data unavailable!");
-  //     return;
-  //   }
-  //   if (item.kind === "playlist") {
-  //     router.push(`/playlist/${item.id}`);
-  //   } else {
-  //     const playlistUrl = await fetchPlaylistM3U8(item.permalink_url);
-  //     setCurrentTrack(item);
-  //     setPlaylistUrl(playlistUrl);
-  //     setIsPlaying(true);
-  //     setHDCover(item.artwork_url_hd || item.user.avatar_url);
-  //   }
-  // };
-
-  return (
-    <>
-      <SafeView className="w-full !pt-5">
-        <header className="w-full h-fit flex flex-col rounded-xl overflow-hidden">
-          <Image
-            className="size-full"
-            width={960}
-            height={200}
-            src={
-              artist?.visuals?.visuals?.[0]?.visual_url ||
-              artist?.avatar_url ||
-              "/assets/placeholders/missing_song_dark.png"
-            }
-            alt={artist?.username || "Artist"}
-            draggable={false}
-            style={{
-              filter: !artist?.visuals?.visuals?.[0]?.visual_url
-                ? "blur(100px) brightness(1.5) saturate(2)"
-                : "none",
-              transform: !artist?.visuals?.visuals?.[0]?.visual_url
-                ? "scale(1.5)"
-                : "none",
-              width: !artist?.visuals?.visuals?.[0]?.visual_url
-                ? "100vw"
-                : "none",
-              height: !artist?.visuals?.visuals?.[0]?.visual_url
-                ? "100%"
-                : "none",
-            }}
-          />
-        </header>
-        <div className="pt-7">
-          <Heading className="mb-0">
-            <div className="flex items-center gap-2 standalone:gap-1">
-              {artist?.username || "Artist"}
-              {artist?.verified === true && (
-                <span className="text-muted-foreground">
-                  <RiVerifiedBadgeFill
-                    size={30}
-                    className="text-[#699fff] standalone:text-[#4a99e9] standalone:scale-75 translate-y-[0.2rem]"
-                  />
-                </span>
-              )}
-            </div>
-          </Heading>
-          <p className="text-sm text-muted-foreground font-medium">
-            {artist?.full_name}
-          </p>
-        </div>
-        <div>
-          <SubHeading className="pt-2">Latest</SubHeading>
-          <div className="flex w-full gap-1 mt-3">
-            <div className="size-24 border border-border/15 rounded-xl overflow-hidden bg-border/15">
-              <Image
-                className="size-full rounded-xl scale-[.999]"
-                width={200}
-                height={200}
-                src={
-                  recent?.collection[0]?.artwork_url_hd ||
-                  recent?.collection[0].tracks?.[0]?.artwork_url_hd ||
-                  "/assets/placeholders/missing_song_dark.png"
-                }
-                alt={recent?.collection[0]?.title || "Latest Release"}
-                draggable={false}
-              />
-            </div>
-            <div className="py-2">
-              <p className="text-muted-foreground font-medium text-sm">
-                LATEST RELEASE{" "}
-              </p>
-              <span className="flex items-center gap-1">
-                <p className="font-medium">{recent?.collection[0]?.title}</p>
-                {recent?.collection[0]?.publisher_metadata?.explicit ===
-                  true && <span className="text-muted-foreground">🅴</span>}
-              </span>
-            </div>
-          </div>
-        </div>
-        <SubHeading className="mb-0 pt-10">Spotlight</SubHeading>
-        <ScrollContainer className="pt-5 w-full">
-          {spotlight?.collection.map((song: any, index: number) => (
-            <MediaCard
-              playSong={() => handleFetchPlaylist(song.permalink_url)}
-              song={song}
-              key={index}
-            />
-          ))}
-        </ScrollContainer>
-        <SubHeading className="mb-0 pt-10">Recent</SubHeading>
-        <ScrollContainer className="pt-5 w-full">
-          {recent?.collection.map((song: any, index: number) => (
-            <MediaCard
-              playSong={() => handleFetchPlaylist(song.permalink_url)}
-              song={song}
-              key={index}
-            />
-          ))}
-        </ScrollContainer>
-      </SafeView>
-    </>
-  );
-}
-
-const MediaCard = ({ song, playSong }: { song: any; playSong: () => void }) => {
-  return (
-    <div onClick={playSong} key={song.id} className="flex flex-col gap-1">
-      <div className="size-40 border border-border/15 rounded-xl overflow-hidden bg-border/15">
-        <Image
-          className="size-full rounded-xl hover:brightness-75 cursor-pointer transition-all duration-200"
-          width={200}
-          height={200}
-          src={
-            song?.artwork_url_hd ||
-            song?.tracks?.[0]?.artwork_url_hd ||
-            "/assets/placeholders/missing_song_dark.png"
-          }
-          alt={song?.title || "Song"}
-          draggable={false}
-        />
-      </div>
-      <SongTitle
-        title={song.title}
-        explicit={song.publisher_metadata?.explicit || false}
-        date={song.release_date}
-      />
-    </div>
-  );
-};
-
-const SongTitle = ({
-  title,
-  explicit,
-  date,
-}: {
-  title: string;
-  explicit: boolean;
-  date: string;
-}) => {
-  return (
-    <span className="block">
-      <span className="flex items-center gap-1">
-        <p className="text-sm max-w-[140px] truncate">{title}</p>
-        {explicit && (
-          <span
-            className="text-muted-foreground"
-            title="Explicit Content"
-            aria-label="Explicit"
-          >
-            🅴
-          </span>
-        )}
-      </span>
-      <p
-        className="text-xs text-muted-foreground"
-        title={new Date(date).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
-      >
-        {new Date(date).getFullYear()}
-      </p>
-    </span>
-  );
-};
-
-// File: src/app/(pages)/playlist_old/[id]/page.tsx
-"use client";
-import { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation";
-import { fetchPlaylistM3U8 } from "@/lib/utils";
-import Image from "next/image";
-import { SafeView } from "@/components/mobile/SafeView";
-import { IoHeart, IoHeartOutline, IoPlay, IoShuffle } from "react-icons/io5";
-import { AnimatePresence, motion } from "framer-motion";
-import { ColorGen } from "@/components/ColorGen";
-import { Lossless } from "@/components/Icons/Lossless";
-import "../../../../styles/album.css";
-import Link from "next/link";
-import useAudioStore from "@/context/AudioContext";
-import { PlaylistSkeleton } from "@/components/skeletons/PlaylistSkeleton";
-import { useLibrary } from "@/hooks/useLibrary";
-import { PausedIcon, PlayingIcon } from "@/components/Icons/PlayingIcon";
-import AnimatedCover, { AnimatedCoverFull } from "@/components/AnimatedCover";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { AppleKit } from "@/lib/audio/fetchers";
-import { useAudioStoreNew } from "@/context/AudioContextNew";
-import { usePlaylistFetcher } from "@/lib/audio/play";
-
-export default function PlaylistPage() {
-  const {
-    currentTrack: globalCurrentTrack,
-    setCurrentTrack: setGlobalCurrentTrack,
-    playlistUrl: globalPlaylistUrl,
-    setPlaylistUrl: setGlobalPlaylistUrl,
-    isPlaying,
-    setIsPlaying,
-    cover,
-    setHDCover,
-    setGlobalPlaylist, // Ensure this is imported from the context
-  } = useAudioStore();
-
-  const params = useParams();
-  const id = params?.id as string;
-  const pRef = useRef<HTMLParagraphElement>(null);
-  const [playlist, setPlaylist] = useState<any>(null);
-  const { addSong, removeSong, isSongInLibrary, handleLikeToggle } =
-    useLibrary();
-  const [apple, setAppleData] = useState<any>(null);
-  const [animated, setAnimatedVideo] = useState(false);
-  const [albumCover, setAlbumCover] = useState<string | null>(null);
-
-  const { setQueue, addToQueue, setAnimatedURL } = useAudioStoreNew();
-  const { handleFetchPlaylist, shufflePlaylist } = usePlaylistFetcher();
-
-  useEffect(() => {
-    if (id) {
-      fetchPlaylist(id);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (apple?.data[0]?.attributes?.editorialVideo) {
-      setAnimatedVideo(apple.data[0].attributes.editorialVideo);
-    } else {
-      setAnimatedVideo(false);
-    }
-  }, [apple]);
-
-  const isDesktop = useMediaQuery("(min-width: 484px)");
-
-  const fetchPlaylist = async (playlistID: string) => {
-    const response = await fetch(`/api/playlist/${playlistID}`);
-    const data = await response.json();
-    console.log("fetchPlaylist | data: ", data);
-    setPlaylist(data);
-    setGlobalPlaylist(data.tracks); // Ensure this matches the function name in your context
-    if (data.permalink_url) {
-      console.log("fetchPlaylist to fetchCover -", data.permalink_url);
-      fetchCover(data.permalink_url);
-      fetchAppleKitData(data.title, data.user.username, "albums");
-    }
-  };
-
-  const fetchCover = async (query: string) => {
-    const url = encodeURIComponent(query);
-    const response = await fetch(`/api/extra/cover/${url}`);
-    console.log("fetchCover | response:", response);
-    const data = await response.json();
-    console.log("fetchCover | Query:", query, "img:", data);
-    setAlbumCover(data.imageUrl); // Set album cover for currently viewed album
-    console.log("fetchCover | img:", data.imageUrl);
-  };
-
-  const fetchAppleKitData = async (
-    title: string,
-    artistName: string,
-    type: "albums" | "songs"
-  ) => {
-    try {
-      const data = await AppleKit.getMediaData(title, artistName, type);
-      console.log("fetchAppleKitData | data XX:", data);
-      if (!data) return;
-      setAppleData(data);
-      if (data[0]?.attributes?.editorialVideo?.motionDetailSquare?.video) {
-        setAnimatedURL(
-          data[0]?.attributes?.editorialVideo?.motionDetailSquare?.video
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching Apple Music data:", error);
-    }
-  };
-
-  const artistNameRemove = (artistName: string, trackTitle: string): string => {
-    // Create a regular expression to match the artist name and a dash
-    const regex = new RegExp(`^${artistName}\\s*-\\s*`, "i");
-    // Check if the artist name is in the title
-    if (regex.test(trackTitle)) {
-      // Replace the artist name and dash with an empty string
-      return trackTitle.replace(regex, "").trim();
-    } else {
-      // If the artist name is not in the title, return the original title
-      return trackTitle;
-    }
-  };
-
-  function formatDate(dateString: string | number | Date, format = "full") {
-    const date = new Date(dateString);
-    if (format === "year") {
-      return date.getFullYear().toString();
-    }
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
-    return date.toLocaleDateString("en-US", options);
+    user = await prisma.user.create({
+      data: {
+        id: userId,
+        email: clerkUser.primaryEmailAddress?.emailAddress || "",
+        firstName: clerkUser.firstName || null,
+        lastName: clerkUser.lastName || null,
+        username: clerkUser.username || null,
+      },
+    });
   }
 
-  const setPageTitle = () => {
-    const title = globalCurrentTrack?.title
-      ? `${globalCurrentTrack.title}`
-      : "Gaku";
-    document.title = title;
-  };
+  // Now get or create the user settings
+  let settings = await prisma.userSettings.findUnique({
+    where: { userId },
+  });
 
-  useEffect(() => {
-    setPageTitle();
-  }, [globalCurrentTrack?.title]);
+  if (!settings) {
+    settings = await prisma.userSettings.create({
+      data: {
+        userId,
+        themeColor: "#5891fa", // Default theme color
+        highlightedQueries: false, // Default search setting
+        showSidebarIcons: true, // Default sidebar setting
+        soundcloudUserId: null, // Default to no SoundCloud User ID
+      },
+    });
+  }
 
-  useEffect(() => {
-    const bgColor =
-      apple?.data[0]?.attributes?.editorialVideo?.motionDetailSquare
-        ?.previewFrame?.bgColor;
-    if (bgColor) {
-      document.documentElement.style.setProperty(
-        "--apple-animated-bg-color",
-        `#${bgColor}`
+  return settings;
+}
+
+// GET: Retrieve user's settings
+export async function GET() {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const settings = await getOrCreateUserSettings(userId);
+
+    return NextResponse.json(settings);
+  } catch (err) {
+    console.error(`Error fetching user settings: ${String(err)}`);
+    return NextResponse.json(
+      { error: "Failed to retrieve user settings" },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT: Update user settings
+export async function PUT(req: Request) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const data = await req.json();
+
+    // Validate theme color if provided
+    if (data.themeColor && !/^#[0-9A-F]{6}$/i.test(data.themeColor)) {
+      return NextResponse.json(
+        { error: "Invalid theme color format. Use hex format (e.g., #5891fa)" },
+        { status: 400 }
       );
     }
-    const appleTextColor = apple?.data[0].attributes.artwork.textColor1;
-    if (appleTextColor) {
-      document.documentElement.style.setProperty(
-        "--apple-text-color1",
-        `#${appleTextColor}`
-      );
-    }
-  }, [apple]);
 
-  useEffect(() => {
-    if (pRef.current) {
-      const pElement = pRef.current;
-      const computedStyle = window.getComputedStyle(pElement);
-      const lineHeight = parseFloat(computedStyle.lineHeight);
-      const height = pElement.offsetHeight;
-      const numberOfLines = Math.ceil(height / lineHeight);
-      const getLineHeightOffset = (lines: any) => {
-        switch (lines) {
-          case 1:
-            return "20px";
-          case 2:
-            return "0px";
-          case 3:
-            return "-20px";
-          case 4:
-            return "40px";
-          default:
-            return "0px";
-        }
-      };
-      const lineHeightOffset = getLineHeightOffset(numberOfLines);
-      console.log(
-        "numberOfLines:",
-        numberOfLines,
-        "lineHeightOffset:",
-        lineHeightOffset
-      );
-      document.documentElement.style.setProperty(
-        "--line-height-offset-animated-cover",
-        lineHeightOffset
-      );
-    }
-  }, [apple, animated, isDesktop]);
+    // Get current settings or create them if they don't exist
+    await getOrCreateUserSettings(userId);
 
-  useEffect(() => {
-    if (playlist?.tracks.length > 0) {
-      console.log("playlist.tracks:", playlist.tracks);
-    }
+    // Update the settings
+    const settings = await prisma.userSettings.update({
+      where: { userId },
+      data: {
+        // Only update fields that were provided in the request
+        ...(data.themeColor !== undefined && { themeColor: data.themeColor }),
+        ...(data.highlightedQueries !== undefined && {
+          highlightedQueries: data.highlightedQueries,
+        }),
+        ...(data.showSidebarIcons !== undefined && {
+          showSidebarIcons: data.showSidebarIcons,
+        }),
+        ...(data.soundcloudUserId !== undefined && {
+          soundcloudUserId: data.soundcloudUserId,
+        }),
+      },
+    });
 
-    if (apple?.data) {
-      console.log("MusicKit Data:", apple);
-      if (apple?.data[0]?.attributes?.editorialVideo) {
-        console.log("MusicKit Attributes:", apple);
-        console.log(
-          "MusicKit | editorialVideo:",
-          apple?.data[0]?.attributes?.editorialVideo?.motionDetailSquare
-        );
-        console.log(
-          "MusicKit | editorialVideo.bgColor:",
-          apple?.data[0].attributes?.editorialVideo?.motionDetailSquare
-            .previewFrame.bgColor
-        );
-      } else {
-        console.log("MusicKit | No editorialVideo:", apple);
-      }
-    } else {
-      console.log("No MusicKit Data");
-      console.log("animated:", animated);
-    }
-  }, [apple, playlist, animated]);
-
-  if (!playlist) return <PlaylistSkeleton />;
-
-  return (
-    <>
-      <SafeView backButton className="z-10 relative !pt-0 !px-0">
-        {cover && <ColorGen src={cover || playlist?.tracks[0].artwork_url} />}
-        <div className="flex flex-col items-center justify-center gap-1 bg-blend-overlay pt-4 max-sm:pt-1">
-          {animated ? (
-            <>
-              {!isDesktop ? (
-                <>
-                  <AnimatedCoverFull
-                    url={
-                      apple.data[0].attributes.editorialVideo.motionDetailSquare
-                        .video
-                    }
-                  />
-                </>
-              ) : (
-                <>
-                  <div className="album-container album-shadow">
-                    <div className="rounded-[16px] overflow-hidden">
-                      <AnimatedCover
-                        url={
-                          apple.data[0].attributes.editorialVideo
-                            .motionDetailSquare.video
-                        }
-                      />
-                    </div>
-                    <div className="album-border" />
-                  </div>
-                </>
-              )}
-            </>
-          ) : (
-            <div className="album-container album-shadow">
-              <Image
-                src={
-                  albumCover ||
-                  playlist?.tracks[0].artwork_url ||
-                  "/assets/placeholders/missing_song_dark.png"
-                }
-                alt={`${playlist.title} Album Cover`}
-                title={`${playlist.title} Album Cover`}
-                width={300}
-                height={300}
-                className="album-cover-img"
-                draggable={false}
-                unoptimized={true}
-              />
-
-              <div className="album-border" />
-            </div>
-          )}
-          <div className="px-5 w-full">
-            <div className="flex flex-col items-center justify-center">
-              <p className="album:title font-medium text-xl">
-                {playlist.title}
-              </p>
-              <Link
-                href={`/artist/${playlist.user.id}/${playlist.user.username
-                  .toLowerCase()
-                  .replace(/\s+/g, "-")}`}
-                className={`${
-                  animated && !isDesktop
-                    ? "text-white/90"
-                    : "text-[var(--apple-text-color1)]"
-                } transition-colors duration-300 text-center cursor-pointer text-xl`}
-              >
-                {playlist.user.username}
-              </Link>
-              <div className="flex flex-col text-xs items-center justify-center mt-2 font-medium">
-                <span
-                  className={` ${
-                    animated && !isDesktop
-                      ? "text-white/75"
-                      : "text-muted-foreground dark:text-muted-foreground/50"
-                  } text-[0.875rem] text-center w-56 flex items-center justify-center gap-1`}
-                >
-                  {apple && (
-                    <>
-                      <span className="whitespace-nowrap">
-                        {apple?.data[0]?.attributes?.genreNames?.[0] ??
-                          playlist.genre}
-                      </span>
-                      ·
-                    </>
-                  )}
-                  <span title={formatDate(playlist.created_at)}>
-                    {formatDate(playlist.created_at, "year")}
-                  </span>
-
-                  {apple?.data[0]?.attributes?.audioTraits[0] ===
-                    "lossless" && (
-                    <>
-                      ·
-                      <Lossless
-                        className={`${
-                          animated && !isDesktop
-                            ? "fill-white/75"
-                            : "fill-muted-foreground dark:fill-muted-foreground/50"
-                        }`}
-                      />
-                    </>
-                  )}
-                </span>
-              </div>
-            </div>
-
-            <div className="pb-5 pt-4 w-full">
-              <div className="flex justify-between items-start gap-5">
-                <motion.button
-                  whileTap={{
-                    scale: 0.95,
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  }}
-                  onClick={() => handleFetchPlaylist(playlist.permalink_url)}
-                  className={`flex justify-center items-center gap-[1px] w-full transition-colors duration-300 ${
-                    animated && !isDesktop
-                      ? "bg-white/20 backdrop-blur-md text-white"
-                      : "bg-[hsl(var(--foreground)/0.025)] border border-[hsl(var(--foreground)/0.05)] text-[var(--apple-text-color1)]"
-                  } py-3.5 rounded-2xl cursor-pointer interact-buttons`}
-                >
-                  <IoPlay size={20} />
-                  Play
-                </motion.button>
-                <motion.button
-                  whileTap={{
-                    scale: 0.95,
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  }}
-                  onClick={() => shufflePlaylist(playlist.permalink_url)}
-                  className={`flex justify-center items-center gap-[2px] w-full transition-colors duration-300 ${
-                    animated && !isDesktop
-                      ? "bg-white/20 backdrop-blur-md text-white"
-                      : "bg-[hsl(var(--foreground)/0.025)] border border-[hsl(var(--foreground)/0.05)] text-[var(--apple-text-color1)]"
-                  } py-3.5 rounded-2xl cursor-pointer interact-buttons`}
-                >
-                  <IoShuffle size={20} />
-                  Shuffle
-                </motion.button>
-              </div>
-              <AnimatePresence>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="w-full justify-center flex pt-3"
-                >
-                  {apple?.data[0].attributes.editorialNotes?.short ? (
-                    <p
-                      ref={pRef}
-                      className={`${
-                        animated && !isDesktop
-                          ? "text-white/55"
-                          : "text-muted-foreground dark:text-muted-foreground/50"
-                      } text-sm font-[450] flex items-center justify-center`}
-                    >
-                      {apple.data[0].attributes.editorialNotes.short}
-                    </p>
-                  ) : null}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </div>
-
-          <ul className="music-cards w-full">
-            {playlist.tracks.map((track: any, index: number) => (
-              <li
-                key={track.id}
-                className="cursor-pointer flex items-center justify-between"
-              >
-                <div
-                  onClick={() => handleFetchPlaylist(track.permalink_url)}
-                  className="flex items-center"
-                >
-                  {globalCurrentTrack && globalCurrentTrack.id === track.id ? (
-                    isPlaying ? (
-                      <PlayingIcon className="" size={18} />
-                    ) : (
-                      <PausedIcon
-                        className="color-[var(--apple-text-color1)] transition-all duration-300"
-                        size={18}
-                      />
-                    )
-                  ) : (
-                    <span>{index + 1}</span>
-                  )}
-                  {artistNameRemove(playlist.user.username, track.title)}
-                </div>
-                <button
-                  onClick={() =>
-                    handleLikeToggle(track.title, playlist.user.username)
-                  }
-                  className="ml-2"
-                >
-                  {isSongInLibrary(
-                    `${track.title}-${playlist.user.username}`
-                  ) ? (
-                    <IoHeart className="scale-y-[.95] text-red-500" size={24} />
-                  ) : (
-                    <IoHeartOutline
-                      className="scale-y-[.95] text-muted-foreground/30"
-                      size={24}
-                    />
-                  )}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </SafeView>
-    </>
-  );
+    return NextResponse.json(settings);
+  } catch (err) {
+    console.error(`Error updating user settings: ${String(err)}`);
+    return NextResponse.json(
+      { error: "Failed to update user settings" },
+      { status: 500 }
+    );
+  }
 }
 
 // File: src/app/api/user/songs/route.ts
@@ -1221,8 +1076,10 @@ export async function DELETE(req: Request) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    console.log("DELETE | userId", userId);
 
     const { soundcloudId } = await req.json();
+    console.log("DELETE | soundcloudId", soundcloudId);
     if (!soundcloudId) {
       return NextResponse.json(
         { error: "SoundCloud ID is required" },
@@ -1231,8 +1088,8 @@ export async function DELETE(req: Request) {
     }
 
     const library = await getOrCreateLibrary(userId);
+    console.log("DELETE | library", library);
 
-    // Remove song from library (not from database)
     await prisma.library.update({
       where: { id: library.id },
       data: {
@@ -1254,638 +1111,9 @@ export async function DELETE(req: Request) {
     );
   }
 }
-
-// File: src/app/custom/page.tsx
-"use client";
-import {
-  Heading,
-  SubHeading,
-  SafeView,
-  Input,
-  ScrollHeader,
-} from "@/components/mobile/SafeView";
-import Image from "next/image";
-import { LinearBlur } from "progressive-blur";
-
-const imageUrls = Array(10).fill(
-  "https://i1.sndcdn.com/artworks-kTARXYIL6Ej32m2o-QyPlSg-t500x500.jpg"
-);
-
-import { toast } from "react-hot-toast";
-
-const showToast = (type: "success" | "error" | "warning") => {
-  switch (type) {
-    case "success":
-      toast.success("Added to library");
-      break;
-    case "error":
-      toast.error("This is an error message!");
-      break;
-    case "warning":
-      toast("This is a warning message!", { icon: "⚠️" });
-      break;
-    default:
-      break;
-  }
-};
-
-export default function Home() {
-  return (
-    <>
-      <SafeView>
-        <Heading>Toast Example</Heading>
-        <button onClick={() => showToast("success")}>Show Success Toast</button>
-        <button onClick={() => showToast("error")}>Show Error Toast</button>
-        <button onClick={() => showToast("warning")}>Show Warning Toast</button>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          {imageUrls.map((url, index) => (
-            <div key={index} style={{ marginBottom: "10px" }}>
-              <Image
-                src={url}
-                alt={`Image ${index + 1}`}
-                width={100}
-                height={100}
-              />
-            </div>
-          ))}
-        </div>
-      </SafeView>
-    </>
-  );
-}
-
-// File: src/app/globals.css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent-x: #ff5500;
-    --accent: 20 100% 50%;
-    --accent-foreground: 20 100% 45%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-  }
-
-  .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 20 100% 50%;
-    --accent-foreground: 20 100% 45%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  ::-webkit-scrollbar {
-    width: 12px;
-    background: var(--background-x);
-  }
-
-  ::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 50px 50px transparent;
-    border: solid 3px transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    box-shadow: inset 0 0 50px 50px hsla(0, 0%, 100%, 0.1);
-    border: solid 3px transparent;
-  }
-  @media (display-mode: standalone) {
-    *:not(input):not(select):not(code):not(textarea):not([contenteditable]) {
-      webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -khtml-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-  }
-}
-
-@media (display-mode: standalone) {
-  body {
-    min-height: calc(100% + env(safe-area-inset-top));
-    padding: env(safe-area-inset-top) env(safe-area-inset-right)
-      env(safe-area-inset-bottom) env(safe-area-inset-left);
-    &::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 100;
-      width: 100%;
-      height: env(safe-area-inset-top);
-      /* background: var(--background); */
-      background: hsl(var(--background));
-    }
-  }
-}
-
-@font-face {
-  src: url("../../public/assets/fonts/SFNS.woff2") format("woff2-variations");
-  font-family: "SF Pro";
-  font-style: normal;
-}
-@font-face {
-  src: url("../../public/assets/fonts/SFNSItalic.woff2")
-    format("woff2-variations");
-  font-family: "SF Pro";
-  font-style: italic;
-}
-
-@font-face {
-  src: url("../../public/assets/fonts/SFNSRounded.woff2")
-    format("woff2-variations");
-  font-family: "SF Rounded";
-  font-style: normal;
-}
-
-.SFPro {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
-}
-
-.text-ambient {
-  color: var(--ambient);
-  transition: all;
-  transition-duration: 0.5s;
-}
-
-input[type="range"] {
-  transition: all 0.1s ease;
-}
-
-/* Page */
-
-.page {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  align-items: center;
-  padding: 6rem;
-}
-
-@media (display-mode: standalone) {
-  .page {
-    padding-top: 3rem;
-    padding-bottom: 10rem;
-    padding-inline: 1.25rem;
-  }
-}
-
-.ambient-bg {
-  background: radial-gradient(
-    circle,
-    var(--ambient) 0%,
-    hsl(var(--background) / 1) 100%
-  );
-  /* transform: scaleX(1); */
-  scale: 1 70%;
-  width: 99svw;
-  height: 100vh;
-  top: 0;
-  opacity: 1;
-  position: relative;
-  mask: linear-gradient(180deg, black, black, transparent);
-  &:after {
-    content: "";
-    position: absolute;
-    /* bottom: 0; */
-    /* left: 0; */
-    width: 50%;
-    height: 50%;
-    background: linear-gradient(
-      180deg,
-      var(--ambient) 0%,
-      hsl(var(--background) / 1) 50%
-    );
-    opacity: 0;
-  }
-}
-
-@media not all and (min-width: 640px) {
-  .ambient-bg {
-    background: radial-gradient(
-      circle,
-      var(--ambient) 0%,
-      hsl(var(--background) / 1) 90%
-    );
-    scale: 100% 1;
-  }
-}
-
-.ambient-bg1 {
-  background: radial-gradient(
-    circle,
-    var(--ambient) 0%,
-    hsl(var(--background) / 1) 90%
-  );
-  position: absolute;
-  bottom: 170px;
-  width: 100%;
-  height: 100vh;
-  left: 0;
-  opacity: 1;
-  &:after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      180deg,
-      var(--ambient) 0%,
-      hsl(var(--background) / 1) 50%
-    );
-    opacity: 1;
-  }
-}
-
-/* Mobile Navbar */
-
-.navbar-mobile-container {
-  overflow: hidden;
-  display: flex;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  z-index: 150;
-}
-
-.blur-pro div div {
-  width: 100vw !important;
-  height: 15vh !important;
-  bottom: 0 !important;
-  position: fixed !important;
-  inset: auto auto 0 auto !important;
-  &:is(.light *) {
-    background: linear-gradient(
-      to top,
-      rgb(from rgba(255, 255, 255, 0.1) r g b / alpha) 0%,
-      rgb(from rgba(255, 255, 255, 0.1) r g b / 0%) 100%
-    ) !important;
-  }
-  @media (prefers-color-scheme: light) {
-    background: linear-gradient(
-      to top,
-      rgb(from rgba(255, 255, 255, 0.1) r g b / alpha) 0%,
-      rgb(from rgba(255, 255, 255, 0.1) r g b / 0%) 100%
-    ) !important;
-  }
-  &:is(.dark *) {
-    background: linear-gradient(
-      to top,
-      rgb(from rgba(0, 0, 0, 1) r g b / alpha) 0%,
-      rgb(from rgba(0, 0, 0, 1) r g b / 0%) 100%
-    ) !important;
-  }
-  @media (prefers-color-scheme: dark) {
-    background: linear-gradient(
-      to top,
-      rgb(from rgba(0, 0, 0, 0.75) r g b / alpha) 0%,
-      rgb(from rgba(0, 0, 0, 0.75) r g b / 0%) 100%
-    ) !important;
-  }
-}
-
-.navbar-mobile {
-  display: flex;
-  /* background: linear-gradient(
-    0deg,
-    rgba(255, 255, 255, 0.2) 0%,
-    rgba(255, 255, 255, 0.2) 100%
-  ); */
-  /* -webkit-backdrop-filter: blur(30px);
-  backdrop-filter: blur(30px); */
-  align-items: center;
-  z-index: 50;
-  width: 100%;
-  padding: 40px 15px 20px 15px;
-  justify-content: space-between;
-  /* mask: linear-gradient(0deg, black 60%, transparent 100%); */
-  /* backdrop-filter: blur(20px); */
-}
-
-/* @media (prefers-color-scheme: dark) {
-  .navbar-mobile {
-    background: linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.2) 0%,
-      rgba(0, 0, 0, 0.2) 100%
-    );
-  }
-} */
-
-.navbar-icon-title {
-  font-size: 1rem;
-}
-
-.navbar-mini-container {
-  /* min-width: 100vw; */
-  background: transparent;
-  position: fixed;
-  z-index: 70;
-  bottom: 5rem;
-  padding: 0.5rem 1rem;
-  display: flex;
-}
-
-.navbar-mini-container {
-  width: 100%;
-  height: fit-content; /* equivalent to h-fit */
-  padding: 0.5rem; /* p-2 in Tailwind */
-  border-radius: 14px; /* rounded-[14px] */
-  display: flex;
-  justify-content: space-between;
-  backdrop-filter: blur(20px); /* approximate blur-lg */
-  background-color: rgba(
-    var(--background-rgb, 0, 0, 0),
-    0.2
-  ); /* bg-background/20 */
-
-  /* If you want to support dark mode via a .dark class on html/body, add a selector: */
-}
-
-.miniplayer {
-  display: flex;
-  align-items: center;
-}
-
-.dark .navbar-mini-container {
-  background-color: rgba(var(--card-rgb, 0, 0, 0), 0.75); /* dark:bg-card/75 */
-}
-
-@media (display-mode: standalone) {
-  .navbar-mobile {
-    padding: 30px;
-    padding-top: 90px;
-    /* backdrop-filter: blur(30px); */
-    /* background: linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.2) 75%,
-      rgba(0, 0, 0, 0.2) 100%
-    ); */
-  }
-  .navbar-icon-title {
-    font-size: 0.65rem;
-    font-weight: 500;
-  }
-  .navbar-mini-container {
-    padding: 0.5rem 0.75rem;
-  }
-}
-
-.navbar-body-mobile {
-  min-height: 95vh;
-  min-width: 100vw;
-}
-
-.mini-control {
-  box-shadow: 0px 0px 0px 1px hsla(214, 0%, 27%, 0.04),
-    0px 1px 0px -0.5px hsla(220, 0%, 22%, 0.04),
-    0px 3px 3px -1.5px hsla(221, 0%, 22%, 0.04),
-    0px 6px 6px -3px hsla(221, 0%, 22%, 0.04),
-    0px 12px 12px -6px hsla(214, 0%, 27%, 0.04),
-    0px 24px 24px -12px hsla(214, 0%, 27%, 0.04);
-
-  display: flex;
-  padding: 0.5rem;
-  width: 99%;
-  flex-grow: 1;
-  font-weight: 600;
-}
-
-/* Mobile Navbar - END */
-
-.marquee-mask {
-  -webkit-mask: linear-gradient(270deg, transparent 35px, black 50px);
-  mask: linear-gradient(270deg, transparent 35px, black 50px);
-  width: 100px;
-  height: 100px;
-}
-
-/* Controls */
-
-.controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  width: 100%;
-  margin: 10px 10px;
-  padding: 30px;
-  border-radius: 15px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(15px);
-}
-
-/* Controls - END */
-
-/* Lyrics */
-
-:root {
-  --appleEase: cubic-bezier(0.42, 0, 0.58, 1);
-}
-
-/* .not-active-lyric {
-  --fontSize: clamp(16px, 12cqw, 32px);
-  --fontSizeBG: 1rem;
-  --lineBlurAmount: 1px;
-  font-weight: 700;
-  opacity: 0.5;
-  cursor: pointer;
-  font-size: var(--fontSize);
-  transform-origin: left;
-  transform: scale(0.8);
-  transition: transform 1s ease-out, opacity 0.8s ease-out,
-    padding-top 0.5s ease-out;
-  padding-top: 0;
-  margin-top: 0.5rem;
-  position: relative;
-  flex-direction: row;
-  gap: 16px;
-  width: 100%;
-  filter: blur(var(--lineBlurAmount));
-}
-
-.active-lyric {
-  opacity: 1;
-  transform: scale(1);
-  filter: unset;
-  transition: transform 0.2s var(--appleEase), opacity 0.35s var(--appleEase),
-    filter 0.35s var(--appleEase);
-}
-
-.apple-ease {
-  transition: transform 0.2s var(--appleEase), opacity 0.35s var(--appleEase),
-    filter 0.35s var(--appleEase);
-} */
-
-@media (min-width: 640px) {
-  .artist-header {
-    box-shadow: 0px 0px 0px 1px hsla(214, 0%, 27%, 0.04),
-      0px 1px 0px -0.5px hsla(220, 0%, 22%, 0.04),
-      0px 3px 3px -1.5px hsla(221, 0%, 22%, 0.04),
-      0px 6px 6px -3px hsla(221, 0%, 22%, 0.04),
-      0px 12px 12px -6px hsla(214, 0%, 27%, 0.04),
-      0px 24px 24px -12px hsla(214, 0%, 27%, 0.04);
-  }
-}
-
-@media not all and (min-width: 640px) {
-  .artist-header img {
-    mask: linear-gradient(180deg, black 0%, black 75%, transparent 99%);
-  }
-}
-
-/* ------------------ */
-
-@media (hover: hover) {
-  .desktop-hover-library-card:hover {
-    background-color: hsl(var(--foreground) / 0.05);
-  }
-}
-
-.library-card-container > div:not(:last-child)::after {
-  --seperator-offset: 60px;
-  content: "";
-  width: calc(100% - var(--seperator-offset));
-  height: 1px;
-  background: hsl(var(--border) / 0.8);
-  position: absolute;
-  transform: translateY(1.7rem) translateX(var(--seperator-offset));
-}
-
-/* Album Animated */
-
-.album-animated-blur,
-.album-animated-fade {
-  transform: translateY(calc(100% - var(--line-height-offset-animated-cover)));
-  backdrop-filter: blur(15px);
-  mask: linear-gradient(0deg, black 0%, black 75%, transparent 99%);
-}
-
-/* .animated-video-container {
-  background-color: var(--apple-animated-bg-color);
-  & div {
-    mask-image: linear-gradient(
-      to left,
-      rgba(0, 0, 0, 0) 42%,
-      rgb(0, 0, 0) 45%,
-      rgb(0, 0, 0) 55%,
-      rgba(0, 0, 0, 0) 58%
-    );
-  }
-} */
-
-/* Album Animated - END */
-
-.primary-vocals button {
-  font-size: 2.25rem;
-  line-height: 2.5rem;
-  font-weight: 600;
-  margin: 1rem;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.primary-vocals .syllable::after {
-  content: "";
-  margin-right: 0.25ch;
-}
-
-.primary-vocals .current .syllable {
-  background-image: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.8) var(--gradient-progress),
-    rgba(255, 255, 255, 0.4) var(--gradient-progress)
-  );
-
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  -webkit-text-stroke: 1px transparent; /* Fix the issue where background-clip: text; would make the text appear thinner */
-
-  font-weight: 600;
-}
-
-.primary-vocals .current .letter {
-  background-image: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.8),
-    rgba(255, 255, 255, 0.8)
-  );
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 600;
-}
-
-.bg-lyrics {
-  font-size: 0.85em;
-  color: rgba(255, 255, 255, 0.6);
-  font-style: italic;
-  margin-top: 0.25rem;
-  margin-left: 0.5rem;
-}
 // File: src/app/layout.tsx
 import type { Metadata } from "next";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider as NextThemeProvider } from "@/components/theme-provider";
 import type { Viewport } from "next";
 import { Toaster } from "react-hot-toast";
 import { Content } from "@/rework/components/main/Content";
@@ -1896,6 +1124,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "react-contexify/dist/ReactContexify.css";
 import "../styles/contexifyGaku.css";
 import { contextMenus } from "@/rework/components/contextmenus/contextMenus";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Gaku",
@@ -2150,874 +1379,60 @@ export default function RootLayout({
           />
           <link rel="icon" href="/favicon.ico" sizes="any" />
         </head>
-        <body className={"SFPro"} suppressHydrationWarning>
+        <body className="SFPro" suppressHydrationWarning>
           <ReactQueryWrapper>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <Content index={1}>
-                {children}
-                {contextMenus}
-              </Content>
-              <Toaster
-                position="bottom-center"
-                toastOptions={{
-                  style: {
-                    padding: "12px 16px",
-                    borderRadius: "15px",
-                    background: "rgba(28, 28, 30, 0.85)",
-                    color: "#fff",
-                    fontSize: "15px",
-                    fontWeight: "500",
-                    maxWidth: "90%",
-                    textAlign: "center",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                    backdropFilter: "blur(10px)",
-                    filter: "grayscale(1)",
-                  },
-                  success: {
-                    iconTheme: {
-                      primary: "#fff",
-                      secondary: "rgba(28, 28, 30, 0.85)",
+            <ThemeProvider>
+              <NextThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+              >
+                <Content>
+                  {children}
+                  {contextMenus}
+                </Content>
+                <Toaster
+                  position="bottom-center"
+                  toastOptions={{
+                    style: {
+                      padding: "12px 16px",
+                      borderRadius: "15px",
+                      background: "rgba(28, 28, 30, 0.85)",
+                      color: "#fff",
+                      fontSize: "15px",
+                      fontWeight: "500",
+                      maxWidth: "90%",
+                      textAlign: "center",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                      backdropFilter: "blur(10px)",
+                      filter: "grayscale(1)",
                     },
-                    duration: 2000,
-                  },
-                  error: {
-                    iconTheme: {
-                      primary: "#fff",
-                      secondary: "rgba(28, 28, 30, 0.85)",
+                    success: {
+                      iconTheme: {
+                        primary: "#fff",
+                        secondary: "rgba(28, 28, 30, 0.85)",
+                      },
+                      duration: 2000,
                     },
-                    duration: 3000,
-                  },
-                }}
-                containerStyle={{
-                  bottom: 50,
-                }}
-              />
-              <Audio />
+                    error: {
+                      iconTheme: {
+                        primary: "#fff",
+                        secondary: "rgba(28, 28, 30, 0.85)",
+                      },
+                      duration: 3000,
+                    },
+                  }}
+                  containerStyle={{
+                    bottom: 50,
+                  }}
+                />
+                <Audio />
+              </NextThemeProvider>
             </ThemeProvider>
           </ReactQueryWrapper>
         </body>
       </html>
     </ClerkProvider>
-  );
-}
-
-// File: src/app/layout.tsxx
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { Navbar } from "@/components/mobile/Navbar";
-import { ThemeProvider } from "@/components/theme-provider";
-import type { Viewport } from "next";
-import { PersistentAudioPlayer } from "@/components/PersistentAudioPlayer";
-import { Toaster } from "react-hot-toast";
-import { AudioPlayerNew } from "@/components/player/new/AudioPlayerNew";
-
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Gaku",
-  description: "A SoundCloud Client",
-  applicationName: "Gaku",
-  appleWebApp: {
-    capable: true,
-    title: "Gaku",
-    statusBarStyle: "black-translucent",
-  },
-};
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  viewportFit: "cover",
-  // themeColor: [
-  //   { media: "(prefers-color-scheme: light)", color: "white" },
-  //   { media: "(prefers-color-scheme: dark)", color: "black" },
-  // ],
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en" suppressHydrationWarning={true}>
-      <head>
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-          href="/assets/splash_screens/12.9__iPad_Pro_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-          href="/assets/splash_screens/10.5__iPad_Air_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-          href="/assets/splash_screens/11__iPad_Pro__10.5__iPad_Pro_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
-          href="/assets/splash_screens/iPhone_14_Plus__iPhone_13_Pro_Max__iPhone_12_Pro_Max_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-          href="/assets/splash_screens/13__iPad_Pro_M4_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-          href="/assets/splash_screens/iPhone_15_Pro_Max__iPhone_15_Plus__iPhone_14_Pro_Max_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
-          href="/assets/splash_screens/iPhone_13_mini__iPhone_12_mini__iPhone_11_Pro__iPhone_XS__iPhone_X_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-          href="/assets/splash_screens/10.2__iPad_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-          href="/assets/splash_screens/iPhone_8__iPhone_7__iPhone_6s__iPhone_6__4.7__iPhone_SE_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-          href="/assets/splash_screens/4__iPhone_SE__iPod_touch_5th_generation_and_later_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-          href="/assets/splash_screens/10.9__iPad_Air_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-          href="/assets/splash_screens/11__iPad_Pro__10.5__iPad_Pro_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-          href="/assets/splash_screens/iPhone_14_Plus__iPhone_13_Pro_Max__iPhone_12_Pro_Max_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-          href="/assets/splash_screens/iPhone_11__iPhone_XR_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-          href="/assets/splash_screens/iPhone_13_mini__iPhone_12_mini__iPhone_11_Pro__iPhone_XS__iPhone_X_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 834px) and (device-height: 1210px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-          href="/assets/splash_screens/11__iPad_Pro_M4_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-          href="/assets/splash_screens/iPhone_14__iPhone_13_Pro__iPhone_13__iPhone_12_Pro__iPhone_12_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
-          href="/assets/splash_screens/iPhone_15_Pro_Max__iPhone_15_Plus__iPhone_14_Pro_Max_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-          href="/assets/splash_screens/iPhone_11_Pro_Max__iPhone_XS_Max_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
-          href="/assets/splash_screens/iPhone_14__iPhone_13_Pro__iPhone_13__iPhone_12_Pro__iPhone_12_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-          href="/assets/splash_screens/iPhone_8__iPhone_7__iPhone_6s__iPhone_6__4.7__iPhone_SE_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-          href="/assets/splash_screens/10.9__iPad_Air_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-          href="/assets/splash_screens/12.9__iPad_Pro_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-          href="/assets/splash_screens/13__iPad_Pro_M4_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-          href="/assets/splash_screens/10.5__iPad_Air_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 834px) and (device-height: 1210px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-          href="/assets/splash_screens/11__iPad_Pro_M4_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-          href="/assets/splash_screens/10.2__iPad_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
-          href="/assets/splash_screens/iPhone_15_Pro__iPhone_15__iPhone_14_Pro_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-          href="/assets/splash_screens/8.3__iPad_Mini_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-          href="/assets/splash_screens/9.7__iPad_Pro__7.9__iPad_mini__9.7__iPad_Air__9.7__iPad_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
-          href="/assets/splash_screens/iPhone_8_Plus__iPhone_7_Plus__iPhone_6s_Plus__iPhone_6_Plus_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-          href="/assets/splash_screens/iPhone_11__iPhone_XR_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-          href="/assets/splash_screens/8.3__iPad_Mini_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-          href="/assets/splash_screens/iPhone_8_Plus__iPhone_7_Plus__iPhone_6s_Plus__iPhone_6_Plus_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-          href="/assets/splash_screens/9.7__iPad_Pro__7.9__iPad_mini__9.7__iPad_Air__9.7__iPad_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-          href="/assets/splash_screens/4__iPhone_SE__iPod_touch_5th_generation_and_later_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-          href="/assets/splash_screens/iPhone_15_Pro__iPhone_15__iPhone_14_Pro_portrait.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
-          href="/assets/splash_screens/iPhone_11_Pro_Max__iPhone_XS_Max_landscape.png"
-        />
-
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta
-          name="apple-mobile-web-app-status-bar-style"
-          content="black-translucent"
-        />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, viewport-fit=cover"
-        />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-      </head>
-      <body className={"SFPro"}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {/* <PersistentAudioPlayer /> */}
-          <AudioPlayerNew />
-          {children}
-          <Navbar />
-          <Toaster
-            position="bottom-center"
-            toastOptions={{
-              style: {
-                padding: "12px 16px",
-                borderRadius: "15px",
-                background: "rgba(28, 28, 30, 0.85)",
-                color: "#fff",
-                fontSize: "15px",
-                fontWeight: "500",
-                maxWidth: "90%",
-                textAlign: "center",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                backdropFilter: "blur(10px)",
-              },
-              success: {
-                iconTheme: {
-                  primary: "#fff",
-                  secondary: "rgba(28, 28, 30, 0.85)",
-                },
-                duration: 2000,
-              },
-              error: {
-                iconTheme: {
-                  primary: "#fff",
-                  secondary: "rgba(28, 28, 30, 0.85)",
-                },
-                duration: 3000,
-              },
-            }}
-            containerStyle={{
-              bottom: 50,
-            }}
-          />
-        </ThemeProvider>
-      </body>
-    </html>
-  );
-}
-
-// File: src/app/library/page.tsx
-"use client";
-import { useEffect, useRef, useState, useCallback } from "react";
-import { useLibrary } from "@/hooks/useLibrary";
-import {
-  Heading,
-  Input,
-  SafeView,
-  SubHeading,
-} from "@/components/mobile/SafeView";
-import {
-  IoAddCircle,
-  IoCheckmark,
-  IoCopyOutline,
-  IoCreate,
-  IoEyeOffOutline,
-  IoEyeOutline,
-  IoKey,
-  IoPlay,
-  IoPencil,
-  IoSaveOutline,
-  IoTrash,
-  IoEllipsisHorizontal,
-} from "react-icons/io5";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import toast from "react-hot-toast";
-import { LibraryCard } from "@/components/mobile/LibraryCard";
-import { fetchUserData } from "@/lib/utils";
-import { useAudioStoreNew } from "@/context/AudioContextNew"; // Import the new AudioContext
-import { usePlaylistFetcher } from "@/lib/audio/play";
-
-export default function OldLibrary() {
-  const {
-    setQueue,
-    addToQueue,
-    setAnimatedURL,
-    setCurrentTime,
-    setDuration,
-    seek,
-    setIsPlaying,
-    setPlayerRef,
-    startFineProgressUpdates,
-    stopFineProgressUpdates,
-  } = useAudioStoreNew(); // Use the new AudioContext
-
-  const {
-    library,
-    setLibrary,
-    createLibrary,
-    importLibrary,
-    updateLibraryName,
-    globalLibraryKey,
-  } = useLibrary();
-  const [importKey, setImportKey] = useState("");
-  const [isKeyHidden, setIsKeyHidden] = useState(true);
-  const [isCopied, setIsCopied] = useState(false);
-  const [libraryName, setLibraryName] = useState("");
-  const [canNameLibrary, setCanNameLibrary] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null);
-
-  const [userProfileURL, setUserProfile] = useState("");
-  const [userData, setUserData] = useState(null);
-
-  const { handleFetchPlaylist } = usePlaylistFetcher();
-
-  useEffect(() => {
-    if (globalLibraryKey) {
-      fetchLibraryData(globalLibraryKey);
-    }
-  }, [globalLibraryKey]);
-
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isEditing]);
-
-  const fetchLibraryData = async (key: string) => {
-    try {
-      const response = await fetch(`/api/library/sync?key=${key}`);
-      if (response.ok) {
-        const data = await response.json();
-        setLibrary(data);
-        setLibraryName(data.name || "");
-        setCanNameLibrary(true);
-      }
-    } catch (error) {
-      console.error("Error fetching library data:", error);
-    }
-  };
-
-  const showToast = (type: "success" | "error" | "warning") => {
-    switch (type) {
-      case "success":
-        toast.success("Added to library");
-        break;
-      case "error":
-        toast.error("This is an error message!");
-        break;
-      case "warning":
-        toast("This is a warning message!", { icon: "⚠️" });
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleCreateLibrary = () => {
-    createLibrary();
-    setCanNameLibrary(true);
-    toast.success("Library created and synced");
-  };
-
-  const handleImportLibrary = async () => {
-    if (!importKey.trim()) {
-      toast.error("Please enter a library key.");
-      return;
-    }
-
-    try {
-      const response = await importLibrary(importKey);
-      if (response.error) {
-        toast.error("Library key not found.");
-      } else {
-        setImportKey("");
-        setCanNameLibrary(true);
-        setLibraryName(response.name || "");
-        toast.success("Library imported successfully");
-      }
-    } catch (error) {
-      toast.error("Error importing library");
-    }
-  };
-
-  const handleSaveLibraryName = async () => {
-    if (library) {
-      const nameToSave = libraryName.trim() || "My Library";
-      try {
-        await updateLibraryName(library.key, nameToSave);
-        setLibraryName(nameToSave);
-        toast.success("Library name saved successfully");
-      } catch (error) {
-        toast.error("Error saving library name");
-      }
-    }
-  };
-
-  const handlePlayAll = async () => {
-    if (library && library.songs.length > 0) {
-      const [firstSong] = library.songs;
-      console.log("Playing first song:", firstSong);
-      handleFetchPlaylist(firstSong.id, true);
-    }
-  };
-
-  // const fetchCover = async (query: string) => {
-  //   const url = encodeURIComponent(query);
-  //   const response = await fetch(`/api/extra/cover/${url}`);
-  //   console.log("fetchCover | response:", response);
-  //   const data = await response.json();
-  //   console.log("fetchCover | Query:", query, "img:", data);
-  //   setHDCover(data.permalink_url);
-  // };
-
-  const toggleKeyVisibility = () => {
-    setIsKeyHidden(!isKeyHidden);
-  };
-
-  const copyKeyToClipboard = () => {
-    if (library) {
-      navigator.clipboard.writeText(library.key);
-      setIsCopied(true);
-      toast.success("Library key copied to clipboard");
-      setTimeout(() => setIsCopied(false), 1000);
-    }
-  };
-
-  const handleDeleteLibrary = async () => {
-    if (globalLibraryKey) {
-      try {
-        const response = await fetch(
-          `/api/library/sync?key=${globalLibraryKey}`,
-          {
-            method: "DELETE",
-          }
-        );
-        if (response.ok) {
-          toast.success("Library deleted successfully");
-          localStorage.removeItem("GAKU_libraryKey");
-          setLibrary(null);
-          setLibraryName("");
-          setCanNameLibrary(false);
-        } else {
-          toast.error("Error deleting library");
-        }
-      } catch (error) {
-        toast.error("Error deleting library");
-        console.error("Error deleting library:", error);
-      }
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSaveLibraryName();
-      setIsEditing(false);
-      if (inputRef.current) {
-        inputRef.current.blur();
-      }
-    }
-  };
-
-  const handleFetchUserData = async () => {
-    if (userProfileURL) {
-      const data = await fetchUserData(userProfileURL);
-      console.log("handleFetchUserData | data:", data);
-      setUserData(data);
-    }
-  };
-
-  const DrawerDialog = ({
-    children,
-    title,
-    description,
-  }: {
-    children: React.ReactNode;
-    title: string;
-    description: string;
-  }) => {
-    const isDesktop = useMediaQuery("(min-width: 768px)");
-
-    const content = library ? (
-      <>
-        <div className="flex gap-1 w-full">
-          <button
-            data-autofocus="false"
-            className="min-w-[7.25rem] transition-all duration-150 max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
-            onClick={toggleKeyVisibility}
-          >
-            {isKeyHidden ? (
-              <>
-                <p>Show Key</p>
-                <IoEyeOffOutline />
-              </>
-            ) : (
-              <>
-                <p>Hide Key</p>
-                <IoEyeOutline />
-              </>
-            )}
-          </button>
-          <button
-            data-autofocus="false"
-            className="min-w-[7.25rem] transition-all duration-150 max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-end rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
-            onClick={copyKeyToClipboard}
-          >
-            <p>Copy Key</p>
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={isCopied ? "check" : "copy"}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15 }}
-              >
-                {isCopied ? <IoCheckmark /> : <IoCopyOutline />}
-              </motion.div>
-            </AnimatePresence>
-          </button>
-        </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <button
-              data-autofocus="false"
-              className="min-w-[7.25rem] transition-all duration-150 bg-destructive hover:bg-destructive/90 text-background dark:text-foreground hover:text-foreground standalone:w-full py-1 px-1 standalone:px-2 standalone:py-2 standalone:mb-2 flex justify-center rounded-xl items-center gap-2"
-            >
-              <p>Delete Library</p>
-              <IoTrash />
-            </button>
-          </AlertDialogTrigger>
-          <AlertDialogContent className="!rounded-2xl max-md:scale-90">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your
-                library and remove your data from our servers.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="transition-all duration-150 hover:text-foreground hover:bg-foreground/5 rounded-xl">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                className="rounded-xl"
-                onClick={handleDeleteLibrary}
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-        <div className="flex gap-2">
-          <div className="bg-foreground dark:bg-foreground/10 text-green-500 w-full py-2 px-3 rounded-xl selection:bg-green-500 selection:text-black">
-            <p className="">
-              Library Key |{" "}
-              {isKeyHidden ? (
-                <span className="select-all font-mono">
-                  ********************************
-                </span>
-              ) : (
-                <span className="select-all font-mono">{library.key}</span>
-              )}
-            </p>
-          </div>
-        </div>
-      </>
-    ) : (
-      <div className="flex flex-col items-center justify-center p-4">
-        <p className="text-lg font-semibold mb-4">Create a library first</p>
-        <button
-          data-autofocus="false"
-          className="min-w-[7.25rem] transition-all duration-150 py-2 px-4 flex justify-center rounded-xl text-foreground bg-foreground/10 hover:bg-foreground/20 items-center gap-2"
-          onClick={handleCreateLibrary}
-        >
-          <p>Create Library</p>
-          <IoCreate />
-        </button>
-      </div>
-    );
-
-    if (isDesktop) {
-      return (
-        <Dialog>
-          <DialogTrigger asChild>{children}</DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{title}</DialogTitle>
-              <DialogDescription>{description}</DialogDescription>
-            </DialogHeader>
-            {content}
-          </DialogContent>
-        </Dialog>
-      );
-    }
-
-    return (
-      <Drawer>
-        <DrawerTrigger asChild>{children}</DrawerTrigger>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>{title}</DrawerTitle>
-            <DrawerDescription>{description}</DrawerDescription>
-          </DrawerHeader>
-          {content}
-        </DrawerContent>
-      </Drawer>
-    );
-  };
-
-  // Extracting the icon component to prevent re-creation on every render
-  const keyIcon = <IoKey className="text-muted-foreground" />;
-  const playAllButton = (
-    <button
-      className="min-w-fit transition-all duration-150 max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
-      onClick={handlePlayAll}
-    >
-      <>
-        <p>Play All</p>
-        <IoPlay />
-      </>
-    </button>
-  );
-
-  const FetchUserButton = ({ onClick }: { onClick: () => void }) => {
-    return (
-      <button
-        className="min-w-fit transition-all duration-150 max-sm:w-full max-sm:justify-center py-1 px-2 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 bg-foreground/5 items-center gap-2"
-        onClick={onClick}
-      >
-        <p>Fetch User Data</p>
-      </button>
-    );
-  };
-
-  // Memoizing the onChange handler for the Input component
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setImportKey(e.target.value);
-    },
-    []
-  );
-
-  return (
-    <>
-      <SafeView className="!px-0">
-        <Heading className="px-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-start gap-1 w-full">
-              Library{" "}
-              <span className="px-1 !text-xs mb-0.5 w-fit rounded-sm text-background bg-accent">
-                BETA
-              </span>
-            </div>
-            <DrawerDialog title="Library Options" description="">
-              <button className="p-1.5 rounded-full bg-white/0 hover:bg-white/10 standalone:bg-white/10 standalone:hover:bg-white/20 duration-150 transition-all">
-                <IoEllipsisHorizontal size={20} />
-              </button>
-            </DrawerDialog>
-          </div>
-        </Heading>
-        <div>
-          {!library ? (
-            <div className="px-5">
-              <div className="standalone:w-full flex gap-2">
-                <button
-                  className="min-w-[7.25rem] transition-all duration-150 max-sm:w-full py-1 px-1 standalone:px-2 standalone:py-2 standalone:mb-2 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 standalone:bg-foreground/5 items-center gap-2"
-                  onClick={handleCreateLibrary}
-                >
-                  <p>Create Library</p>
-                  <IoCreate />
-                </button>
-                <button
-                  className="min-w-[7.25rem] transition-all duration-150 max-sm:w-full py-1 px-1 standalone:px-2 standalone:py-2 standalone:mb-2 flex justify-center rounded-xl hover:text-foreground text-muted-foreground hover:bg-foreground/5 standalone:bg-foreground/5 items-center gap-2"
-                  onClick={handleImportLibrary}
-                >
-                  <p>Import Library</p>
-                  <IoAddCircle />
-                </button>
-              </div>
-              <div>
-                <Input
-                  type="text"
-                  value={importKey}
-                  onChange={handleInputChange} // Using memoized onChange handler
-                  placeholder="Enter library key"
-                  icon={keyIcon}
-                />
-              </div>
-            </div>
-          ) : (
-            <div>
-              {canNameLibrary && (
-                <>
-                  <div className="flex items-center gap-2 mb-2 px-5">
-                    {isEditing ? (
-                      <input
-                        ref={inputRef}
-                        type="text"
-                        value={libraryName}
-                        onChange={(e) => setLibraryName(e.target.value)}
-                        onBlur={handleSaveLibraryName}
-                        onKeyDown={handleKeyDown}
-                        placeholder="My Library"
-                        className="bg-transparent border-none focus:outline-none text-2xl font-bold placeholder:text-foreground/50"
-                        autoFocus
-                      />
-                    ) : (
-                      <SubHeading onClick={() => setIsEditing(true)}>
-                        {libraryName || "Untitled Library"}
-                      </SubHeading>
-                    )}
-                  </div>
-                </>
-              )}
-              {/* <div className="flex gap-2 px-5 w-full">
-                {playAllButton}
-                <div className="flex items-center gap-2 w-full">
-                  <input
-                    className="w-full"
-                    type="text"
-                    value={userProfileURL}
-                    onChange={(e) => setUserProfile(e.target.value)}
-                    placeholder="Enter user profile URL"
-                  />
-                  <FetchUserButton onClick={handleFetchUserData} />
-                </div>
-              </div> */}
-              <div className="py-4">
-                <ul className="flex flex-col gap-1 library-card-container">
-                  {library.songs.map((song) => (
-                    <LibraryCard
-                      key={song.id}
-                      songId={song.id}
-                      handlePlaySong={() => handleFetchPlaylist(song.id, true)}
-                      isPlaying={playingId == song.id}
-                    />
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-        </div>
-      </SafeView>
-    </>
   );
 }
 
@@ -3674,20 +2089,863 @@ export default function Offline() {
   );
 }
 
-// File: src/app/page.tsx
-import { Sections } from "@/rework/components/main/home/Sections";
-import { Welcome } from "@/rework/components/main/home/Welcome";
+// File: src/app/old/globals.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-export default function Home() {
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent-x: #ff5500;
+    --accent: 20 100% 50%;
+    --accent-foreground: 20 100% 45%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 20 100% 50%;
+    --accent-foreground: 20 100% 45%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  ::-webkit-scrollbar {
+    width: 12px;
+    background: var(--background-x);
+  }
+
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 50px 50px transparent;
+    border: solid 3px transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    box-shadow: inset 0 0 50px 50px hsla(0, 0%, 100%, 0.1);
+    border: solid 3px transparent;
+  }
+  @media (display-mode: standalone) {
+    *:not(input):not(select):not(code):not(textarea):not([contenteditable]) {
+      webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  }
+}
+
+@media (display-mode: standalone) {
+  body {
+    min-height: calc(100% + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
+    &::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      width: 100%;
+      height: env(safe-area-inset-top);
+      /* background: var(--background); */
+      background: hsl(var(--background));
+    }
+  }
+}
+
+@font-face {
+  src: url("../../public/assets/fonts/SFNS.woff2") format("woff2-variations");
+  font-family: "SF Pro";
+  font-style: normal;
+}
+@font-face {
+  src: url("../../public/assets/fonts/SFNSItalic.woff2")
+    format("woff2-variations");
+  font-family: "SF Pro";
+  font-style: italic;
+}
+
+@font-face {
+  src: url("../../public/assets/fonts/SFNSRounded.woff2")
+    format("woff2-variations");
+  font-family: "SF Rounded";
+  font-style: normal;
+}
+
+.SFPro {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
+}
+
+.text-ambient {
+  color: var(--ambient);
+  transition: all;
+  transition-duration: 0.5s;
+}
+
+input[type="range"] {
+  transition: all 0.1s ease;
+}
+
+/* Page */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  padding: 6rem;
+}
+
+@media (display-mode: standalone) {
+  .page {
+    padding-top: 3rem;
+    padding-bottom: 10rem;
+    padding-inline: 1.25rem;
+  }
+}
+
+.ambient-bg {
+  background: radial-gradient(
+    circle,
+    var(--ambient) 0%,
+    hsl(var(--background) / 1) 100%
+  );
+  /* transform: scaleX(1); */
+  scale: 1 70%;
+  width: 99svw;
+  height: 100vh;
+  top: 0;
+  opacity: 1;
+  position: relative;
+  mask: linear-gradient(180deg, black, black, transparent);
+  &:after {
+    content: "";
+    position: absolute;
+    /* bottom: 0; */
+    /* left: 0; */
+    width: 50%;
+    height: 50%;
+    background: linear-gradient(
+      180deg,
+      var(--ambient) 0%,
+      hsl(var(--background) / 1) 50%
+    );
+    opacity: 0;
+  }
+}
+
+@media not all and (min-width: 640px) {
+  .ambient-bg {
+    background: radial-gradient(
+      circle,
+      var(--ambient) 0%,
+      hsl(var(--background) / 1) 90%
+    );
+    scale: 100% 1;
+  }
+}
+
+.ambient-bg1 {
+  background: radial-gradient(
+    circle,
+    var(--ambient) 0%,
+    hsl(var(--background) / 1) 90%
+  );
+  position: absolute;
+  bottom: 170px;
+  width: 100%;
+  height: 100vh;
+  left: 0;
+  opacity: 1;
+  &:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      180deg,
+      var(--ambient) 0%,
+      hsl(var(--background) / 1) 50%
+    );
+    opacity: 1;
+  }
+}
+
+/* Mobile Navbar */
+
+.navbar-mobile-container {
+  overflow: hidden;
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  z-index: 150;
+}
+
+.blur-pro div div {
+  width: 100vw !important;
+  height: 15vh !important;
+  bottom: 0 !important;
+  position: fixed !important;
+  inset: auto auto 0 auto !important;
+  &:is(.light *) {
+    background: linear-gradient(
+      to top,
+      rgb(from rgba(255, 255, 255, 0.1) r g b / alpha) 0%,
+      rgb(from rgba(255, 255, 255, 0.1) r g b / 0%) 100%
+    ) !important;
+  }
+  @media (prefers-color-scheme: light) {
+    background: linear-gradient(
+      to top,
+      rgb(from rgba(255, 255, 255, 0.1) r g b / alpha) 0%,
+      rgb(from rgba(255, 255, 255, 0.1) r g b / 0%) 100%
+    ) !important;
+  }
+  &:is(.dark *) {
+    background: linear-gradient(
+      to top,
+      rgb(from rgba(0, 0, 0, 1) r g b / alpha) 0%,
+      rgb(from rgba(0, 0, 0, 1) r g b / 0%) 100%
+    ) !important;
+  }
+  @media (prefers-color-scheme: dark) {
+    background: linear-gradient(
+      to top,
+      rgb(from rgba(0, 0, 0, 0.75) r g b / alpha) 0%,
+      rgb(from rgba(0, 0, 0, 0.75) r g b / 0%) 100%
+    ) !important;
+  }
+}
+
+.navbar-mobile {
+  display: flex;
+  /* background: linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.2) 100%
+  ); */
+  /* -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(30px); */
+  align-items: center;
+  z-index: 50;
+  width: 100%;
+  padding: 40px 15px 20px 15px;
+  justify-content: space-between;
+  /* mask: linear-gradient(0deg, black 60%, transparent 100%); */
+  /* backdrop-filter: blur(20px); */
+}
+
+/* @media (prefers-color-scheme: dark) {
+  .navbar-mobile {
+    background: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.2) 0%,
+      rgba(0, 0, 0, 0.2) 100%
+    );
+  }
+} */
+
+.navbar-icon-title {
+  font-size: 1rem;
+}
+
+.navbar-mini-container {
+  /* min-width: 100vw; */
+  background: transparent;
+  position: fixed;
+  z-index: 70;
+  bottom: 5rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+}
+
+.navbar-mini-container {
+  width: 100%;
+  height: fit-content; /* equivalent to h-fit */
+  padding: 0.5rem; /* p-2 in Tailwind */
+  border-radius: 14px; /* rounded-[14px] */
+  display: flex;
+  justify-content: space-between;
+  backdrop-filter: blur(20px); /* approximate blur-lg */
+  background-color: rgba(
+    var(--background-rgb, 0, 0, 0),
+    0.2
+  ); /* bg-background/20 */
+
+  /* If you want to support dark mode via a .dark class on html/body, add a selector: */
+}
+
+.miniplayer {
+  display: flex;
+  align-items: center;
+}
+
+.dark .navbar-mini-container {
+  background-color: rgba(var(--card-rgb, 0, 0, 0), 0.75); /* dark:bg-card/75 */
+}
+
+@media (display-mode: standalone) {
+  .navbar-mobile {
+    padding: 30px;
+    padding-top: 90px;
+    /* backdrop-filter: blur(30px); */
+    /* background: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.2) 75%,
+      rgba(0, 0, 0, 0.2) 100%
+    ); */
+  }
+  .navbar-icon-title {
+    font-size: 0.65rem;
+    font-weight: 500;
+  }
+  .navbar-mini-container {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+.navbar-body-mobile {
+  min-height: 95vh;
+  min-width: 100vw;
+}
+
+.mini-control {
+  box-shadow: 0px 0px 0px 1px hsla(214, 0%, 27%, 0.04),
+    0px 1px 0px -0.5px hsla(220, 0%, 22%, 0.04),
+    0px 3px 3px -1.5px hsla(221, 0%, 22%, 0.04),
+    0px 6px 6px -3px hsla(221, 0%, 22%, 0.04),
+    0px 12px 12px -6px hsla(214, 0%, 27%, 0.04),
+    0px 24px 24px -12px hsla(214, 0%, 27%, 0.04);
+
+  display: flex;
+  padding: 0.5rem;
+  width: 99%;
+  flex-grow: 1;
+  font-weight: 600;
+}
+
+/* Mobile Navbar - END */
+
+.marquee-mask {
+  -webkit-mask: linear-gradient(270deg, transparent 35px, black 50px);
+  mask: linear-gradient(270deg, transparent 35px, black 50px);
+  width: 100px;
+  height: 100px;
+}
+
+/* Controls */
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  margin: 10px 10px;
+  padding: 30px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+}
+
+/* Controls - END */
+
+/* Lyrics */
+
+:root {
+  --appleEase: cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+/* .not-active-lyric {
+  --fontSize: clamp(16px, 12cqw, 32px);
+  --fontSizeBG: 1rem;
+  --lineBlurAmount: 1px;
+  font-weight: 700;
+  opacity: 0.5;
+  cursor: pointer;
+  font-size: var(--fontSize);
+  transform-origin: left;
+  transform: scale(0.8);
+  transition: transform 1s ease-out, opacity 0.8s ease-out,
+    padding-top 0.5s ease-out;
+  padding-top: 0;
+  margin-top: 0.5rem;
+  position: relative;
+  flex-direction: row;
+  gap: 16px;
+  width: 100%;
+  filter: blur(var(--lineBlurAmount));
+}
+
+.active-lyric {
+  opacity: 1;
+  transform: scale(1);
+  filter: unset;
+  transition: transform 0.2s var(--appleEase), opacity 0.35s var(--appleEase),
+    filter 0.35s var(--appleEase);
+}
+
+.apple-ease {
+  transition: transform 0.2s var(--appleEase), opacity 0.35s var(--appleEase),
+    filter 0.35s var(--appleEase);
+} */
+
+@media (min-width: 640px) {
+  .artist-header {
+    box-shadow: 0px 0px 0px 1px hsla(214, 0%, 27%, 0.04),
+      0px 1px 0px -0.5px hsla(220, 0%, 22%, 0.04),
+      0px 3px 3px -1.5px hsla(221, 0%, 22%, 0.04),
+      0px 6px 6px -3px hsla(221, 0%, 22%, 0.04),
+      0px 12px 12px -6px hsla(214, 0%, 27%, 0.04),
+      0px 24px 24px -12px hsla(214, 0%, 27%, 0.04);
+  }
+}
+
+@media not all and (min-width: 640px) {
+  .artist-header img {
+    mask: linear-gradient(180deg, black 0%, black 75%, transparent 99%);
+  }
+}
+
+/* ------------------ */
+
+@media (hover: hover) {
+  .desktop-hover-library-card:hover {
+    background-color: hsl(var(--foreground) / 0.05);
+  }
+}
+
+.library-card-container > div:not(:last-child)::after {
+  --seperator-offset: 60px;
+  content: "";
+  width: calc(100% - var(--seperator-offset));
+  height: 1px;
+  background: hsl(var(--border) / 0.8);
+  position: absolute;
+  transform: translateY(1.7rem) translateX(var(--seperator-offset));
+}
+
+/* Album Animated */
+
+.album-animated-blur,
+.album-animated-fade {
+  transform: translateY(calc(100% - var(--line-height-offset-animated-cover)));
+  backdrop-filter: blur(15px);
+  mask: linear-gradient(0deg, black 0%, black 75%, transparent 99%);
+}
+
+/* .animated-video-container {
+  background-color: var(--apple-animated-bg-color);
+  & div {
+    mask-image: linear-gradient(
+      to left,
+      rgba(0, 0, 0, 0) 42%,
+      rgb(0, 0, 0) 45%,
+      rgb(0, 0, 0) 55%,
+      rgba(0, 0, 0, 0) 58%
+    );
+  }
+} */
+
+/* Album Animated - END */
+
+.primary-vocals button {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 600;
+  margin: 1rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.primary-vocals .syllable::after {
+  content: "";
+  margin-right: 0.25ch;
+}
+
+.primary-vocals .current .syllable {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.8) var(--gradient-progress),
+    rgba(255, 255, 255, 0.4) var(--gradient-progress)
+  );
+
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  -webkit-text-stroke: 1px transparent; /* Fix the issue where background-clip: text; would make the text appear thinner */
+
+  font-weight: 600;
+}
+
+.primary-vocals .current .letter {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.8),
+    rgba(255, 255, 255, 0.8)
+  );
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}
+
+.bg-lyrics {
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  margin-top: 0.25rem;
+  margin-left: 0.5rem;
+}
+// File: src/app/old/layout.tsxx
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { Navbar } from "@/components/mobile/Navbar";
+import { ThemeProvider } from "@/components/theme-provider";
+import type { Viewport } from "next";
+import { PersistentAudioPlayer } from "@/components/PersistentAudioPlayer";
+import { Toaster } from "react-hot-toast";
+import { AudioPlayerNew } from "@/components/player/new/AudioPlayerNew";
+
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Gaku",
+  description: "A SoundCloud Client",
+  applicationName: "Gaku",
+  appleWebApp: {
+    capable: true,
+    title: "Gaku",
+    statusBarStyle: "black-translucent",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  // themeColor: [
+  //   { media: "(prefers-color-scheme: light)", color: "white" },
+  //   { media: "(prefers-color-scheme: dark)", color: "black" },
+  // ],
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <div>
-      <Welcome />
-      <Sections />
-    </div>
+    <html lang="en" suppressHydrationWarning={true}>
+      <head>
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+          href="/assets/splash_screens/12.9__iPad_Pro_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+          href="/assets/splash_screens/10.5__iPad_Air_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+          href="/assets/splash_screens/11__iPad_Pro__10.5__iPad_Pro_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+          href="/assets/splash_screens/iPhone_14_Plus__iPhone_13_Pro_Max__iPhone_12_Pro_Max_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+          href="/assets/splash_screens/13__iPad_Pro_M4_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+          href="/assets/splash_screens/iPhone_15_Pro_Max__iPhone_15_Plus__iPhone_14_Pro_Max_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+          href="/assets/splash_screens/iPhone_13_mini__iPhone_12_mini__iPhone_11_Pro__iPhone_XS__iPhone_X_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+          href="/assets/splash_screens/10.2__iPad_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+          href="/assets/splash_screens/iPhone_8__iPhone_7__iPhone_6s__iPhone_6__4.7__iPhone_SE_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+          href="/assets/splash_screens/4__iPhone_SE__iPod_touch_5th_generation_and_later_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+          href="/assets/splash_screens/10.9__iPad_Air_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/assets/splash_screens/11__iPad_Pro__10.5__iPad_Pro_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+          href="/assets/splash_screens/iPhone_14_Plus__iPhone_13_Pro_Max__iPhone_12_Pro_Max_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+          href="/assets/splash_screens/iPhone_11__iPhone_XR_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+          href="/assets/splash_screens/iPhone_13_mini__iPhone_12_mini__iPhone_11_Pro__iPhone_XS__iPhone_X_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 834px) and (device-height: 1210px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+          href="/assets/splash_screens/11__iPad_Pro_M4_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+          href="/assets/splash_screens/iPhone_14__iPhone_13_Pro__iPhone_13__iPhone_12_Pro__iPhone_12_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+          href="/assets/splash_screens/iPhone_15_Pro_Max__iPhone_15_Plus__iPhone_14_Pro_Max_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+          href="/assets/splash_screens/iPhone_11_Pro_Max__iPhone_XS_Max_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+          href="/assets/splash_screens/iPhone_14__iPhone_13_Pro__iPhone_13__iPhone_12_Pro__iPhone_12_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/assets/splash_screens/iPhone_8__iPhone_7__iPhone_6s__iPhone_6__4.7__iPhone_SE_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/assets/splash_screens/10.9__iPad_Air_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/assets/splash_screens/12.9__iPad_Pro_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/assets/splash_screens/13__iPad_Pro_M4_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/assets/splash_screens/10.5__iPad_Air_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 834px) and (device-height: 1210px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/assets/splash_screens/11__iPad_Pro_M4_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/assets/splash_screens/10.2__iPad_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+          href="/assets/splash_screens/iPhone_15_Pro__iPhone_15__iPhone_14_Pro_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/assets/splash_screens/8.3__iPad_Mini_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+          href="/assets/splash_screens/9.7__iPad_Pro__7.9__iPad_mini__9.7__iPad_Air__9.7__iPad_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+          href="/assets/splash_screens/iPhone_8_Plus__iPhone_7_Plus__iPhone_6s_Plus__iPhone_6_Plus_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/assets/splash_screens/iPhone_11__iPhone_XR_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+          href="/assets/splash_screens/8.3__iPad_Mini_landscape.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+          href="/assets/splash_screens/iPhone_8_Plus__iPhone_7_Plus__iPhone_6s_Plus__iPhone_6_Plus_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/assets/splash_screens/9.7__iPad_Pro__7.9__iPad_mini__9.7__iPad_Air__9.7__iPad_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/assets/splash_screens/4__iPhone_SE__iPod_touch_5th_generation_and_later_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+          href="/assets/splash_screens/iPhone_15_Pro__iPhone_15__iPhone_14_Pro_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+          href="/assets/splash_screens/iPhone_11_Pro_Max__iPhone_XS_Max_landscape.png"
+        />
+
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
+      <body className={"SFPro"}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {/* <PersistentAudioPlayer /> */}
+          <AudioPlayerNew />
+          {children}
+          <Navbar />
+          <Toaster
+            position="bottom-center"
+            toastOptions={{
+              style: {
+                padding: "12px 16px",
+                borderRadius: "15px",
+                background: "rgba(28, 28, 30, 0.85)",
+                color: "#fff",
+                fontSize: "15px",
+                fontWeight: "500",
+                maxWidth: "90%",
+                textAlign: "center",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                backdropFilter: "blur(10px)",
+              },
+              success: {
+                iconTheme: {
+                  primary: "#fff",
+                  secondary: "rgba(28, 28, 30, 0.85)",
+                },
+                duration: 2000,
+              },
+              error: {
+                iconTheme: {
+                  primary: "#fff",
+                  secondary: "rgba(28, 28, 30, 0.85)",
+                },
+                duration: 3000,
+              },
+            }}
+            containerStyle={{
+              bottom: 50,
+            }}
+          />
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }
 
-// File: src/app/page.tsxx
+// File: src/app/old/page.tsxx
 "use client";
 import {
   Heading,
@@ -3890,183 +3148,17 @@ export default function Home() {
   );
 }
 
-// File: src/app/search_old/page.tsx
-"use client";
-import { ColorGen } from "@/components/ColorGen";
-import {
-  Heading,
-  Input,
-  SafeView,
-  ScrollHeader,
-} from "@/components/mobile/SafeView";
-import { SearchCard } from "@/components/mobile/SearchCard";
-import { FetchSearch } from "@/lib/utils";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import useAudioStore from "@/context/AudioContext";
-import { useAudioStoreNew } from "@/context/AudioContextNew";
-import { mapSCDataToSongOrPlaylist } from "@/lib/audio/fetchers";
+// File: src/app/page.tsx
+import { Sections } from "@/rework/components/main/home/Sections";
+import { Welcome } from "@/rework/components/main/home/Welcome";
 
 export default function Home() {
-  const {
-    setCurrentTrack: setGlobalCurrentTrack,
-    setPlaylistUrl: setGlobalPlaylistUrl,
-    isPlaying,
-    setIsPlaying,
-    cover,
-    setHDCover,
-  } = useAudioStore();
-  const { setQueue, addToQueue } = useAudioStoreNew();
-
-  const [search, setSearchData] = useState<any>(null);
-  const [localPlaylistUrl, setLocalPlaylistUrl] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
-  const [localCurrentTrack, setLocalCurrentTrack] = useState<any>(null);
-  const router = useRouter();
-
-  const handleSearch = async () => {
-    const data = await FetchSearch(query);
-    setSearchData(data);
-    console.log("data:", data);
-  };
-
-  useEffect(() => {
-    handleSearch();
-  }, []);
-
-
-  const handleFetchPlaylist = async (url: string) => {
-    if (!url) return;
-    const { initialSongs, loadRemaining } = await mapSCDataToSongOrPlaylist(
-      url,
-      3,
-    );
-    await setQueue(initialSongs);
-    const remainingSongs = await loadRemaining();
-    addToQueue(remainingSongs);
-  };
-
-  const fetchCover = async (query: string) => {
-    const url = encodeURIComponent(query);
-    const response = await fetch(`/api/extra/cover/${url}`);
-    console.log("fetchCover | response:", response);
-    const data = await response.json();
-    console.log("fetchCover | Query:", query, "img:", data);
-    setHDCover(data.imageUrl);
-  };
-
-  const formatDuration = (duration: number): string => {
-    const minutes = Math.floor(duration / 60000);
-    const seconds = Math.floor((duration % 60000) / 1000);
-    if (minutes > 0) {
-      return `${minutes}m ${seconds}s`;
-    } else {
-      return `${seconds}s`;
-    }
-  };
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(event.target.value);
-  };
-
-  let regionNames = new Intl.DisplayNames(["en"], { type: "region" });
-
-  const navigateToAlbum = (item: any) => {
-    router.push(`/playlist/${item.id}`);
-  };
-
-  const navigateToArtist = (item: any) => {
-    router.push(
-      `/artist/${item.id}/${item.username.toLowerCase().replace(/\s+/g, "-")}`
-    );
-  };
-
   return (
     <>
-      <SafeView className="!px-0 z-10 relative">
-        {localCurrentTrack && cover && (
-          <ColorGen src={cover || localCurrentTrack.artwork_url} />
-        )}
-        <div className="px-5">
-          <ScrollHeader
-            onChange={handleInputChange}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSearch();
-              }
-            }}
-            onSearch={handleSearch}
-            value={query}
-            title="Search"
-            autoFocus={true}
-          />
-          <Heading>Search</Heading>
-          <Input
-            value={query}
-            onChange={handleInputChange}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSearch();
-              }
-            }}
-            placeholder="Search"
-            onSearch={handleSearch}
-            className="mb-5"
-            autoFocus={true}
-          />
-        </div>
-        {search && (
-          <SafeView className="w-full pb-[2rem] !pt-0">
-            {search.collection.map((item: any, index: number) => (
-              <div key={index} className="w-full flex flex-col gap-4">
-                <div
-                  key={index}
-                  className="w-full flex flex-col gap-4 border-b active:bg-background/5 transition-colors duration-100 cursor-pointer"
-                >
-                  <SearchCard
-                    onClick={() => {
-                      if (item.kind === "user") {
-                        navigateToArtist(item);
-                      } else if (item.kind === "playlist") {
-                        navigateToAlbum(item);
-                      } else {
-                        handleFetchPlaylist(item.id);
-                      }
-                    }}
-                    id={item.id}
-                    isExplicit={item.publisher_metadata?.explicit === true}
-                    premium={item.monetization_model === "SUB_HIGH_TIER"}
-                    playlist={item.kind === "playlist"}
-                    track={item.kind === "track"}
-                    artist={item.kind === "user"}
-                    title={item.kind === "user" ? item.username : item.title}
-                    artistName={item?.user?.username}
-                    image={
-                      item.kind === "user"
-                        ? item.avatar_url
-                        : item.artwork_url ||
-                          item?.tracks?.[0]?.artwork_url ||
-                          ""
-                    }
-                  />
-                </div>
-              </div>
-            ))}
-          </SafeView>
-        )}
-      </SafeView>
-      <div className="min-h-screen min-w-[99vw] flex justify-center absolute items-center z-[1] top-[-35rem]">
-        <div className="ambient-bg" />
-      </div>
+      <Welcome />
+      <Sections />
     </>
   );
-}
-
-// File: src/app/test/page.tsx
-import React from "react";
-
-export default function Test() {
-  return <div></div>;
 }
 
 // File: src/components/AnimatedCover.tsx
@@ -11457,7 +10549,7 @@ export const SubHeading = ({
 }) => {
   return (
     <div onClick={onClick} className={`${className}`}>
-      <h1 className="text-2xl font-bold flex items-center gap-2">
+      <h1 className="text-3xl font-bold flex items-center gap-2">
         {link ? (
           <motion.button
             whileTap={{
@@ -13056,7 +12148,7 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { TitleOverflowAnimator } from "@/components/mobile/TitleOverflowAnimator";
 import { Song } from "@/lib/audio/types";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { CloseButton } from "./components/CloseButton";
 import dynamic from "next/dynamic";
 import AnimatedCover from "@/components/AnimatedCover";
@@ -13717,16 +12809,18 @@ export const DurationSlider = ({
 import React, { useEffect, useRef, useState } from "react";
 import { useAudioStoreNew } from "@/context/AudioContextNew";
 import { LyricPlayer, LyricPlayerRef } from "@applemusic-like-lyrics/react";
+import { type LyricLineMouseEvent } from "@applemusic-like-lyrics/core";
 import { LyricLine, parseTTML } from "./lrc/utils/TTMLparser";
 import { AppleKit } from "@/lib/audio/fetchers";
 import { GakuStorage } from "@/lib/utils/storage";
+import { dev } from "@/lib/utils";
 
 export const AppleLyrics = () => {
   const [lyricLines, setLyricLines] = useState<LyricLine[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const lyricPlayerRef = useRef<LyricPlayerRef>(null);
   const lastTimeRef = useRef<number>(-1);
-  const { fineProgress, currentSong, isPlaying } = useAudioStoreNew();
+  const { fineProgress, currentSong, isPlaying, seek } = useAudioStoreNew();
 
   useEffect(() => {
     const loadLyrics = async () => {
@@ -13813,6 +12907,11 @@ export const AppleLyrics = () => {
     );
   }
 
+  const onLyricLineClick = (line: LyricLineMouseEvent) => {
+    dev.log("onLyricLineClick | Clicked on line:", line);
+    seek(line.line.lyricLine.startTime / 1000);
+  };
+
   return (
     <div className="h-screen w-full flex flex-col">
       <LyricPlayer
@@ -13832,7 +12931,7 @@ export const AppleLyrics = () => {
         alignAnchor="center"
         playing={isPlaying}
         lyricLines={lyricLines}
-        onLyricLineClick={(line) => console.log(line)}
+        onLyricLineClick={onLyricLineClick}
       />
     </div>
   );
@@ -19040,7 +18139,7 @@ export function useLibrary() {
   };
 }
 
-// File: src/hooks/use-media-query.ts
+// File: src/hooks/useMediaQuery.ts
 import { useState, useEffect } from "react";
 
 export function useMediaQuery(query: string): boolean {
@@ -19170,12 +18269,24 @@ export function showToast(
 // File: src/hooks/useUser.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { showToast } from "./useToast";
 
 // Define the type for a song
 interface Song {
   id: string;
   createdAt: string;
   updatedAt: string;
+}
+
+interface UserSettings {
+  createdAt: Date;
+  highlightedQueries: boolean;
+  id: string;
+  showSidebarIcons: boolean;
+  themeColor: string;
+  updatedAt: Date;
+  userId: string;
+  soundcloudUserId: string;
 }
 
 // Define the type for the library songs
@@ -19194,7 +18305,7 @@ export const useUser = () => {
   });
 
   // Add a song to the user's library
-  const { mutate } = useMutation({
+  const { mutate: addSong } = useMutation({
     mutationFn: async (soundcloudId: string) => {
       const response = await axios.post("/api/user/songs", { soundcloudId });
       return response.data;
@@ -19203,13 +18314,42 @@ export const useUser = () => {
       // Invalidate the librarySongs query to refetch the updated list
       queryClient.invalidateQueries({ queryKey: ["librarySongs"] });
     },
+    onError: () => {
+      showToast("error", `Failed to add song`);
+    },
+  });
+
+  // Remove a song from the user's library
+  const { mutate: removeSong } = useMutation({
+    mutationFn: async (soundcloudId: string) => {
+      const response = await axios.delete("/api/user/songs", {
+        data: { soundcloudId },
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["librarySongs"] });
+    },
+    onError: () => {
+      showToast("error", `Failed to remove song`);
+    },
+  });
+
+  const settings = useQuery<UserSettings>({
+    queryKey: ["userSettings"],
+    queryFn: async () => {
+      const response = await axios.get("/api/user/settings");
+      return response.data;
+    },
   });
 
   return {
+    settings: settings.data,
     librarySongs: data, // Array of songs or undefined if not loaded
     isLoading, // Boolean indicating loading state
     error, // Any error from fetching songs
-    addSongToLibrary: mutate, // Function to add a song
+    addSongToLibrary: addSong, // Function to add a song
+    removeSongFromLibrary: removeSong, // Function to remove a song
   };
 };
 
@@ -19226,6 +18366,7 @@ import { Song } from "./types";
 import { fetchPlaylistM3U8, dev } from "@/lib/utils";
 import { EditorialVideo } from "../types/apple";
 import { showToast } from "@/hooks/useToast";
+import toast from "react-hot-toast";
 
 /**
  * Fetch additional metadata (like HD cover) for a given song, without fetching M3U8.
@@ -19756,6 +18897,22 @@ export const SoundCloudKit = {
       throw new Error(`Failed to fetch home page | ${response.status}`);
     }
     return response.json();
+  },
+  async getUserData(userId: string) {
+    try {
+      const response = await fetch(
+        `/api/soundcloud/user?profileUrl=${userId}&type=id`
+      );
+      if (!response.ok) {
+        return null;
+      }
+      const userData = await response.json();
+      return userData;
+    } catch (err) {
+      toast.error("Error fetching user data");
+      console.error("getUserData error", err);
+      return null;
+    }
   },
 };
 
@@ -22070,7 +21227,7 @@ export default async function handler(
   }
 }
 
-// File: src/pages/api/soundcloud/user/userData.ts
+// File: src/pages/api/soundcloud/user.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import { JSDOM } from "jsdom";
@@ -22081,7 +21238,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { profileUrl } = req.query;
+  const { profileUrl, type } = req.query;
+
+  console.log("profileUrl:", profileUrl);
 
   if (req.method !== "GET") {
     res.setHeader("Allow", ["GET"]);
@@ -22094,35 +21253,44 @@ export default async function handler(
     : profileUrl;
 
   if (!profileUrlString) {
-    return res.status(400).json({ error: "Profile URL parameter is required" });
+    return res
+      .status(400)
+      .json({ error: "Profile URL (or user ID) is required" });
   }
 
+  let userId: string | null = null;
+
   try {
-    // Step 1: Fetch the HTML from the SoundCloud profile page
-    const response = await axios.get(profileUrlString);
+    if (type === "id") {
+      // When type is 'id', profileUrlString is actually the SoundCloud user ID
+      userId = profileUrlString;
+    } else {
+      // Step 1: Fetch the HTML from the SoundCloud profile page
+      const response = await axios.get(profileUrlString);
 
-    // Step 2: Parse the HTML using JSDOM
-    const dom = new JSDOM(response.data);
-    const document = dom.window.document;
+      // Step 2: Parse the HTML using JSDOM
+      const dom = new JSDOM(response.data);
+      const document = dom.window.document;
 
-    // Step 3: Find the meta tag with property `twitter:app:url:googleplay`
-    const metaTag = document.querySelector(
-      'meta[property="twitter:app:url:googleplay"]'
-    );
+      // Step 3: Find the meta tag with property `twitter:app:url:googleplay`
+      const metaTag = document.querySelector(
+        'meta[property="twitter:app:url:googleplay"]'
+      );
 
-    if (!metaTag) {
-      return res.status(404).json({ error: "User ID not found in meta tag" });
-    }
+      if (!metaTag) {
+        return res.status(404).json({ error: "User ID not found in meta tag" });
+      }
 
-    // Step 4: Extract the content attribute which contains the user ID
-    const content = metaTag.getAttribute("content");
-    const userIdMatch = content ? content.match(/users:(\d+)/) : null;
-    const userId = userIdMatch ? userIdMatch[1] : null;
+      // Step 4: Extract the content attribute which contains the user ID
+      const content = metaTag.getAttribute("content");
+      const userIdMatch = content ? content.match(/users:(\d+)/) : null;
+      userId = userIdMatch ? userIdMatch[1] : null;
 
-    if (!userId) {
-      return res
-        .status(404)
-        .json({ error: "User ID not found in the content" });
+      if (!userId) {
+        return res
+          .status(404)
+          .json({ error: "User ID not found in the content" });
+      }
     }
 
     // Step 5: Fetch user data from SoundCloud API
@@ -22131,7 +21299,7 @@ export default async function handler(
       {
         headers: {
           Host: "api-v2.soundcloud.com",
-          Authorization: "OAuth 2-295088-300743603-2XEAimWph2HxCZ",
+          Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,
         },
       }
     );
@@ -22140,7 +21308,7 @@ export default async function handler(
       {
         headers: {
           Host: "api-v2.soundcloud.com",
-          Authorization: "OAuth 2-295088-300743603-2XEAimWph2HxCZ",
+          Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,
         },
       }
     );
@@ -22249,6 +21417,45 @@ export default function ReactQueryWrapper({
   );
 }
 
+// File: src/providers/ThemeProvider.tsx
+"use client";
+import { useUser as GakuUser } from "@/hooks/useUser";
+import { useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const { isLoaded, isSignedIn } = useUser();
+  const { settings } = GakuUser();
+  const userThemeColor = settings?.themeColor;
+
+  // Fetch user settings and apply theme when component mounts
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      fetchAndApplyUserTheme();
+    } else if (isLoaded && !isSignedIn) {
+      // For non-signed in users, we use default theme
+      document.documentElement.style.setProperty("--keyColor", "#5891fa");
+    }
+  }, [isLoaded, isSignedIn]);
+
+  const fetchAndApplyUserTheme = async () => {
+    if (userThemeColor) {
+      document.documentElement.style.setProperty("--keyColor", userThemeColor);
+    }
+  };
+
+  return <>{children}</>;
+}
+
+// File: src/rework/components/artwork/Artwork.tsx
+import React from 'react'
+
+export const Artwork = () => {
+  return (
+    <div>Artwork</div>
+  )
+}
+
 // File: src/rework/components/contextmenus/ContextMenu.tsx
 "use client";
 import { dev } from "@/lib/utils";
@@ -22308,7 +21515,7 @@ const ContextMenu = ({
         dev.log("Context menu |", "type:", type, "id:", itemId);
         show({ event: e, props: { itemId } });
       }}
-      style={{ width: "100%" }}
+      // style={{ width: "100%" }}
       className={className}
     >
       {children}
@@ -22320,20 +21527,30 @@ export default ContextMenu;
 
 // File: src/rework/components/contextmenus/contextMenus.tsx
 "use client";
-import { Menu, Item, ItemParams } from "react-contexify";
+import { Menu, Item, ItemParams, PredicateParams } from "react-contexify";
 import { useUser } from "@/hooks/useUser";
 import { showToast } from "@/hooks/useToast";
+import { useCallback } from "react";
 
-// We'll reference this ID in <ContextMenu type="song" ...>
 export const SONG_MENU_ID = "songMenu";
 
-export function SongMenu() {
-  const { addSongToLibrary } = useUser();
+// Define the shape of props passed to the menu
+interface SongMenuProps {
+  itemId: string;
+}
 
-  // This callback handles the click on "Add to library"
-  // `ItemParams` is the shape of the data we receive
-  const handleAddToLibrary = ({ props }: ItemParams) => {
-    // `props` is whatever we pass to `show({ props: {...} })`
+export function SongMenu() {
+  const { addSongToLibrary, removeSongFromLibrary, librarySongs } = useUser();
+
+  const isInLibrary = useCallback(
+    (songId: string) => {
+      return librarySongs?.some((song) => song.id === songId) || false;
+    },
+    [librarySongs]
+  );
+
+  // Handle adding a song, expecting ItemParams with SongMenuProps
+  const handleAddToLibrary = ({ props }: ItemParams<SongMenuProps>) => {
     const itemId = props?.itemId;
     if (itemId) {
       addSongToLibrary(itemId);
@@ -22341,17 +21558,40 @@ export function SongMenu() {
     }
   };
 
+  // Handle removing a song, expecting ItemParams with SongMenuProps
+  const handleRemoveFromLibrary = ({ props }: ItemParams<SongMenuProps>) => {
+    const itemId = props?.itemId;
+    if (itemId) {
+      removeSongFromLibrary(itemId);
+      showToast("success", `Song removed from library`);
+    }
+  };
+
   return (
-    <Menu id={SONG_MENU_ID} theme="dark" animation="fade">
-      <Item onClick={handleAddToLibrary}>Add to Library</Item>
+    <Menu id={SONG_MENU_ID} animation="fade">
+      {/* Show "Add to Library" only if song is not in library */}
+      <Item
+        hidden={({ props }: PredicateParams<SongMenuProps>) => {
+          const songId = props?.itemId;
+          return !songId || isInLibrary(songId);
+        }}
+        onClick={handleAddToLibrary}
+      >
+        Add to Library
+      </Item>
+      {/* Show "Remove from Library" only if song is in library */}
+      <Item
+        hidden={({ props }: PredicateParams<SongMenuProps>) => {
+          const songId = props?.itemId;
+          return !songId || !isInLibrary(songId);
+        }}
+        onClick={handleRemoveFromLibrary}
+      >
+        Remove from Library
+      </Item>
     </Menu>
   );
 }
-
-// You can create similar menus for albumMenu, artistMenu, etc.
-// For example:
-// export const ALBUM_MENU_ID = "albumMenu";
-// export function AlbumMenu() { /* ... */ }
 
 export const contextMenus = (
   <>
@@ -22360,6 +21600,26 @@ export const contextMenus = (
     {/* <ArtistMenu /> */}
   </>
 );
+
+// File: src/rework/components/controls/Switch.tsx
+import * as SwitchR from "@radix-ui/react-switch";
+import { ComponentPropsWithoutRef } from "react";
+
+// Extend the Root component props
+type SwitchProps = ComponentPropsWithoutRef<typeof SwitchR.Root>;
+
+export const Switch = (props: SwitchProps) => {
+  const {
+    className = "relative h-6 w-11 cursor-pointer rounded-full bg-[--labelDivider] outline-none data-[state=checked]:bg-[--keyColor]",
+    ...otherProps
+  } = props;
+
+  return (
+    <SwitchR.Root className={className} {...otherProps}>
+      <SwitchR.Thumb className="block size-5 rounded-full bg-white transition-transform duration-200 will-change-transform translate-x-[0.1rem] data-[state=checked]:translate-x-[1.4rem]" />
+    </SwitchR.Root>
+  );
+};
 
 // File: src/rework/components/extra/mini-spinner.css
 .mini-spinner {
@@ -22863,6 +22123,7 @@ export const Spinner = () => {
   font-size: 14px;
   text-transform: uppercase;
   color: var(--systemSecondary);
+  gap: 0.125rem;
 }
 
 .SongList {
@@ -22872,7 +22133,7 @@ export const Spinner = () => {
 }
 
 .Song:nth-child(odd) {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.025);
   border-radius: 8px;
   padding: 0.6rem;
   user-select: none;
@@ -22890,6 +22151,12 @@ export const Spinner = () => {
   align-items: center;
 }
 
+@media (prefers-color-scheme: dark) {
+  .Song:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
 .SongIndex {
   display: flex;
   align-items: center;
@@ -22902,14 +22169,15 @@ export const Spinner = () => {
   cursor: pointer;
   position: relative;
   &:hover {
-    color: transparent;
+    color: transparent !important;
   }
   &:hover:after {
-    opacity: 1;
+    opacity: 0.5;
   }
   &:after {
     content: " ";
     position: absolute;
+    filter: invert(1);
     background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect fill="rgba(0, 0, 0, 0)" width="60" height="60"></rect><path fill="white" d="M26.411 39.853c-1.21.753-2.528.157-2.528-1.094V21.47c0-1.24 1.435-1.858 2.528-1.094l15.265 8.235a1.69 1.69 0 0 1 0 3.065L26.411 39.853Z"></path></svg>');
     height: var(--songIndexSize);
     width: var(--songIndexSize);
@@ -22919,6 +22187,17 @@ export const Spinner = () => {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .SongIndex {
+    &:after {
+      filter: invert(0);
+    }
+    &:hover:after {
+      opacity: 1;
+    }
   }
 }
 
@@ -22938,7 +22217,7 @@ export const Spinner = () => {
 
 .Controls button {
   border: 1.5px solid var(--labelDivider);
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.025);
   padding-inline: 14px;
   padding-block: 6px;
   border-radius: 12px;
@@ -22955,6 +22234,12 @@ export const Spinner = () => {
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  .Controls button {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
 // File: src/rework/components/main/album/Album.tsx
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { SoundCloudAlbum } from "@/lib/types/soundcloud";
@@ -22967,6 +22252,8 @@ import { useAudioStoreNew } from "@/context/AudioContextNew";
 import { IoPlay } from "react-icons/io5";
 import { PiShuffleBold } from "react-icons/pi";
 import { Spinner } from "../../extra/Spinner";
+import { Song } from "@/lib/audio/types";
+import ContextMenu from "../../contextmenus/ContextMenu";
 
 export const Album = ({ data }: { data: SoundCloudAlbum }) => {
   if (!data) return <Spinner />;
@@ -23013,7 +22300,7 @@ const AlbumInfoNControls = ({ data }: { data: SoundCloudAlbum }) => {
 
         <span className={style.AlbumGenreNYear}>
           <p>{data.genre}</p>
-          {" · "}
+          {" · "}
           <time dateTime={data.created_at} title={formatDate(data.created_at)}>
             {formatDate(data.created_at, "year")}
           </time>
@@ -23033,15 +22320,71 @@ const AlbumInfoNControls = ({ data }: { data: SoundCloudAlbum }) => {
   );
 };
 
+// Convert SoundCloud track to Song format
+const convertTrackToSong = (track: any): Song => {
+  return {
+    albumName: track.publisher_metadata
+      ? (track.publisher_metadata as any).album_title || ""
+      : "",
+    artist: {
+      id: track.user.id,
+      name: track.user.username,
+      url: `/artist/${track.user.permalink}/${track.user.id}`,
+      soundcloudURL: track.user.permalink_url,
+      permalink: track.user.permalink,
+      verified: false,
+      followers: 0,
+      city: "",
+      avatar: track.user.avatar_url,
+    },
+    artwork: {
+      hdUrl: track.artwork_url
+        ? track.artwork_url.replace("-large", "-t500x500")
+        : "",
+      url: track.artwork_url || "",
+    },
+    id: track.id,
+    songHref: track.permalink_url,
+    name: track.title,
+    explicit: track.publisher_metadata
+      ? track.publisher_metadata.explicit || false
+      : false,
+    src: "", // M3U8 will be fetched by the player
+  };
+};
+
 const SongList = ({ data }: { data: SoundCloudAlbum["tracks"] }) => {
-  const { handleFetchPlaylist } = usePlaylistFetcher();
+  const { setQueue } = useAudioStoreNew();
   const { currentSong } = useAudioStoreNew();
+
+  const handlePlayFromIndex = async (index: number) => {
+    try {
+      // Create a queue starting from the clicked song
+      const tracksFromIndex = data.slice(index);
+      const songsToPlay = tracksFromIndex.map((track) =>
+        convertTrackToSong(track)
+      );
+
+      // Set the queue with these songs
+      await setQueue(songsToPlay);
+    } catch (error) {
+      console.error("Failed to play song from album:", error);
+    }
+  };
+
   return (
     <div className={style.SongList}>
-      {data.map((track, song) => (
-        <div key={song} className={style.Song}>
+      {data.map((track, index) => (
+        <ContextMenu
+          title={track.title}
+          className={style.Song}
+          as={"div"}
+          type="song"
+          itemId={String(track.id)}
+          key={track.id}
+        >
           <div
-            onClick={() => handleFetchPlaylist(track.id, true)}
+            onClick={() => handlePlayFromIndex(index)}
             className={style.SongIndex}
             style={{
               color:
@@ -23050,12 +22393,12 @@ const SongList = ({ data }: { data: SoundCloudAlbum["tracks"] }) => {
                   : "var(--systemSecondary)",
             }}
           >
-            {song + 1}
+            {index + 1}
           </div>
           <div className={style.SongInfo}>
             <h3 className={style.SongTitle}>{track.title}</h3>
           </div>
-        </div>
+        </ContextMenu>
       ))}
     </div>
   );
@@ -23471,6 +22814,9 @@ export const Latest = ({ artist }: { artist: SoundCloudArtist | null }) => {
   const latestTracks = artist?.latest || [];
   const latest = latestTracks.find((item) => item.type === "track");
   const track = latest.track as SoundCloudTrack;
+  const HD_ARTWORK = track.artwork_url
+    ? track.artwork_url.replace("-large.jpg", "-t500x500.jpg")
+    : PLACEHOLDER_IMAGE.dark.url;
   return (
     <div className={style.Shelf} style={{ width: "fit-content" }}>
       <div className={style.ShelfHeader}>
@@ -23481,11 +22827,7 @@ export const Latest = ({ artist }: { artist: SoundCloudArtist | null }) => {
       <div style={{ display: "flex", flexDirection: "column", width: "15rem" }}>
         <div className={style.Artwork}>
           <Image
-            src={
-              track.artwork_url_hd ||
-              track.artwork_url ||
-              PLACEHOLDER_IMAGE.dark.url
-            }
+            src={HD_ARTWORK}
             fill
             draggable={false}
             alt={track.title}
@@ -23681,10 +23023,9 @@ import { MobileView } from "../mobile/MobileView";
 
 interface ContentProps {
   children?: ReactNode;
-  index: number;
 }
 
-export const Content = ({ children, index }: ContentProps) => {
+export const Content = ({ children }: ContentProps) => {
   const isPWA = useIsPWA();
 
   return (
@@ -23697,7 +23038,7 @@ export const Content = ({ children, index }: ContentProps) => {
         <div className={style.Content}>
           <Sidebar />
           <PlayerBar />
-          <ScrollPage index={index}>{children}</ScrollPage>
+          <ScrollPage>{children}</ScrollPage>
         </div>
       )}
     </div>
@@ -23710,12 +23051,11 @@ import style from "./Main.module.css";
 
 interface DynamicPageProps {
   children?: ReactNode;
-  index: number;
 }
 
-export const DynamicPage = ({ children, index }: DynamicPageProps) => {
+export const DynamicPage = ({ children }: DynamicPageProps) => {
   return (
-    <main key={index} className={style.DynamicPage}>
+    <main className={style.DynamicPage}>
       {children}
     </main>
   );
@@ -23817,7 +23157,7 @@ import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { SoundCloudSections } from "@/lib/types/soundcloud";
 import { useQuery } from "@tanstack/react-query";
 import { Spinner } from "../../extra/Spinner";
-import { TryAgain } from "@/app/(new_pages)/search/page";
+import { TryAgain } from "@/app/(pages)/search/page";
 import style from "./Sections.module.css";
 import Link from "next/link";
 import Image from "next/image";
@@ -24010,12 +23350,36 @@ export const Welcome = async () => {
   const greeting = getGreeting();
   const user = await currentUser();
   return (
-    <div className="py-8 px-10">
-      <h1 className="text-2xl font-[700]">Home</h1>
+    <div className="p-4">
+      <h1 className="text-3xl font-[700]">Home</h1>
       <p className="text-lg font-[500] text-[--systemSecondary]">
         {greeting}
         {user && `, ${user?.username || user?.fullName || user?.firstName}`}
       </p>
+    </div>
+  );
+};
+
+// File: src/rework/components/main/library/albums/LibraryAlbums.tsx
+import React from "react";
+
+export const LibraryAlbums = () => {
+  return (
+    <div className="p-4">
+      <h2 className="text-3xl font-bold mb-4">Albums</h2>
+      <p>The albums page isn&apos;t finished yet</p>
+    </div>
+  );
+};
+
+// File: src/rework/components/main/library/artist/LibraryArtists.tsx
+import React from "react";
+
+export const LibraryArtists = () => {
+  return (
+    <div className="p-4">
+      <h2 className="text-3xl font-bold mb-4">Artists</h2>
+      <p>The artists page isn&apos;t finished yet</p>
     </div>
   );
 };
@@ -24191,6 +23555,402 @@ export const LibraryItem = ({
   );
 };
 
+// File: src/rework/components/main/library/LibraryPage.tsx
+"use client";
+import { useEffect, useState } from "react";
+import { useUser } from "@/hooks/useUser";
+import { SoundCloudKit } from "@/lib/audio/fetchers";
+import type { SoundCloudTrack } from "@/lib/types/soundcloud";
+import { Spinner } from "@/rework/components/extra/Spinner";
+import { LibraryItem } from "@/rework/components/main/library/LibraryItem";
+import style from "../../../../rework/components/main/library/Library.module.css";
+import { AnimatePresence, motion } from "framer-motion";
+
+export default function LibrarySongs() {
+  const { librarySongs, isLoading, error, addSongToLibrary } = useUser();
+  const [scTracks, setSCTracks] = useState<SoundCloudTrack[]>([]);
+
+  useEffect(() => {
+    // If we have no librarySongs or still loading from DB, skip
+    if (!librarySongs) return;
+    if (librarySongs.length === 0) {
+      // If the user has no songs in their library, no need to fetch SC data
+      setSCTracks([]);
+      return;
+    }
+    // Sort library songs by createdAt (descending: newest first)
+    const sorted = [...librarySongs].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+    // Build comma-separated ID list
+    // Fetch each track individually
+    const fetchTracks = async () => {
+      try {
+        const trackPromises = sorted.map((song) =>
+          SoundCloudKit.getData(song.id, "songs")
+        );
+        const results = await Promise.all(trackPromises);
+        setSCTracks(results);
+      } catch (err) {
+        console.error("Failed to fetch SoundCloud data:", err);
+        setSCTracks([]);
+      }
+    };
+
+    fetchTracks();
+  }, [librarySongs]);
+
+  // Merge DB songs + SC data
+  const sortedLibrarySongs = [...(librarySongs ?? [])].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  const merged = sortedLibrarySongs.map((dbSong) => {
+    const scTrack = scTracks.find(
+      (track) => track.id === parseInt(dbSong.id, 10)
+    );
+    return {
+      ...dbSong,
+      scTrack,
+    };
+  });
+
+  if (isLoading) return <Spinner />;
+  if (error) return <div>Error: {(error as Error).message}</div>;
+
+  const handleAddSong = async () => {
+    try {
+      await addSongToLibrary("1996361439");
+      console.log("Song added successfully");
+    } catch (err) {
+      console.error("Failed to add song:", err);
+    }
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-3xl font-bold mb-4">Library</h2>
+      {merged.length === 0 ? (
+        <EmptyLibrary />
+      ) : (
+        <ul className={style.libraryList}>
+          {merged.map((item) => (
+            <LibraryItem key={item.id} item={item} allItems={merged} />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+type Note = {
+  id: number;
+  x: number;
+  y: number;
+  pathIndex: number;
+  scale: number;
+  rotation: number;
+  targetX: number;
+  targetY: number;
+  finalRotation: number;
+  duration: number;
+};
+
+const EmptyLibrary = () => {
+  const [notes, setNotes] = useState<Note[]>([]);
+
+  // Music note SVG paths
+  const notePaths = [
+    "M8.38998 4.75975C8.97778 4.61491 9.14398 4.47874 9.14398 3.79061V1.48624C9.14398 1.01139 8.95998 0.807961 8.33048 0.962411L4.90528 1.81577C4.31208 1.96061 4.17688 2.09467 4.17688 2.79663V7.9362C4.17688 8.4371 4.13418 8.5257 3.56938 8.6717L2.49968 8.9605C1.39318 9.2426 0.523682 9.9029 0.523682 11.0429C0.523682 12.058 1.29478 12.7909 2.47718 12.7909C4.16558 12.7909 5.31708 11.585 5.31708 9.871V5.98741C5.31708 5.5728 5.40988 5.47038 5.65298 5.4235L8.38998 4.75975Z",
+    "M13.9771 5.763C14.8112 5.57659 15.0498 5.39069 15.0699 4.42812L15.142 0.982802C15.1559 0.318572 14.9021 0.0289427 14.0088 0.227651L6.61763 1.87972C5.77592 2.06598 5.58112 2.24978 5.56058 3.2317L5.4102 10.421C5.39555 11.1217 5.33267 11.2445 4.53102 11.4331L3.01237 11.8076C1.44197 12.1718 0.195093 13.0715 0.161737 14.6661C0.132036 16.0861 1.19923 17.1325 2.86853 17.1651C5.2522 17.2116 6.91317 15.5564 6.96332 13.1589L7.07695 7.72642C7.08908 7.14646 7.22309 7.00575 7.56767 6.94687L13.9771 5.763Z M15.106 5.24877C15.1199 4.58255 15.121 4.53188 15.1411 3.56931L15.158 2.76417C15.1719 2.09994 15.1349 1.34185 15.1434 0.939705L14.6181 0.770083C13.7764 0.956349 13.5816 1.14015 13.561 2.12207L13.4106 9.31139C13.396 10.0121 13.3331 10.1348 12.5315 10.3235L11.0128 10.698C9.44241 11.0621 8.19553 11.9618 8.16218 13.5565C8.13247 14.9764 9.19966 16.0229 10.869 16.0554C13.2526 16.1019 14.9136 14.4468 14.9638 12.0492L15.0774 6.61679C15.0895 6.03682 15.0866 6.17459 15.0929 5.87425L15.106 5.24877Z",
+  ];
+
+  const particles = () => {
+    // Create notes with pre-calculated animation values
+    const newNotes = Array.from({ length: 4 }).map((_, i) => {
+      const initialRotation = Math.random() * 20 - 10; // Small initial tilt between -10 and 10 degrees
+      return {
+        id: Date.now() + i,
+        x: 0,
+        y: 0,
+        pathIndex: Math.floor(Math.random() * notePaths.length),
+        scale: 0.5 + Math.random() * 0.5,
+        rotation: initialRotation,
+        targetX: (Math.random() - 0.5) * 150, // Less horizontal movement
+        targetY: -60 - Math.random() * 40, // Less vertical movement
+        finalRotation: initialRotation + (Math.random() * 40 - 20), // Gentle rotation between -20 and +20 degrees
+        duration: 2.5 + Math.random(), // Slower duration between 2.5 and 3.5 seconds
+      };
+    });
+
+    setNotes([...notes, ...newNotes]);
+
+    // Clean up old notes
+    setTimeout(() => {
+      setNotes((prev) => prev.filter((note) => note.id !== newNotes[0].id));
+    }, 3500); // Extended timeout to match the longer animation
+  };
+
+  return (
+    <div className="text-center flex flex-col items-center justify-end h-[50vh] relative overflow-hidden">
+      <div className="mb-4">
+        <li className="flex h-10 w-[7.5rem] p-1 gap-0.5 bg-white/10 rounded-lg">
+          <motion.div
+            onClick={particles}
+            className="h-full w-10 aspect-square rounded-[4px] transition-all bg-white/10 active:scale-50 cursor-pointer relative"
+            whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.15)" }}
+            // whileTap={{ scale: 0.95 }}
+          >
+            <AnimatePresence>
+              {notes.map((note) => (
+                <motion.svg
+                  key={note.id}
+                  viewBox="0 0 24 24"
+                  className="absolute h-6 w-6 text-[--systemSecondary] fill-current z-10"
+                  style={{ bottom: 24, left: "50%", marginLeft: "-12px" }}
+                  initial={{
+                    y: 0,
+                    x: 0,
+                    opacity: 0,
+                    scale: note.scale,
+                    rotate: note.rotation,
+                  }}
+                  animate={{
+                    y: note.targetY,
+                    x: note.targetX,
+                    opacity: [0, 1, 0.8, 0],
+                    rotate: note.finalRotation,
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: note.duration,
+                    ease: "easeOut",
+                  }}
+                >
+                  <path d={notePaths[note.pathIndex]} />
+                </motion.svg>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+          <div className="grid w-full gap-0.5">
+            <div className="size-full bg-white/10 rounded-[4px]" />
+            <div className="h-3/4 w-1/2 bg-white/10 rounded-[4px]" />
+          </div>
+        </li>
+      </div>
+      <h2 className="text-lg opacity-75">Your library is empty</h2>
+      <p className="text-[--systemSecondary] w-60">
+        Add some songs to your library to see them here.
+      </p>
+    </div>
+  );
+};
+
+// File: src/rework/components/main/library/me/UserLikesPage.tsx
+"use client";
+import { useEffect, useState } from "react";
+import { useUser } from "@/hooks/useUser";
+import { SoundCloudKit } from "@/lib/audio/fetchers";
+import type { SoundCloudTrack } from "@/lib/types/soundcloud";
+import { Spinner } from "@/rework/components/extra/Spinner";
+import { LibraryItem } from "@/rework/components/main/library/LibraryItem";
+import style from "../../../../rework/components/main/library/Library.module.css";
+import { AnimatePresence, motion } from "framer-motion";
+
+export default function UserLikedSongs({ user }: { user: any }) {
+  const { librarySongs, isLoading, error, addSongToLibrary } = useUser();
+  const [scTracks, setSCTracks] = useState<SoundCloudTrack[]>([]);
+
+  useEffect(() => {
+    // If we have no librarySongs or still loading from DB, skip
+    if (!librarySongs) return;
+    if (librarySongs.length === 0) {
+      // If the user has no songs in their library, no need to fetch SC data
+      setSCTracks([]);
+      return;
+    }
+    // Sort library songs by createdAt (descending: newest first)
+    const sorted = [...librarySongs].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+    // Build comma-separated ID list
+    // Fetch each track individually
+    const fetchTracks = async () => {
+      try {
+        const trackPromises = sorted.map((song) =>
+          SoundCloudKit.getData(song.id, "songs")
+        );
+        const results = await Promise.all(trackPromises);
+        setSCTracks(results);
+      } catch (err) {
+        console.error("Failed to fetch SoundCloud data:", err);
+        setSCTracks([]);
+      }
+    };
+
+    fetchTracks();
+  }, [librarySongs]);
+
+  // Merge DB songs + SC data
+  const sortedLibrarySongs = [...(librarySongs ?? [])].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  const merged = sortedLibrarySongs.map((dbSong) => {
+    const scTrack = scTracks.find(
+      (track) => track.id === parseInt(dbSong.id, 10)
+    );
+    return {
+      ...dbSong,
+      scTrack,
+    };
+  });
+
+  if (isLoading) return <Spinner />;
+  if (error) return <div>Error: {(error as Error).message}</div>;
+
+  const handleAddSong = async () => {
+    try {
+      await addSongToLibrary("1996361439");
+      console.log("Song added successfully");
+    } catch (err) {
+      console.error("Failed to add song:", err);
+    }
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-3xl font-bold mb-4">Library</h2>
+      {merged.length === 0 ? (
+        <EmptyLibrary />
+      ) : (
+        <ul className={style.libraryList}>
+          {merged.map((item) => (
+            <LibraryItem key={item.id} item={item} allItems={merged} />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+type Note = {
+  id: number;
+  x: number;
+  y: number;
+  pathIndex: number;
+  scale: number;
+  rotation: number;
+  targetX: number;
+  targetY: number;
+  finalRotation: number;
+  duration: number;
+};
+
+const EmptyLibrary = () => {
+  const [notes, setNotes] = useState<Note[]>([]);
+
+  // Music note SVG paths
+  const notePaths = [
+    "M8.38998 4.75975C8.97778 4.61491 9.14398 4.47874 9.14398 3.79061V1.48624C9.14398 1.01139 8.95998 0.807961 8.33048 0.962411L4.90528 1.81577C4.31208 1.96061 4.17688 2.09467 4.17688 2.79663V7.9362C4.17688 8.4371 4.13418 8.5257 3.56938 8.6717L2.49968 8.9605C1.39318 9.2426 0.523682 9.9029 0.523682 11.0429C0.523682 12.058 1.29478 12.7909 2.47718 12.7909C4.16558 12.7909 5.31708 11.585 5.31708 9.871V5.98741C5.31708 5.5728 5.40988 5.47038 5.65298 5.4235L8.38998 4.75975Z",
+    "M13.9771 5.763C14.8112 5.57659 15.0498 5.39069 15.0699 4.42812L15.142 0.982802C15.1559 0.318572 14.9021 0.0289427 14.0088 0.227651L6.61763 1.87972C5.77592 2.06598 5.58112 2.24978 5.56058 3.2317L5.4102 10.421C5.39555 11.1217 5.33267 11.2445 4.53102 11.4331L3.01237 11.8076C1.44197 12.1718 0.195093 13.0715 0.161737 14.6661C0.132036 16.0861 1.19923 17.1325 2.86853 17.1651C5.2522 17.2116 6.91317 15.5564 6.96332 13.1589L7.07695 7.72642C7.08908 7.14646 7.22309 7.00575 7.56767 6.94687L13.9771 5.763Z M15.106 5.24877C15.1199 4.58255 15.121 4.53188 15.1411 3.56931L15.158 2.76417C15.1719 2.09994 15.1349 1.34185 15.1434 0.939705L14.6181 0.770083C13.7764 0.956349 13.5816 1.14015 13.561 2.12207L13.4106 9.31139C13.396 10.0121 13.3331 10.1348 12.5315 10.3235L11.0128 10.698C9.44241 11.0621 8.19553 11.9618 8.16218 13.5565C8.13247 14.9764 9.19966 16.0229 10.869 16.0554C13.2526 16.1019 14.9136 14.4468 14.9638 12.0492L15.0774 6.61679C15.0895 6.03682 15.0866 6.17459 15.0929 5.87425L15.106 5.24877Z",
+  ];
+
+  const particles = () => {
+    // Create notes with pre-calculated animation values
+    const newNotes = Array.from({ length: 4 }).map((_, i) => {
+      const initialRotation = Math.random() * 20 - 10; // Small initial tilt between -10 and 10 degrees
+      return {
+        id: Date.now() + i,
+        x: 0,
+        y: 0,
+        pathIndex: Math.floor(Math.random() * notePaths.length),
+        scale: 0.5 + Math.random() * 0.5,
+        rotation: initialRotation,
+        targetX: (Math.random() - 0.5) * 150, // Less horizontal movement
+        targetY: -60 - Math.random() * 40, // Less vertical movement
+        finalRotation: initialRotation + (Math.random() * 40 - 20), // Gentle rotation between -20 and +20 degrees
+        duration: 2.5 + Math.random(), // Slower duration between 2.5 and 3.5 seconds
+      };
+    });
+
+    setNotes([...notes, ...newNotes]);
+
+    // Clean up old notes
+    setTimeout(() => {
+      setNotes((prev) => prev.filter((note) => note.id !== newNotes[0].id));
+    }, 3500); // Extended timeout to match the longer animation
+  };
+
+  return (
+    <div className="text-center flex flex-col items-center justify-end h-[50vh] relative overflow-hidden">
+      <div className="mb-4">
+        <li className="flex h-10 w-[7.5rem] p-1 gap-0.5 bg-white/10 rounded-lg">
+          <motion.div
+            onClick={particles}
+            className="h-full w-10 aspect-square rounded-[4px] transition-all bg-white/10 active:scale-50 cursor-pointer relative"
+            whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.15)" }}
+            // whileTap={{ scale: 0.95 }}
+          >
+            <AnimatePresence>
+              {notes.map((note) => (
+                <motion.svg
+                  key={note.id}
+                  viewBox="0 0 24 24"
+                  className="absolute h-6 w-6 text-[--systemSecondary] fill-current z-10"
+                  style={{ bottom: 24, left: "50%", marginLeft: "-12px" }}
+                  initial={{
+                    y: 0,
+                    x: 0,
+                    opacity: 0,
+                    scale: note.scale,
+                    rotate: note.rotation,
+                  }}
+                  animate={{
+                    y: note.targetY,
+                    x: note.targetX,
+                    opacity: [0, 1, 0.8, 0],
+                    rotate: note.finalRotation,
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: note.duration,
+                    ease: "easeOut",
+                  }}
+                >
+                  <path d={notePaths[note.pathIndex]} />
+                </motion.svg>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+          <div className="grid w-full gap-0.5">
+            <div className="size-full bg-white/10 rounded-[4px]" />
+            <div className="h-3/4 w-1/2 bg-white/10 rounded-[4px]" />
+          </div>
+        </li>
+      </div>
+      <h2 className="text-lg opacity-75">Your library is empty</h2>
+      <p className="text-[--systemSecondary] w-60">
+        Add some songs to your library to see them here.
+      </p>
+    </div>
+  );
+};
+
+// File: src/rework/components/main/library/recently-added/RecentlyAdded.tsx
+import React from "react";
+
+export const RecentlyAdded = () => {
+  return (
+    <div className="p-4">
+      <h2 className="text-3xl font-bold mb-4">Recently Added</h2>
+      <p>The recently added page isn&apos;t finished yet</p>
+    </div>
+  );
+};
+
 // File: src/rework/components/main/Main.module.css
 .Content {
   height: 100vh;
@@ -24245,13 +24005,12 @@ import { DynamicPage } from "./DynamicPage";
 
 interface ScrollPageProps {
   children?: ReactNode;
-  index: number;
 }
 
-export const ScrollPage = ({ children, index }: ScrollPageProps) => {
+export const ScrollPage = ({ children }: ScrollPageProps) => {
   return (
     <div className={style.ScrollPage}>
-      <DynamicPage index={index}>{children}</DynamicPage>
+      <DynamicPage key={1}>{children}</DynamicPage>
       {/* <Footer /> */}
     </div>
   );
@@ -24563,13 +24322,34 @@ export const Banner = ({ query }: { query: string }) => {
   user-select: none;
   position: relative;
   overflow: hidden;
-  width: 50px;
-  height: 50px;
+  --songArtworkSize: 50px;
+  width: var(--songArtworkSize);
+  height: var(--songArtworkSize);
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
   & img {
     object-fit: cover;
     width: 100%;
     height: auto;
+  }
+  &:hover {
+    color: transparent;
+  }
+  &:hover:after {
+    opacity: 0.75;
+  }
+  &:after {
+    content: " ";
+    position: absolute;
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect fill="rgba(0, 0, 0, 0)" width="60" height="60"></rect><path fill="white" d="M26.411 39.853c-1.21.753-2.528.157-2.528-1.094V21.47c0-1.24 1.435-1.858 2.528-1.094l15.265 8.235a1.69 1.69 0 0 1 0 3.065L26.411 39.853Z"></path></svg>');
+    height: var(--songArtworkSize);
+    width: var(--songArtworkSize);
+    opacity: 0;
+    transform: translateX(-1px);
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease-in-out;
   }
 }
 
@@ -24767,9 +24547,6 @@ export default function SearchResults({ data }: SearchResultsProps) {
               <AlbumCard
                 key={`album-${idx}`}
                 item={album}
-                onClick={() =>
-                  router.push(`/album/${album.permalink}/${album.id}`)
-                }
                 // onClick={() => handleFetchPlaylist(album.permalink_url, false)}
               />
             ))}
@@ -24807,26 +24584,37 @@ function AlbumCard({
   onClick,
 }: {
   item: SoundCloudItem;
-  onClick: () => void;
+  onClick?: () => void;
 }) {
   const THEMED_DEFAULT_IMAGE = useThemedPlaceholder();
   const artwork =
     item.artwork_url || item.tracks?.[0]?.artwork_url || THEMED_DEFAULT_IMAGE;
-
+  const isPlaylist = item.kind === "playlist" ? true : false;
   return (
-    <button className={styles.albumCard}>
+    <Link
+      href={
+        isPlaylist
+          ? `/playlist/${item.id}`
+          : `/album/${item.permalink}/${item.id}`
+      }
+      className={styles.albumCard}
+    >
       <div onClick={onClick} className={styles.albumArtworkWrapper}>
-        <Image src={artwork} alt={item.title || "Album"} fill />
+        <Image
+          src={artwork}
+          alt={item.title || isPlaylist ? "Playlist" : "Album"}
+          fill
+        />
         <div className={styles.artworkOverlay} />
       </div>
       <div title={item.title} className={styles.albumInfo}>
         <h1>{item.title}</h1>
         <p>
-          Album ·{" "}
+          {isPlaylist ? "Playlist" : "Album"} ·{" "}
           {item.release_date || item.display_date ? getYear(item) : null}
         </p>
       </div>
-    </button>
+    </Link>
   );
 }
 
@@ -24841,33 +24629,36 @@ function SongCard({
   const THEMED_DEFAULT_IMAGE = useThemedPlaceholder();
   const artwork = item.artwork_url || THEMED_DEFAULT_IMAGE;
   const artist = item.publisher_metadata?.artist || item.user?.username;
-  
+
   return (
-    <ContextMenu type="song" itemId={String(item.id)}>
-      <li className={styles.songCard}>
-        <button onClick={onPlay} className={styles.songArtworkWrapper}>
-          <Image
-            src={artwork}
-            alt={item.title || "Track"}
-            width={150}
-            height={150}
-            className={styles.rounded}
-          />
-        </button>
-        <div className={styles.songInfo}>
-          <span
-            title={item.title}
-            aria-label={`Name of the track: ${item.title}`}
-            className="flex gap-1"
-          >
-            <h1>{item.title}</h1>
-            {item.publisher_metadata?.explicit && (
-              <span className="text-[#aeaeae]">🅴</span>
-            )}
-          </span>
-          {artist && <p title={artist}>{artist}</p>}
-        </div>
-      </li>
+    <ContextMenu
+      className={styles.songCard}
+      as={"li"}
+      type="song"
+      title={item.title}
+      itemId={String(item.id)}
+    >
+      <button onClick={onPlay} className={styles.songArtworkWrapper}>
+        <Image
+          src={artwork}
+          alt={item.title || "Track"}
+          width={150}
+          height={150}
+        />
+      </button>
+      <div className={styles.songInfo}>
+        <span
+          title={item.title}
+          aria-label={`Name of the track: ${item.title}`}
+          className="flex gap-1"
+        >
+          <h1>{item.title}</h1>
+          {item.publisher_metadata?.explicit && (
+            <span className="text-[#aeaeae]">🅴</span>
+          )}
+        </span>
+        {artist && <p title={artist}>{artist}</p>}
+      </div>
     </ContextMenu>
   );
 }
@@ -25214,9 +25005,8 @@ import {
 import Link from "next/link";
 import "./SearchDropDown.css";
 import Image from "next/image";
-import { PLACEHOLDER_IMAGE, USER } from "@/lib/constants";
-import { userAgent } from "next/server";
-import { dev } from "@/lib/utils";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import { useUser } from "@/hooks/useUser";
 
 interface SearchDropdownProps {
   results: SoundCloudSearchResult;
@@ -25245,6 +25035,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   typedQuery,
   setShowDropdown,
 }) => {
+  const { settings } = useUser();
   const formatter = new Intl.NumberFormat("en-US", {
     notation: "compact",
     compactDisplay: "short",
@@ -25274,7 +25065,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
             }}
           >
             <span className="flex flex-col">
-              {USER.settings.search.highlightedQueries ? (
+              {settings?.highlightedQueries ? (
                 <p
                   className="search-hint-text truncate"
                   // Dangerously set the HTML with the highlight
@@ -25588,8 +25379,8 @@ import { SidebarUserFooter } from "./SidebarUserFooter";
 import { AiFillHome, AiFillClockCircle, AiFillHeart } from "react-icons/ai";
 import { BiSolidAlbum, BiSolidPlaylist, BiSolidMusic } from "react-icons/bi";
 import { FaUserAlt, FaListAlt } from "react-icons/fa";
-import { USER } from "@/lib/constants";
 import { IoMusicalNote } from "react-icons/io5";
+import { useUser } from "@/hooks/useUser";
 
 const libraryItems = [
   {
@@ -25604,12 +25395,21 @@ const libraryItems = [
 
 const playlistItems = [
   { href: "/playlists", text: "All Playlists", icon: <FaListAlt /> },
-  { href: "/favorite-songs", text: "Favorite Songs", icon: <AiFillHeart /> },
-  {
-    href: "/2093-all-parts",
-    text: "2093 (All Parts)",
-    icon: <BiSolidPlaylist />,
-  },
+  // {
+  //   href: "/2093-all-parts",
+  //   text: "2093 (All Parts)",
+  //   icon: <BiSolidPlaylist />,
+  // },
+];
+
+const meItems = [
+  { href: "/me/likes", text: "Your Likes", icon: <AiFillHeart /> },
+  { href: "/me/playlists", text: "Your Playlists", icon: <FaListAlt /> },
+  // {
+  //   href: "/2093-all-parts",
+  //   text: "2093 (All Parts)",
+  //   icon: <BiSolidPlaylist />,
+  // },
 ];
 
 const pinnedItems = [
@@ -25618,7 +25418,6 @@ const pinnedItems = [
     text: "Eternal Atake 2",
     icon: <IoMusicalNote />,
   },
-  
 ];
 
 export const SidebarContent = () => {
@@ -25632,6 +25431,16 @@ export const SidebarContent = () => {
           {libraryItems.map((item, index) => (
             <Item
               key={`library-${index}`}
+              href={item.href}
+              text={item.text}
+              icon={item.icon}
+            />
+          ))}
+
+          <SectionLabel title="Your Soundcloud Content" label="Me" />
+          {meItems.map((item, index) => (
+            <Item
+              key={`me-${index}`}
               href={item.href}
               text={item.text}
               icon={item.icon}
@@ -25689,8 +25498,10 @@ export const SidebarContent = () => {
   );
 };
 
-const SectionLabel = ({ label }: { label: string }) => (
-  <div className={style.SidebarSectionLabel}>{label}</div>
+const SectionLabel = ({ label, title }: { label: string; title?: string }) => (
+  <div title={title} className={style.SidebarSectionLabel}>
+    {label}
+  </div>
 );
 
 const Item = ({
@@ -25702,11 +25513,11 @@ const Item = ({
   text: string;
   icon?: React.ReactNode;
 }) => {
-  const showIcons = USER.settings.sidebar.showIcons;
+  const { settings } = useUser();
   return (
     <li className={style.SidebarItem}>
       <Link href={href} className={style.SidebarItemLink}>
-        {showIcons && icon && (
+        {settings?.showSidebarIcons && icon && (
           <span className={style.SidebarItemIcon}>{icon}</span>
         )}
         <span>{text}</span>
@@ -25754,15 +25565,16 @@ export const SidebarUserFooter = () => {
   }
 
   return (
-    <FooterContainer href="/account">
+    <FooterContainer href="/settings">
       <div className="flex gap-2 items-center">
         {user.imageUrl && (
-          <div className="bg-white/5 rounded-full size-8 overflow-hidden">
+          <div className="dark:bg-white/5 bg-black/5 flex items-center rounded-full size-8 overflow-hidden">
             <Image
               src={user.imageUrl}
               alt="User profile image"
               width={40}
               height={40}
+              className="object-xx"
             />
           </div>
         )}
@@ -26617,6 +26429,8 @@ export const TrackInfo = () => {
   }
 }
 
+/* ../../public/assets/fonts/ */
+
 @font-face {
   src: url("../../public/assets/fonts/SFNS.woff2") format("woff2-variations");
   font-family: "SF Pro";
@@ -26668,7 +26482,8 @@ body {
 }
 @layer base {
   :root {
-    --keyColor: #7efa58;
+    /* Default theme color that can be overridden dynamically */
+    --keyColor: #5891fa;
 
     --background: hsl(0, 0%, 100%);
     --foreground: hsl(0, 0%, 3.9%);
@@ -26812,26 +26627,48 @@ body {
 }
 
 // File: src/styles/contexifyGaku.css
+.contexify {
+  backdrop-filter: blur(10px);
+}
+
 :root {
+  --contexify-menu-bgColor: rgba(255, 255, 255, 0.493);
+  --contexify-separator-color: #4c4c4c;
+  --contexify-item-color: var(--foreground)
+  --contexify-activeItem-bgColor: var(--keyColor);
+
   --contexify-zIndex: 666;
   --contexify-menu-minWidth: 220px;
   --contexify-menu-padding: 6px;
-  --contexify-menu-radius: 6px;
-  --contexify-menu-bgColor: #fff;
-  --contexify-menu-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1),
-    2px 4px 4px rgba(0, 0, 0, 0.1), 3px 6px 6px rgba(0, 0, 0, 0.1);
+  --contexify-menu-radius: 14px;
+  --contexify-menu-shadow: 0px 0px 4px rgba(0, 0, 0, 0.05),
+    3px 3px 4px rgba(0, 0, 0, 0.05);
   --contexify-menu-negatePadding: var(--contexify-menu-padding);
-  --contexify-separator-color: rgba(0, 0, 0, 0.2);
   --contexify-separator-margin: 5px;
   --contexify-itemContent-padding: 6px;
-  --contexify-activeItem-radius: 4px;
-  --contexify-item-color: #333;
+  --contexify-activeItem-radius: 8px;
   --contexify-activeItem-color: #fff;
-  --contexify-activeItem-bgColor: var(--keyColor);
   --contexify-rightSlot-color: #6f6e77;
   --contexify-activeRightSlot-color: #fff;
   --contexify-arrow-color: #6f6e77;
   --contexify-activeArrow-color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --contexify-menu-bgColor: rgba(44, 44, 44, 0.5);
+    --contexify-separator-color: #4c4c4c;
+    --contexify-item-color: var(--foreground)
+
+    --contexify-menu-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1),
+      2px 4px 4px rgba(0, 0, 0, 0.1), 3px 6px 6px rgba(0, 0, 0, 0.1);
+    --contexify-activeItem-color: #fff;
+    --contexify-activeItem-bgColor: var(--keyColor);
+    --contexify-rightSlot-color: #6f6e77;
+    --contexify-activeRightSlot-color: #fff;
+    --contexify-arrow-color: #6f6e77;
+    --contexify-activeArrow-color: #fff;
+  }
 }
 
 // File: src/styles/lyrics.css
@@ -30157,9 +29994,58 @@ DROP INDEX "Library_key_key";
 -- AlterTable
 ALTER TABLE "Library" DROP COLUMN "key";
 
+// File: prisma/migrations/20250305194920_add_user_settings/migration.sql
+-- AlterTable
+ALTER TABLE "Library" ALTER COLUMN "updatedAt" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "Playlist" ALTER COLUMN "updatedAt" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "Song" ALTER COLUMN "updatedAt" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "_LibraryToSong" ADD CONSTRAINT "_LibraryToSong_AB_pkey" PRIMARY KEY ("A", "B");
+
+-- DropIndex
+DROP INDEX "_LibraryToSong_AB_unique";
+
+-- AlterTable
+ALTER TABLE "_PlaylistToSong" ADD CONSTRAINT "_PlaylistToSong_AB_pkey" PRIMARY KEY ("A", "B");
+
+-- DropIndex
+DROP INDEX "_PlaylistToSong_AB_unique";
+
+-- AlterTable
+ALTER TABLE "_UserLikedSongs" ADD CONSTRAINT "_UserLikedSongs_AB_pkey" PRIMARY KEY ("A", "B");
+
+-- DropIndex
+DROP INDEX "_UserLikedSongs_AB_unique";
+
+-- CreateTable
+CREATE TABLE "UserSettings" (
+    "id" TEXT NOT NULL,
+    "themeColor" TEXT NOT NULL DEFAULT '#5891fa',
+    "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "UserSettings_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserSettings_userId_key" ON "UserSettings"("userId");
+
+-- AddForeignKey
+ALTER TABLE "UserSettings" ADD CONSTRAINT "UserSettings_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
 // File: prisma/migrations/migration_lock.toml
 # Please do not edit this file manually
-# It should be added in your version-control system (i.e. Git)
+# It should be added in your version-control system (e.g., Git)
 provider = "postgresql"
 // File: prisma/schema.prisma
 // prisma/schema.prisma
@@ -30175,14 +30061,29 @@ datasource db {
 }
 
 model User {
-  id         String     @id // Clerk's user ID
-  email      String     @unique
-  username   String?    @unique
+  id         String        @id // Clerk's user ID
+  email      String        @unique
+  username   String?       @unique
   firstName  String?
   lastName   String?
   libraries  Library[]
   playlists  Playlist[]
-  likedSongs Song[]     @relation("UserLikedSongs")
+  likedSongs Song[]        @relation("UserLikedSongs")
+  settings   UserSettings? // Relation to user settings
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @default(now()) // Added default value to resolve migration issue
+}
+
+model UserSettings {
+  id                 String   @id @default(cuid())
+  themeColor         String   @default("#5891fa") // Settings | Default theme color
+  highlightedQueries Boolean  @default(false) // Settings | Search setting - highlight queries
+  showSidebarIcons   Boolean  @default(true) // Settings | Sidebar setting - show icons
+  soundcloudUserId   String? // SoundCloud User ID for accessing user's SoundCloud data
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String   @unique // One-to-one relationship
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now()) // Added default value to resolve migration issue
 }
 
 model Library {
@@ -30192,7 +30093,7 @@ model Library {
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) // Added default value to resolve migration issue
 }
 
 model Song {
@@ -30205,7 +30106,7 @@ model Song {
   playlists Playlist[] // Songs can be in multiple playlists
   likedBy   User[]     @relation("UserLikedSongs")
   createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  updatedAt DateTime   @default(now()) // Added default value to resolve migration issue
 }
 
 model Playlist {
@@ -30217,6 +30118,6 @@ model Playlist {
   userId      String
   songs       Song[]
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now()) // Added default value to resolve migration issue
 }
 

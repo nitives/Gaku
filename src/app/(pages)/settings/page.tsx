@@ -7,6 +7,7 @@ import {
   IoPersonOutline,
   IoSearchOutline,
   IoMenuOutline,
+  IoMusicalNotesOutline,
 } from "react-icons/io5";
 import { showToast } from "@/hooks/useToast";
 import { Spinner } from "@/rework/components/extra/Spinner";
@@ -18,6 +19,7 @@ export default function SettingsPage() {
   const [themeColor, setThemeColor] = useState("#5891fa"); // Default color
   const [highlightedQueries, setHighlightedQueries] = useState(false);
   const [showSidebarIcons, setShowSidebarIcons] = useState(true);
+  const [soundcloudUserId, setSoundcloudUserId] = useState("");
   const [saving, setSaving] = useState(false);
   const colorInputRef = useRef<HTMLInputElement>(null);
 
@@ -56,6 +58,7 @@ export default function SettingsPage() {
         }
         setHighlightedQueries(data.highlightedQueries || false);
         setShowSidebarIcons(data.showSidebarIcons !== false); // Default to true if not set
+        setSoundcloudUserId(data.soundcloudUserId || "");
       }
     } catch (error) {
       console.error("Error fetching user settings:", error);
@@ -146,6 +149,11 @@ export default function SettingsPage() {
     await updateSetting("showSidebarIcons", newValue);
   };
 
+  const saveSoundcloudUserId = async () => {
+    const trimmedId = soundcloudUserId.trim();
+    await updateSetting("soundcloudUserId", trimmedId || null);
+  };
+
   if (!isLoaded) {
     return (
       <SafeView className="w-full">
@@ -204,6 +212,52 @@ export default function SettingsPage() {
                   Save
                 </button>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SoundCloud Section */}
+        <section>
+          <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
+            <IoMusicalNotesOutline /> SoundCloud Integration
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="soundcloud-userid"
+                className="block select-none text-sm font-medium mb-1"
+              >
+                SoundCloud User ID
+              </label>
+              <p className="text-sm text-[--systemSecondary] mb-2">
+                Enter your SoundCloud User ID to access your playlists, likes,
+                and more
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  id="soundcloud-userid"
+                  value={soundcloudUserId}
+                  onChange={(e) => setSoundcloudUserId(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      saveSoundcloudUserId();
+                    }
+                  }}
+                  className="p-2 bg-background border border-labelDivider rounded-xl w-full placeholder:text-[--systemSecondary]"
+                  placeholder="e.g. 123456789"
+                />
+                <button
+                  onClick={saveSoundcloudUserId}
+                  className="px-4 py-2 select-none bg-background border border-labelDivider rounded-xl hover:bg-systemToolbarTitlebar transition-colors"
+                >
+                  Save
+                </button>
+              </div>
+              <p className="text-xs text-[--systemSecondary] mt-1">
+                You can find your User ID in your SoundCloud profile URL or
+                settings
+              </p>
             </div>
           </div>
         </section>
