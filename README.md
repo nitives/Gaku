@@ -90,4 +90,4 @@ Contributions are welcome! Please fork the repo and submit a pull request with y
 
 ## License
 
-MIT License © 2025 nitves
+MIT License © 2025 nite
