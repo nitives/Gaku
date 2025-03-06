@@ -99,7 +99,7 @@ export const AppleLyrics = () => {
     );
   }
 
-  const onLyricLineClick = (line: LyricLineMouseEvent) => {
+  const onLyricLineClick = (line: any) => {
     dev.log("onLyricLineClick | Clicked on line:", line);
     seek(line.line.lyricLine.startTime / 1000);
   };
