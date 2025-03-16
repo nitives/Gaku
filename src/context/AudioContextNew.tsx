@@ -13,6 +13,7 @@ interface AudioStateNew {
 
   currentTime: number;
   duration: number;
+  volume: number;
 
   fineProgress: number;
   rafId: number | null;
@@ -30,6 +31,7 @@ interface AudioStateNew {
   setDuration: (duration: number) => void;
   setCurrentTime: (time: number) => void;
   seek: (time: number) => void;
+  setVolume: (volume: number) => void;
 
   startFineProgressUpdates: () => void;
   stopFineProgressUpdates: () => void;
@@ -49,6 +51,7 @@ export const useAudioStoreNew = create<AudioStateNew>((set, get) => ({
 
   currentTime: 0,
   duration: 0,
+  volume: 0.15,
   fineProgress: 0,
   rafId: null,
 
@@ -168,6 +171,10 @@ export const useAudioStoreNew = create<AudioStateNew>((set, get) => ({
       playerRef.current.seekTo(time);
       set({ currentTime: time, fineProgress: time });
     }
+  },
+
+  setVolume: (volume: number) => {
+    set({ volume });
   },
 
   setAnimatedURL: (url: string) => {

@@ -1,3 +1,18 @@
+@media not all and (min-width: 640px) {
+  .AlbumHeader {
+    flex-direction: column;
+    height: auto !important;
+    align-items: center;
+    padding-top: 40px;
+  }
+  .AlbumInfoNControls {
+    align-items: center;
+  }
+  .AlbumInfo {
+    align-items: center;
+  }
+}
+
 .AlbumHeader {
   --albumHeaderHeight: 250px;
   display: flex;

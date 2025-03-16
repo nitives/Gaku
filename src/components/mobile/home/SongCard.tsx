@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeletons/skeleton";
 import { CanvasBackground } from "@/components/CanvasBackground";
 
 interface SongCard {

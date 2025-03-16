@@ -1,10 +1,10 @@
-import { Apple } from "lucide-react";
 import { artistMappings } from "../artist";
 import { Song } from "./types";
 import { fetchPlaylistM3U8, dev } from "@/lib/utils";
 import { EditorialVideo } from "../types/apple";
 import { showToast } from "@/hooks/useToast";
 import toast from "react-hot-toast";
+import { get } from "http";
 
 /**
  * Fetch additional metadata (like HD cover) for a given song, without fetching M3U8.
@@ -34,7 +34,7 @@ export async function fetchSongMedia(song: Song): Promise<{ HDCover: string }> {
  */
 export async function fetchM3U8ForSong(song: Song): Promise<string> {
   try {
-    dev.log("fetchM3U8ForSong", song);
+    dev.log(`fetchM3U8ForSong | ${song.name} |`, song);
     const trackInfoResponse = await fetch(`/api/track/info/${song.id}`);
     if (!trackInfoResponse.ok) {
       console.error(
@@ -212,7 +212,8 @@ async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
   const songs: Song[] = [];
   for (const track of tracks) {
     try {
-      const HDCover = await getHDCover(track.permalink_url);
+      // const HDCover = await getHDCover(track.permalink_url);
+      const HDCover = await getHDCover(track.permalink_url, true); // Using local method to get HD cover
       const song: Song = {
         albumName: track.publisher_metadata?.album_title || "",
         artist: {
@@ -250,7 +251,10 @@ async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
 /**
  * Fetches the HD cover image given a track/playlist permalink URL.
  */
-export async function getHDCover(url: string): Promise<string> {
+export async function getHDCover(url: string, local: boolean): Promise<string> {
+  if (local) {
+    return url.replace("large", "t500x500");
+  }
   dev.log("getHDCover", url);
   try {
     const response = await fetch(`/api/extra/cover/${encodeURIComponent(url)}`);
@@ -278,10 +282,9 @@ export async function getIDFromURL(url: string): Promise<number> {
       `/api/soundcloud/getid/${encodeURIComponent(url)}`
     );
     if (!response.ok) {
-      console.error(`Failed to get ID from URL: ${url}`);
+      console.warn(`Failed to get ID from URL: ${url}`);
       return -1;
     }
-
     const data = await response.json();
     return data.trackId;
   } catch (error) {
@@ -551,5 +554,11 @@ export const SoundCloudKit = {
       console.error("getUserData error", err);
       return null;
     }
+  },
+  /**
+   * Get HD version of the current image.
+   */
+  getHD(url: string) {
+    return url.replace("large", "t500x500");
   },
 };

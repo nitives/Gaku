@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAudioStoreNew } from "@/context/AudioContextNew";
 import ReactPlayer from "react-player";
 import { Controls } from "./controls/Controls";
+import { SoundCloudKit } from "@/lib/audio/fetchers";
 
 export const AudioPlayerNew = () => {
   const {
@@ -15,6 +16,7 @@ export const AudioPlayerNew = () => {
     duration,
     setPlayerRef,
     setIsPlaying,
+    volume,
   } = useAudioStoreNew();
   const playerRef = useRef<ReactPlayer>(null);
 
@@ -40,7 +42,9 @@ export const AudioPlayerNew = () => {
         album: currentSong?.albumName || "",
         artwork: [
           {
-            src: currentSong?.artwork.hdUrl || "default-image.jpg",
+            src: SoundCloudKit.getHD(
+              currentSong?.artwork?.url || "default-image.jpg"
+            ),
             sizes: "512x512",
             type: "image/png",
           },
@@ -89,6 +93,7 @@ export const AudioPlayerNew = () => {
         url={currentSong?.src}
         playing={isPlaying}
         onEnded={nextSong}
+        volume={volume}
         onProgress={({ playedSeconds }) =>
           useAudioStoreNew.getState().setCurrentTime(playedSeconds)
         }

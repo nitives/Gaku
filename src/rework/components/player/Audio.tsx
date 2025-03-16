@@ -12,6 +12,7 @@ export const Audio = () => {
     duration,
     setPlayerRef,
     setIsPlaying,
+    volume,
   } = useAudioStoreNew();
   const playerRef = useRef<ReactPlayer>(null);
   useEffect(() => {
@@ -78,6 +79,7 @@ export const Audio = () => {
       url={currentSong?.src}
       playing={isPlaying}
       onEnded={nextSong}
+      volume={volume}
       onProgress={({ playedSeconds }) =>
         useAudioStoreNew.getState().setCurrentTime(playedSeconds)
       }

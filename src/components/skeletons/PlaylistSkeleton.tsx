@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeletons/skeleton";
 import { BackButton, SafeView } from "../mobile/SafeView";
 
 export const PlaylistSkeleton = () => {

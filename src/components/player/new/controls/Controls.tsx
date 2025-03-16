@@ -1,9 +1,10 @@
 import { useAudioStoreNew } from "@/context/AudioContextNew";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import style from "./Controls.module.css";
 
 import { IoPlay, IoPlayBack, IoPlayForward } from "react-icons/io5";
 import { PiPauseFill } from "react-icons/pi";
+import { Volume2, VolumeX } from "lucide-react";
 
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import Image from "next/image";
@@ -17,6 +18,7 @@ import AnimatedCover from "@/components/AnimatedCover";
 import { LyricIcon } from "@/components/Icons/LyricIcon";
 import { Options } from "@/components/Icons/Options";
 import { useThemedPlaceholder } from "@/lib/utils/themedPlaceholder";
+import { SoundCloudKit } from "@/lib/audio/fetchers";
 // import { AppleLyrics } from "../lyrics/AppleLyrics";
 // import { BackgroundRender } from "@applemusic-like-lyrics/react";
 
@@ -213,6 +215,9 @@ const ExpandedPlayer = ({
   const [lyricsVisible, setLyricsVisible] = useState(false);
   const toggleLyrics = () => setLyricsVisible(!lyricsVisible);
 
+  const PLACEHOLDER_IMAGE = useThemedPlaceholder();
+  const IMAGEHD = SoundCloudKit.getHD(song?.artwork?.url || "");
+
   const currentTime = useAudioStoreNew((state) => state.currentTime ?? 0);
   const duration = useAudioStoreNew((state) => state.duration ?? 0);
   const seek = useAudioStoreNew((state) => state.seek);
@@ -362,13 +367,7 @@ const ExpandedPlayer = ({
               className={`${
                 isDesktop ? "rounded-[1rem]" : "rounded-[6px]"
               } blur-md opacity-25 translate-y-1`}
-              src={
-                song?.artwork?.hdUrl ||
-                song?.artwork?.url ||
-                (theme === "light"
-                  ? "/assets/placeholders/missing_song_light.png"
-                  : "/assets/placeholders/missing_song_dark.png")
-              }
+              src={IMAGEHD || PLACEHOLDER_IMAGE}
               alt={song?.name || "Missing Image"}
               width={400}
               height={400}
@@ -555,6 +554,7 @@ export const AppleCover = ({
   imageSize?: number;
 }) => {
   const PLACEHOLDER_IMAGE = useThemedPlaceholder();
+  const IMAGEHD = SoundCloudKit.getHD(song?.artwork?.url || "");
 
   const squircleStyle = {
     width: imageSize,
@@ -582,7 +582,7 @@ export const AppleCover = ({
     <div className="select-none" style={squircleStyle}>
       <Image
         className={isDesktop ? "" : ""}
-        src={song?.artwork?.hdUrl || song?.artwork?.url || PLACEHOLDER_IMAGE}
+        src={IMAGEHD || PLACEHOLDER_IMAGE}
         alt={song?.name || "Missing Image"}
         width={imageSize}
         height={imageSize}
@@ -601,44 +601,59 @@ export const LyricButton = ({
   active: boolean;
 }) => {
   const buttonMotionProps = {
-    whileHover: { backgroundColor: "rgba(255, 255, 255, 0.05)" },
+    whileHover: { backgroundColor: "rgba(255, 255, 255, 0.125)" },
     whileTap: {
       scale: 0.9,
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
+      backgroundColor: "rgba(255, 255, 255, 0.2)",
     },
-    transition: { duration: 0.125, ease: "easeInOut" },
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 17,
+    },
     className: "flex flex-col items-center rounded-full p-2",
   };
   return (
     <motion.button
+      title="Lyrics"
       {...buttonMotionProps}
       onClick={onClick}
       style={{
-        backgroundColor: active ? "rgba(255, 255, 255, 0.1)" : "transparent",
+        backgroundColor: active
+          ? "rgba(255, 255, 255, 0.1)"
+          : "rgba(255, 255, 255, 0.05)",
       }}
-      className="flex items-center justify-center w-10 h-10 rounded-full"
+      className="flex items-center justify-center size-8 rounded-full"
     >
-      <LyricIcon className="size-[24px] fill-white" />
+      <LyricIcon className="size-[20px] fill-white" />
     </motion.button>
   );
 };
 
 export const OptionsButton = ({ onClick }: { onClick: () => void }) => {
   const buttonMotionProps = {
-    whileHover: { backgroundColor: "rgba(255, 255, 255, 0.075)" },
+    whileHover: { backgroundColor: "rgba(255, 255, 255, 0.125)" },
     whileTap: {
       scale: 0.9,
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
+      backgroundColor: "rgba(255, 255, 255, 0.2)",
     },
-    transition: { duration: 0.125, ease: "easeInOut" },
-    style: {
-      backgroundColor: "rgba(255, 255, 255, 0.05)",
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 17,
     },
     className:
-      "flex flex-col items-center rounded-full p-2 justify-center size-10",
+      "flex flex-col items-center rounded-full p-2 justify-center size-8",
   };
   return (
-    <motion.button {...buttonMotionProps} onClick={onClick}>
+    <motion.button
+      style={{
+        backgroundColor: "rgba(255, 255, 255, 0.05)",
+      }}
+      title="Options"
+      {...buttonMotionProps}
+      onClick={onClick}
+    >
       <Options className="size-[24px] fill-white" />
     </motion.button>
   );
@@ -653,16 +668,116 @@ export const DurationSlider = ({
   currentTime: number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) => {
+  const sliderRef = useRef<HTMLInputElement>(null);
+
+  // Calculate seek percentage only when needed
+  const seekPercentage = useMemo(() => {
+    return (currentTime / (duration || 1)) * 100 || 0;
+  }, [currentTime, duration]);
+
+  // Update the slider position using transform instead of CSS variables
+  useEffect(() => {
+    if (sliderRef.current) {
+      // Use requestAnimationFrame for smoother updates
+      requestAnimationFrame(() => {
+        if (sliderRef.current) {
+          sliderRef.current.style.setProperty(
+            "--seek-value",
+            `${seekPercentage}%`
+          );
+        }
+      });
+    }
+  }, [seekPercentage]);
+
   return (
-    <>
-      <input
+    <div className="flex items-center gap-2 w-full">
+      <motion.input
+        ref={sliderRef}
         type="range"
         min={0}
         max={duration || 1}
         value={currentTime}
         onChange={onChange}
-        className="flex-1 accent-white rounded-lg h-2"
+        whileHover={{ scaleY: 1.5 }}
+        whileTap={{ scaleY: 0.995 }}
+        className="apple-slider seek-slider"
       />
-    </>
+    </div>
+  );
+};
+
+export const VolumeSlider = ({
+  volume,
+  onChange,
+}: {
+  volume: number;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) => {
+  const [isMuted, setIsMuted] = useState(false);
+  const [previousVolume, setPreviousVolume] = useState(volume);
+
+  // Convert decimal volume (0-1) to percentage for display
+  const volumePercentage = volume * 100;
+
+  // Set CSS variable for volume slider track styling
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--volume-value",
+      `${volumePercentage}%`
+    );
+  }, [volumePercentage]);
+
+  const handleMute = () => {
+    if (isMuted) {
+      // Unmute: restore previous volume
+      const newEvent = {
+        target: {
+          value: previousVolume.toString(),
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange(newEvent);
+      setIsMuted(false);
+    } else {
+      // Mute: save current volume and set to 0
+      setPreviousVolume(volume);
+      const newEvent = {
+        target: {
+          value: "0",
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange(newEvent);
+      setIsMuted(true);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2 w-full">
+      <motion.button
+        title={isMuted ? "Unmute" : "Mute"}
+        whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.125)" }}
+        whileTap={{ scale: 0.9, backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+        transition={{ duration: 0.125, ease: "easeInOut" }}
+        onClick={handleMute}
+        className="p-1.5 rounded-full bg-transparent"
+      >
+        {volume === 0 || isMuted ? (
+          <VolumeX size={20} className="text-white/80" />
+        ) : (
+          <Volume2 size={20} className="text-white/80" />
+        )}
+      </motion.button>
+      <motion.input
+        whileHover={{ scaleY: 1.5 }}
+        whileTap={{ scaleY: 0.995 }}
+        className="apple-slider volume-slider"
+        type="range"
+        min={0}
+        max={1}
+        step="0.01"
+        value={volume}
+        onChange={onChange}
+      />
+    </div>
   );
 };

@@ -70,7 +70,7 @@ export default function UserLikedSongs({ user }: { user: any }) {
               {rowVirtualizer.getVirtualItems().map((virtualItem: any) => {
                 const item = transformedTracks[virtualItem.index];
                 return (
-                  <div
+                  <LibraryItem
                     key={item.id}
                     ref={virtualItem.measureRef}
                     style={{
@@ -80,9 +80,9 @@ export default function UserLikedSongs({ user }: { user: any }) {
                       width: "100%",
                       transform: `translateY(${virtualItem.start}px)`,
                     }}
-                  >
-                    <LibraryItem item={item} allItems={transformedTracks} />
-                  </div>
+                    item={item}
+                    allItems={transformedTracks}
+                  />
                 );
               })}
             </ul>

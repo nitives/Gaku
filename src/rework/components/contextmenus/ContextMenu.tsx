@@ -6,6 +6,7 @@ type ContextMenuProps = {
   type: "song" | "album" | "artist";
   itemId: string;
   children: React.ReactNode;
+  ref: React.Ref<any>;
   as?: React.ElementType;
   className?: string;
   title?: string;
@@ -26,6 +27,7 @@ const ContextMenu = ({
   type,
   itemId,
   children,
+  ref,
   as: Element = "div",
   className = "",
   title = "",
@@ -49,14 +51,14 @@ const ContextMenu = ({
 
   return (
     <Element
-      title={title}
+      ref={ref}
+      {...(title ? { title } : {})} // dont add title if it's empty
       onContextMenu={(e: React.MouseEvent<HTMLElement>) => {
-        e.preventDefault();
-        // Pass itemId to the menu
-        dev.log("Context menu |", "type:", type, "id:", itemId);
-        show({ event: e, props: { itemId } });
+      e.preventDefault();
+      // Pass itemId to the menu
+      dev.log("Context menu |", "type:", type, "id:", itemId);
+      show({ event: e, props: { itemId } });
       }}
-      // style={{ width: "100%" }}
       className={className}
     >
       {children}

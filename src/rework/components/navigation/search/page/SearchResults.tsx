@@ -153,7 +153,7 @@ function AlbumCard({
   const THEMED_DEFAULT_IMAGE = useThemedPlaceholder();
   const artwork =
     item.artwork_url || item.tracks?.[0]?.artwork_url || THEMED_DEFAULT_IMAGE;
-  const isPlaylist = item.kind === "playlist" ? true : false;
+  const isPlaylist = item.kind === "playlist" ? false : true;
   return (
     <Link
       href={

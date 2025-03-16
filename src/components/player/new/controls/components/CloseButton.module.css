@@ -2,25 +2,26 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  fill: rgba(255, 255, 255, 0.75);
+  fill: rgba(255, 255, 255, 0.6);
   font-size: 15px;
   width: 30px;
   height: 30px;
   margin: 20px;
-  padding: 8px;
+  padding: 9px;
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  transition: 0.2s opacity ease-out, 0.2s transform ease-out,
-    0.2s background-color ease-out;
+  transition: 0.125s opacity ease-out, 0.125s transform ease-out,
+    0.125s background-color ease-out;
   border-radius: 50%;
   outline: none;
   cursor: pointer;
+  pointer-events: all;
   -webkit-tap-highlight-color: transparent;
   &:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.125);
   }
   &:active {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.2);
   }
 }
 

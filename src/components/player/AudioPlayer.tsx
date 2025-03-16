@@ -15,7 +15,6 @@ import Image from "next/image";
 import { AnimatePresence, motion, transform } from "framer-motion";
 import { TitleOverflowAnimator } from "../mobile/TitleOverflowAnimator";
 import useAudioStore from "@/context/AudioContext";
-// import { AnimatedLyrics } from "./AnimatedLyrics";
 import "../../styles/overlay.css";
 import "../../styles/playercontrols.css";
 import { CanvasBackground } from "../CanvasBackground";
@@ -24,7 +23,7 @@ import { useTheme } from "next-themes";
 import { Lyric } from "@/lib/types";
 
 import LyricsView from "../lyrics/LyricsView";
-import timelessData from "../lyrics/timeless.json";
+import timelessData from "../../../etc/test/timeless.json";
 import { LyricIcon } from "../Icons/LyricIcon";
 
 export const AudioPlayer = ({

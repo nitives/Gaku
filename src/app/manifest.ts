@@ -9,7 +9,7 @@ const iconTheme = {
 };
 
 // Set the desired theme here
-const selectedTheme = iconTheme.sunset;
+const selectedTheme = iconTheme.flora;
 
 export default function manifest(): MetadataRoute.Manifest {
   return {

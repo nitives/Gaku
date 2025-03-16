@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Heading, SafeView, SubHeading } from "@/components/mobile/SafeView";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { IoCloudOffline, IoRefresh } from "react-icons/io5";
 
@@ -44,14 +43,14 @@ export default function Offline() {
               ? "Your internet connection has been restored. You can now use all features of the app."
               : "It looks like you're offline. Some features may be unavailable until you reconnect."}
           </p>
-          <Button
+          <button
             onClick={handleRefresh}
             className="flex items-center gap-2 px-4 py-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={!isOnline}
           >
             <IoRefresh className="text-lg" />
             Refresh
-          </Button>
+          </button>
         </div>
       </SafeView>
     </>

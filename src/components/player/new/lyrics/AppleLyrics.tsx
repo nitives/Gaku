@@ -1,15 +1,45 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAudioStoreNew } from "@/context/AudioContextNew";
 import { LyricPlayer, LyricPlayerRef } from "@applemusic-like-lyrics/react";
-import { type LyricLineMouseEvent } from "@applemusic-like-lyrics/core";
 import { LyricLine, parseTTML } from "./lrc/utils/TTMLparser";
 import { AppleKit } from "@/lib/audio/fetchers";
 import { GakuStorage } from "@/lib/utils/storage";
 import { dev } from "@/lib/utils";
+import { QueueView } from "./QueueView";
+import { motion, AnimatePresence } from "framer-motion";
+
+// SegmentControl component for switching views
+const SegmentControl = ({ activeView, onChange }: { activeView: "lyrics" | "queue"; onChange: (view: "lyrics" | "queue") => void }) => {
+  return (
+    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 bg-white/30 backdrop-blur-lg rounded-full p-1 flex opacity-50 hover:opacity-100 transition-opacity duration-300">
+      <button
+        onClick={() => onChange("lyrics")}
+        className={`px-4 py-1 rounded-full text-sm font-medium transition-colors ${
+          activeView === "lyrics"
+            ? "bg-white/20 text-white"
+            : "text-white/60 hover:text-white"
+        }`}
+      >
+        Lyrics
+      </button>
+      <button
+        onClick={() => onChange("queue")}
+        className={`px-4 py-1 rounded-full text-sm font-medium transition-colors ${
+          activeView === "queue"
+            ? "bg-white/20 text-white"
+            : "text-white/60 hover:text-white"
+        }`}
+      >
+        Queue
+      </button>
+    </div>
+  );
+};
 
 export const AppleLyrics = () => {
   const [lyricLines, setLyricLines] = useState<LyricLine[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeView, setActiveView] = useState<"lyrics" | "queue">("lyrics");
   const lyricPlayerRef = useRef<LyricPlayerRef>(null);
   const lastTimeRef = useRef<number>(-1);
   const { fineProgress, currentSong, isPlaying, seek } = useAudioStoreNew();
@@ -83,6 +113,11 @@ export const AppleLyrics = () => {
     }
   }, [fineProgress]);
 
+  const onLyricLineClick = (line: any) => {
+    dev.log("onLyricLineClick | Clicked on line:", line);
+    seek(line.line.lyricLine.startTime / 1000);
+  };
+
   if (isLoading) {
     return (
       <div className="h-screen w-full flex items-center justify-center">
@@ -91,40 +126,56 @@ export const AppleLyrics = () => {
     );
   }
 
-  if (!lyricLines.length) {
-    return (
-      <div className="h-screen w-full flex items-center justify-center">
-        <QueryText>No lyrics</QueryText>
-      </div>
-    );
-  }
-
-  const onLyricLineClick = (line: any) => {
-    dev.log("onLyricLineClick | Clicked on line:", line);
-    seek(line.line.lyricLine.startTime / 1000);
-  };
-
   return (
-    <div className="h-screen w-full flex flex-col">
-      <LyricPlayer
-        style={{
-          width: "100%",
-          height: "100%",
-          maxWidth: "100%",
-          maxHeight: "100%",
-          scale: 0.95,
-          // contain: "paint layout",
-          // overflow: "hidden",
-          mixBlendMode: "plus-lighter",
-          fontWeight: "bold",
-        }}
-        // ref={lyricPlayerRef}
-        currentTime={fineProgress * 1000}
-        alignAnchor="center"
-        playing={isPlaying}
-        lyricLines={lyricLines}
-        onLyricLineClick={onLyricLineClick}
-      />
+    <div className="h-screen w-full flex flex-col relative group">
+      <SegmentControl activeView={activeView} onChange={setActiveView} />
+      
+      <AnimatePresence mode="wait">
+        {activeView === "lyrics" ? (
+          <motion.div 
+            key="lyrics-view"
+            className="flex-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {!lyricLines.length ? (
+              <div className="h-screen w-full flex items-center justify-center">
+                <QueryText>No lyrics</QueryText>
+              </div>
+            ) : (
+              <LyricPlayer
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  scale: 0.95,
+                  mixBlendMode: "plus-lighter",
+                  fontWeight: "bold",
+                }}
+                currentTime={fineProgress * 1000}
+                alignAnchor="center"
+                playing={isPlaying}
+                lyricLines={lyricLines}
+                onLyricLineClick={onLyricLineClick}
+              />
+            )}
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="queue-view"
+            className="flex-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <QueueView />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

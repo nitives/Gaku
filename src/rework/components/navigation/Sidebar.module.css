@@ -24,6 +24,12 @@
   width: auto;
 }
 
+@media not all and (min-width: 640px) {
+  .SidebarHeaderLogo {
+    display: none !important;
+  }
+}
+
 .SidebarHeaderLogo {
   /* display: none; */
   display: flex;

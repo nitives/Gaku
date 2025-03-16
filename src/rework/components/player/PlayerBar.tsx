@@ -23,11 +23,6 @@ export const PlayerBar = () => {
 const Player = memo(() => {
   const { currentSong } = useAudioStoreNew();
   const PLACEHOLDER_IMAGE = useThemedPlaceholder();
-
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const openFullscreen = () => setIsFullscreen(true);
-  const closeFullscreen = () => setIsFullscreen(false);
-
   return (
     <>
       <motion.div className={style.Player}>

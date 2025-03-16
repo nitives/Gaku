@@ -14,6 +14,7 @@ import {
   formatTime,
   LyricButton,
   OptionsButton,
+  VolumeSlider,
 } from "@/components/player/new/controls/Controls";
 import { showToast } from "@/hooks/useToast";
 import Link from "next/link";
@@ -54,6 +55,8 @@ const Screen = () => {
     setIsPlaying,
     nextSong,
     previousSong,
+    setVolume,
+    volume,
   } = useAudioStoreNew();
   const PLACEHOLDER_IMAGE = useThemedPlaceholder();
 
@@ -64,6 +67,11 @@ const Screen = () => {
   const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = parseFloat(e.target.value);
     seek(newTime);
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
   };
 
   const [lyricsVisible, setLyricsVisible] = useState(false);
@@ -85,7 +93,7 @@ const Screen = () => {
     <AnimatePresence>
       {isFullscreen && (
         <motion.div {...controlsBaseProps}>
-          <motion.div className="flex justify-start z-20 absolute w-full">
+          <motion.div className="flex justify-start z-20 absolute w-full pointer-events-none">
             <CloseButton onClick={() => setFullscreen(false)} />
           </motion.div>
           <motion.div className="flex-1 flex items-center justify-center z-10">
@@ -122,65 +130,89 @@ const Screen = () => {
               </motion.div>
               <motion.div
                 layout="position"
-                className="w-[20rem] flex-col mt-3 flex justify-center items-center"
+                className="w-[25rem] max-md:w-[20rem] flex-col mt-3 flex justify-center items-center"
               >
                 <motion.div
                   layout="position"
                   layoutId="playerInfo"
-                  className="w-full justify-center items-center flex flex-col"
+                  className="flex justify-between items-center w-full"
                 >
-                  <motion.h2
-                    layout="position"
-                    layoutId="playerTitle"
-                    className="text-lg text-center font-semibold"
-                  >
-                    {currentSong?.name}
-                  </motion.h2>
-                  <motion.h2
-                    layout="position"
-                    layoutId="playerArtist"
-                    className="text-sm text-center text-white/75 cursor-pointer hover:underline"
-                  >
-                    <Link
-                      href={`/artist/${currentSong?.artist.id}/${currentSong?.artist.id}`}
-                      onClick={(e) => {
-                        // If we're already on the artist page, don't navigate:
-                        setFullscreen(false);
-                        if (
-                          window.location.pathname.includes(
-                            currentSong?.artist.id?.toString() || ""
-                          )
-                        ) {
-                          e.preventDefault(); // Prevent Link’s normal routing
-                          setFullscreen(false);
-                        }
-                      }}
+                  <motion.div className="flex flex-col">
+                    <motion.h2
+                      layout="position"
+                      layoutId="playerTitle"
+                      className="text-lg text-left font-semibold"
                     >
-                      {currentSong?.artist.name}
-                    </Link>
-                  </motion.h2>
+                      {currentSong?.name}
+                    </motion.h2>
+                    <motion.h2
+                      layout="position"
+                      layoutId="playerArtist"
+                      className="text-sm text-left text-white/75 cursor-pointer hover:underline"
+                    >
+                      <Link
+                        href={`/artist/${currentSong?.artist.id}/${currentSong?.artist.id}`}
+                        onClick={(e) => {
+                          // If we're already on the artist page, don't navigate:
+                          setFullscreen(false);
+                          if (
+                            window.location.pathname.includes(
+                              currentSong?.artist.id?.toString() || ""
+                            )
+                          ) {
+                            e.preventDefault(); // Prevent Link's normal routing
+                            setFullscreen(false);
+                          }
+                        }}
+                      >
+                        {currentSong?.artist.name}
+                      </Link>
+                    </motion.h2>
+                  </motion.div>
+                  <motion.div className="flex gap-2">
+                    <LyricButton
+                      active={lyricsVisible}
+                      onClick={toggleLyrics}
+                    />
+                    <OptionsButton onClick={optionsButton} />
+                  </motion.div>
                 </motion.div>
                 <motion.div
                   layout="position"
                   layoutId="playerControls"
                   className="flex-col mt-4 flex items-center w-full gap-2"
                 >
-                  {/* WAS "isDesktop" vvvv */}
-                  {true && (
-                    <div className="flex w-full items-center gap-2">
-                      <span className="text-xs text-white/75 select-none">
-                        {formatTime(currentTime)}
-                      </span>
-                      <DurationSlider
-                        duration={duration}
-                        currentTime={currentTime}
-                        onChange={handleSeekChange}
-                      />
-                      <span className="text-xs text-white/75 select-none">
+                  <div className="flex w-full items-center gap-2">
+                    <span className="text-xs text-white/75 select-none">
+                      {formatTime(currentTime)}
+                    </span>
+                    <DurationSlider
+                      duration={duration}
+                      currentTime={currentTime}
+                      onChange={handleSeekChange}
+                    />
+                    <span
+                      className="text-xs text-white/75 select-none cursor-pointer"
+                      onClick={() => {
+                        const timeLeftElement =
+                          document.getElementById("timeLeft");
+                        if (timeLeftElement) {
+                          const isShowingTotal =
+                            timeLeftElement.dataset.showing === "total";
+                          timeLeftElement.dataset.showing = isShowingTotal
+                            ? "remaining"
+                            : "total";
+                          timeLeftElement.textContent = isShowingTotal
+                            ? `-${formatTime(duration - currentTime)}`
+                            : formatTime(duration);
+                        }
+                      }}
+                    >
+                      <span id="timeLeft" data-showing="total">
                         {formatTime(duration)}
                       </span>
-                    </div>
-                  )}
+                    </span>
+                  </div>
                   <div>
                     <ExpandedPlayerControls
                       onPlayPause={() => setIsPlaying(!isPlaying)}
@@ -189,17 +221,15 @@ const Screen = () => {
                       onPrev={previousSong}
                     />
                   </div>
-                  <div className="flex items-center gap-2 justify-between w-full">
-                    <LyricButton
-                      active={lyricsVisible}
-                      onClick={toggleLyrics}
+                  <div className="flex items-center w-full justify-between">
+                    <VolumeSlider
+                      onChange={handleVolumeChange}
+                      volume={volume}
                     />
-                    <OptionsButton onClick={optionsButton} />
                   </div>
                 </motion.div>
               </motion.div>
             </motion.span>
-            {/* WAS "lyricsVisible" vvvv */}
             {lyricsVisible && (
               <motion.span
                 initial={{ opacity: 0 }}
@@ -229,9 +259,11 @@ const Screen = () => {
 };
 
 const FullScreen = () => {
-  <>
-    <Screen key="expanded" />
-  </>;
+  return (
+    <>
+      <Screen key="expanded" />
+    </>
+  );
 };
 
 FullScreen.Button = FullScreenButton;

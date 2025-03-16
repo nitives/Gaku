@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useEffect, useState, useCallback } from "react";
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from "../skeletons/skeleton";
 import "../../styles/album.css";
 import { useTheme } from "next-themes";
 import Loader from "react-loaders";

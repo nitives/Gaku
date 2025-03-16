@@ -8,7 +8,8 @@ export const MobileView = () => {
   return (
     <div>
       {/* MobileView */}
-      <Link href={"/album/2093/1776273075"}>2093</Link>
+      <p>PWA View isn&apos;t complete yet</p>
+      <Link href={"/album/2093/1776273075"}>Link to Yeat - 2093 | Album</Link>
       <NavigationBar song={currentSong} />
     </div>
   );

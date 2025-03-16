@@ -48,10 +48,13 @@ const convertTrackToSong = (track: SoundCloudTrack): Song => {
 export const LibraryItem = ({
   item,
   allItems,
+  ref,
+  ...liProps
 }: {
   item: LibraryItem;
   allItems: LibraryItem[];
-}) => {
+  ref?: React.Ref<HTMLLIElement>;
+} & React.HTMLAttributes<HTMLLIElement>) => {
   const { setQueue } = useAudioStoreNew();
 
   const handlePlay = async () => {
@@ -71,30 +74,35 @@ export const LibraryItem = ({
   };
 
   return (
-    <ContextMenu type="song" itemId={item.id}>
-      <li className={style.libraryItem}>
-        <div
-          className={style.image}
-          onClick={handlePlay}
-          role="button"
-          aria-label={`Play ${item.scTrack?.title ?? "Unknown track"}`}
+    <ContextMenu
+      as={"li"}
+      ref={ref as React.Ref<any>}
+      className={style.libraryItem}
+      type="song"
+      itemId={item.id}
+      {...liProps}
+    >
+      <div
+        className={style.image}
+        onClick={handlePlay}
+        role="button"
+        aria-label={`Play ${item.scTrack?.title ?? "Unknown track"}`}
+      >
+        <Image
+          src={item.scTrack?.artwork_url ?? PLACEHOLDER_IMAGE.dark.url}
+          alt={item.scTrack?.title ?? "Track artwork"}
+          fill
+          draggable={false}
+        />
+      </div>
+      <div className={style.details}>
+        <h3>{item.scTrack?.title ?? "Unknown title"}</h3>
+        <Link
+          href={`/artist/${item.scTrack?.user.permalink}/${item.scTrack?.user.id}`}
         >
-          <Image
-            src={item.scTrack?.artwork_url ?? PLACEHOLDER_IMAGE.dark.url}
-            alt={item.scTrack?.title ?? "Track artwork"}
-            fill
-            draggable={false}
-          />
-        </div>
-        <div className={style.details}>
-          <h3>{item.scTrack?.title ?? "Unknown title"}</h3>
-          <Link
-            href={`/artist/${item.scTrack?.user.permalink}/${item.scTrack?.user.id}`}
-          >
-            {item.scTrack?.user.username ?? "Unknown artist"}
-          </Link>
-        </div>
-      </li>
+          {item.scTrack?.user.username ?? "Unknown artist"}
+        </Link>
+      </div>
     </ContextMenu>
   );
 };

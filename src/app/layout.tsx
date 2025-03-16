@@ -9,6 +9,7 @@ import { Audio } from "@/rework/components/player/Audio";
 import { ClerkProvider } from "@clerk/nextjs";
 import "react-contexify/dist/ReactContexify.css";
 import "../styles/contexifyGaku.css";
+import "../styles/playercontrols.css";
 import { contextMenus } from "@/rework/components/contextmenus/contextMenus";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 
