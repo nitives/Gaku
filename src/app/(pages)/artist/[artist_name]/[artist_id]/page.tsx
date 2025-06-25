@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { TryAgain } from "@/rework/components/extra/TryAgain";
 
-async function fetchArtistData(artistId: string, _artistName: string) {
+export async function fetchArtistData(artistId: string, _artistName: string) {
   const data = (await SoundCloudKit.getData(artistId, "artist", {
     include: ["spotlight", "latest"],
   })) as SoundCloudArtist;
@@ -29,7 +29,7 @@ export default function ArtistPage() {
     error,
     refetch,
   } = useQuery<SoundCloudArtist>({
-    queryKey: ["soundcloud_artist", artist_id],
+    queryKey: ["soundcloudArtist", artist_id],
     queryFn: () => fetchArtistData(artist_id, artist_name),
     // only run if artist_id is truthy
     enabled: !!artist_id,
@@ -68,7 +68,7 @@ export default function ArtistPage() {
     <>
       <Banner artist={artist} />
       <div className="flex pb-12">
-        <Latest artist={artist} />
+        <Latest artist={artist} />  
         <Spotlight artist={artist} />
       </div>
     </>

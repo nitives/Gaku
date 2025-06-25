@@ -11,6 +11,9 @@ import { PiShuffleBold } from "react-icons/pi";
 import { Spinner } from "../../extra/Spinner";
 import { Song } from "@/lib/audio/types";
 import ContextMenu from "../../contextmenus/ContextMenu";
+import { PrefetchLink } from "../../navigation/PrefetchLink";
+import { useUser } from "@/hooks/useUser";
+import { LikeFilledIcon } from "../../player/new/PlayerBar";
 
 export const Album = ({ data }: { data: SoundCloudAlbum }) => {
   if (!data) return <Spinner />;
@@ -48,12 +51,12 @@ const AlbumInfoNControls = ({ data }: { data: SoundCloudAlbum }) => {
     <div className={style.AlbumInfoNControls}>
       <div className={style.AlbumInfo}>
         <h1 className={style.AlbumTitle}>{data.title}</h1>
-        <Link
+        <PrefetchLink
           href={`/artist/${data.user.permalink}/${data.user.id}`}
           className={style.AlbumArtist}
         >
           {data.user.username}
-        </Link>
+        </PrefetchLink>
 
         <span className={style.AlbumGenreNYear}>
           <p>{data.genre}</p>
@@ -112,6 +115,7 @@ const convertTrackToSong = (track: any): Song => {
 
 const SongList = ({ data }: { data: SoundCloudAlbum["tracks"] }) => {
   const { setQueue } = useAudioStoreNew();
+  const { librarySongs } = useUser();
   const { currentSong } = useAudioStoreNew();
 
   const handlePlayFromIndex = async (index: number) => {
@@ -154,6 +158,13 @@ const SongList = ({ data }: { data: SoundCloudAlbum["tracks"] }) => {
           </div>
           <div className={style.SongInfo}>
             <h3 className={style.SongTitle}>{track.title}</h3>
+          </div>
+          <div className="pr-1.5">
+            {librarySongs?.some(
+              (librarySong) => librarySong?.id === String(track.id)
+            ) ? (
+              <LikeFilledIcon />
+            ) : null}
           </div>
         </ContextMenu>
       ))}

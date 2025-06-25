@@ -9,14 +9,20 @@ import { QueueView } from "./QueueView";
 import { motion, AnimatePresence } from "framer-motion";
 
 // SegmentControl component for switching views
-const SegmentControl = ({ activeView, onChange }: { activeView: "lyrics" | "queue"; onChange: (view: "lyrics" | "queue") => void }) => {
+const SegmentControl = ({
+  activeView,
+  onChange,
+}: {
+  activeView: "lyrics" | "queue";
+  onChange: (view: "lyrics" | "queue") => void;
+}) => {
   return (
-    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 bg-white/30 backdrop-blur-lg rounded-full p-1 flex opacity-50 hover:opacity-100 transition-opacity duration-300">
+    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 bg-neutral-600/25 backdrop-blur-lg rounded-full p-1 flex opacity-0 group-hover:opacity-100 transition-opacity duration-300">
       <button
         onClick={() => onChange("lyrics")}
         className={`px-4 py-1 rounded-full text-sm font-medium transition-colors ${
           activeView === "lyrics"
-            ? "bg-white/20 text-white"
+            ? "bg-neutral-300/15 text-white"
             : "text-white/60 hover:text-white"
         }`}
       >
@@ -26,7 +32,7 @@ const SegmentControl = ({ activeView, onChange }: { activeView: "lyrics" | "queu
         onClick={() => onChange("queue")}
         className={`px-4 py-1 rounded-full text-sm font-medium transition-colors ${
           activeView === "queue"
-            ? "bg-white/20 text-white"
+            ? "bg-neutral-300/15 text-white"
             : "text-white/60 hover:text-white"
         }`}
       >
@@ -129,10 +135,10 @@ export const AppleLyrics = () => {
   return (
     <div className="h-screen w-full flex flex-col relative group">
       <SegmentControl activeView={activeView} onChange={setActiveView} />
-      
+
       <AnimatePresence mode="wait">
         {activeView === "lyrics" ? (
-          <motion.div 
+          <motion.div
             key="lyrics-view"
             className="flex-1"
             initial={{ opacity: 0 }}
@@ -164,7 +170,7 @@ export const AppleLyrics = () => {
             )}
           </motion.div>
         ) : (
-          <motion.div 
+          <motion.div
             key="queue-view"
             className="flex-1"
             initial={{ opacity: 0 }}

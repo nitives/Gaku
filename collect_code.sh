@@ -5,9 +5,16 @@
 # Run ./collect_code.sh to execute the script
 
 # Define paths
-SRC_DIR="$(dirname "$0")/../src"  # Adjust path to src directory
-OUTPUT_DIR="$(dirname "$0")/output"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Get script location
+SRC_DIR="$SCRIPT_DIR/src"  # Adjusted to look in root/src
+OUTPUT_DIR="$SCRIPT_DIR/etc/utils/output" # Fixed output directory
 OUTPUT_FILE="$OUTPUT_DIR/all_code.txt"
+
+# Ensure src directory exists
+if [ ! -d "$SRC_DIR" ]; then
+  echo "Error: Source directory '$SRC_DIR' does not exist."
+  exit 1
+fi
 
 # Create the output directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"

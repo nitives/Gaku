@@ -14,6 +14,10 @@ export interface Song {
     city: string;
     avatar: string;
   };
+  metadata?: {
+    albumTitle?: string;
+    artistName?: string;
+  };
   artwork: Artwork;
   contentRating?: string;
   discNumber?: number;

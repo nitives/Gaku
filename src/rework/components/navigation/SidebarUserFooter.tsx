@@ -45,7 +45,7 @@ export const SidebarUserFooter = () => {
               alt="User profile image"
               width={40}
               height={40}
-              className="object-xx"
+              className="object-cover h-full w-full"
             />
           </div>
         )}
@@ -66,7 +66,7 @@ const FooterContainer = ({
   children: React.ReactNode;
 }) => {
   return (
-    <div className="z-10 relative mb-16 p-3">
+    <div className="z-10 relative mb-20 p-3">
       <Link href={href}>
         <div className="hover:bg-white/5 w-full p-2 rounded-[9px] flex justify-between items-center">
           {children}

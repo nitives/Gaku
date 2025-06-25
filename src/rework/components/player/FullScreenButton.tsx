@@ -1,4 +1,4 @@
-import { Attributes, useState } from "react";
+import { Attributes, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LucideFullscreen } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -19,7 +19,7 @@ import {
 import { showToast } from "@/hooks/useToast";
 import Link from "next/link";
 
-// Also fixing document not defined error
+// Using dynamic imports with loading strategy to optimize performance
 const AppleLyrics = dynamic(
   () =>
     import("../../../components/player/new/lyrics/AppleLyrics").then(
@@ -27,8 +27,14 @@ const AppleLyrics = dynamic(
     ),
   {
     ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center h-full w-full">
+        <span className="text-white/50">Loading lyrics...</span>
+      </div>
+    ),
   }
 );
+
 const BackgroundRender = dynamic(
   () =>
     import("@applemusic-like-lyrics/react").then((mod) => mod.BackgroundRender),
@@ -80,9 +86,28 @@ const Screen = () => {
   const optionsButton = () =>
     showToast("warning", "Options not implemented yet");
 
+  // Optimize heavy components when in fullscreen
+  useEffect(() => {
+    if (isFullscreen) {
+      // Pause any intensive animations or calculations in background components
+      document.body.classList.add("fullscreen-active");
+      // Prevent scrolling when fullscreen is active
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.classList.remove("fullscreen-active");
+      // Restore scrolling when fullscreen is inactive
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.classList.remove("fullscreen-active");
+      document.body.style.overflow = "";
+    };
+  }, [isFullscreen]);
+
   const controlsBaseProps = {
     className:
-      "fixed inset-0 flex flex-col bg-black text-white z-[110] standalone:pt-10",
+      "controlsBase fixed inset-0 flex flex-col bg-black text-white z-[110] standalone:pt-10 !visible !pointer-events-auto",
     initial: { opacity: 0, filter: "blur(10px)" },
     animate: { opacity: 1, filter: "blur(0px)" },
     exit: { opacity: 0, filter: "blur(10px)" },
@@ -92,7 +117,18 @@ const Screen = () => {
   return (
     <AnimatePresence>
       {isFullscreen && (
-        <motion.div {...controlsBaseProps}>
+        <motion.div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: "100vh",
+            width: "100vw",
+          }}
+          {...controlsBaseProps}
+        >
           <motion.div className="flex justify-start z-20 absolute w-full pointer-events-none">
             <CloseButton onClick={() => setFullscreen(false)} />
           </motion.div>
@@ -104,7 +140,7 @@ const Screen = () => {
               <motion.div
                 layout="position"
                 layoutId="playerImage"
-                className="relative"
+                className="relative max-sm:scale-[0.8] max-sm:translate-x-[-1rem] max-sm:translate-y-[-1rem]"
               >
                 <Image
                   className="rounded-[1rem] blur-md opacity-25 translate-y-1 select-none"
@@ -249,6 +285,7 @@ const Screen = () => {
               width: "100%",
               height: "100%",
               inset: "0",
+              // zIndex: 1,
             }}
             album={currentSong?.artwork.url}
           />

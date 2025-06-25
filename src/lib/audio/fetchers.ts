@@ -4,7 +4,6 @@ import { fetchPlaylistM3U8, dev } from "@/lib/utils";
 import { EditorialVideo } from "../types/apple";
 import { showToast } from "@/hooks/useToast";
 import toast from "react-hot-toast";
-import { get } from "http";
 
 /**
  * Fetch additional metadata (like HD cover) for a given song, without fetching M3U8.
@@ -19,7 +18,8 @@ export async function fetchSongMedia(song: Song): Promise<{ HDCover: string }> {
     }
 
     const trackInfo = await trackInfoResponse.json();
-    const HDCover = await getHDCover(trackInfo.permalink_url);
+    // const HDCover = await getHDCover(trackInfo.permalink_url);
+    const HDCover = SoundCloudKit.getHD(trackInfo.artwork_url);
 
     return { HDCover: HDCover ?? song.artwork.url };
   } catch (error) {
@@ -93,7 +93,8 @@ async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
     }
     const data = await response.json();
     console.log("mapTrackUrlToSong data", data);
-    const HDCover = await getHDCover(data.permalink_url);
+    // const HDCover = await getHDCover(data.permalink_url);
+    const HDCover = SoundCloudKit.getHD(data.artwork_url);
 
     if (window.location.pathname.includes("/album/")) {
       const albumID = window.location.pathname.includes("/album/")
@@ -124,6 +125,10 @@ async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
           city: "",
           avatar: data.user?.avatar_url || "",
         },
+        metadata: {
+          artistName: data.publisher_metadata?.artist || "",
+          albumTitle: data.publisher_metadata?.album_title || "",
+        },
         artwork: {
           hdUrl: HDCover,
           url: data.artwork_url,
@@ -149,6 +154,10 @@ async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
         followers: 0,
         city: "",
         avatar: data.user?.avatar_url || "",
+      },
+      metadata: {
+        artistName: data.publisher_metadata?.artist || "",
+        albumTitle: data.publisher_metadata?.album_title || "",
       },
       artwork: {
         hdUrl: HDCover,
@@ -212,8 +221,8 @@ async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
   const songs: Song[] = [];
   for (const track of tracks) {
     try {
-      // const HDCover = await getHDCover(track.permalink_url);
-      const HDCover = await getHDCover(track.permalink_url, true); // Using local method to get HD cover
+      // const HDCover = await getHDCover(track.artwork_url);
+      const HDCover = SoundCloudKit.getHD(track.artwork_url);
       const song: Song = {
         albumName: track.publisher_metadata?.album_title || "",
         artist: {
@@ -226,6 +235,10 @@ async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
           followers: 0,
           city: "",
           avatar: track.user.avatar_url,
+        },
+        metadata: {
+          artistName: track.publisher_metadata?.artist || "",
+          albumTitle: track.publisher_metadata?.album_title || "",
         },
         artwork: {
           hdUrl: HDCover,
@@ -251,10 +264,7 @@ async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
 /**
  * Fetches the HD cover image given a track/playlist permalink URL.
  */
-export async function getHDCover(url: string, local: boolean): Promise<string> {
-  if (local) {
-    return url.replace("large", "t500x500");
-  }
+export async function getHDCover(url: string): Promise<string> {
   dev.log("getHDCover", url);
   try {
     const response = await fetch(`/api/extra/cover/${encodeURIComponent(url)}`);
@@ -328,6 +338,10 @@ function createEmptySong(id: number): Song {
       city: "",
       avatar: "",
     },
+    metadata: {
+      artistName: "Unknown Artist",
+      albumTitle: "Unknown Album",
+    },
     artwork: {
       hdUrl: "",
       url: "",
@@ -351,7 +365,8 @@ export async function fetchSongData(
 
     const trackInfo = await trackInfoResponse.json();
 
-    const HDCover = await getHDCover(trackInfo.permalink_url);
+    // const HDCover = await getHDCover(trackInfo.artwork_url);
+    const HDCover = SoundCloudKit.getHD(trackInfo.artwork_url);
     const M3U8url = await fetchPlaylistM3U8(trackInfo.permalink_url);
 
     return { HDCover: HDCover ?? song.artwork.url, M3U8url };

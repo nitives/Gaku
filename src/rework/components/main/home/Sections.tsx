@@ -8,6 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useThemedPlaceholder } from "@/lib/utils/themedPlaceholder";
 import { TryAgain } from "../../extra/TryAgain";
+import { PrefetchLink } from "../../navigation/PrefetchLink";
 
 export const Sections = () => {
   const { data, isLoading, error, refetch } = useQuery<SoundCloudSections>({
@@ -94,7 +95,7 @@ const SectionItems = ({ items }: { items: SectionItem[] }) => {
     <div className={style.sectionItems}>
       {items.map((item) => (
         <div className={style.sectionItem} key={item.id}>
-          <Link
+          <PrefetchLink
             className={style.sectionItemImage}
             style={
               item.kind === "user"
@@ -120,10 +121,10 @@ const SectionItems = ({ items }: { items: SectionItem[] }) => {
                   : item.artwork_url_hd || PLACEHOLDER_IMAGE
               }
             />
-          </Link>
+          </PrefetchLink>
           <div className={style.sectionItemSubtitle}>
             <span>
-              <Link
+              <PrefetchLink
                 className="hover:underline decoration-[--keyColor]"
                 href={
                   item.set_type === "album"
@@ -136,19 +137,19 @@ const SectionItems = ({ items }: { items: SectionItem[] }) => {
                 ) : (
                   <h3 className="w-fit">{item.title}</h3>
                 )}
-              </Link>
+              </PrefetchLink>
             </span>
             {item.kind === "user" ? (
               <p className="w-fit">
                 {formatter.format(item.followers_count) + " followers"}
               </p>
             ) : (
-              <Link
+              <PrefetchLink
                 className="hover:underline decoration-[--keyColor]"
                 href={`/artist/${item.user?.permalink}/${item.user?.id}`}
               >
                 <p className="w-fit">{item.user?.username}</p>
-              </Link>
+              </PrefetchLink>
             )}
           </div>
         </div>

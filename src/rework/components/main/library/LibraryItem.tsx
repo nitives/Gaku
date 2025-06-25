@@ -96,11 +96,16 @@ export const LibraryItem = ({
         />
       </div>
       <div className={style.details}>
-        <h3>{item.scTrack?.title ?? "Unknown title"}</h3>
+        <h3>
+          {item.scTrack?.title ?? "Unknown title"}
+          {item.scTrack?.publisher_metadata.explicit}
+        </h3>
         <Link
           href={`/artist/${item.scTrack?.user.permalink}/${item.scTrack?.user.id}`}
         >
-          {item.scTrack?.user.username ?? "Unknown artist"}
+          {item.scTrack?.publisher_metadata?.artist ||
+            item.scTrack?.user.username ||
+            "Unknown artist"}
         </Link>
       </div>
     </ContextMenu>

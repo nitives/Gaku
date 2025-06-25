@@ -7,6 +7,7 @@ import Link from "next/link";
 export const Latest = ({ artist }: { artist: SoundCloudArtist | null }) => {
   const latestTracks = artist?.latest || [];
   const latest = latestTracks.find((item) => item.type === "track");
+  if (!latest) return null;
   const track = latest.track as SoundCloudTrack;
   const HD_ARTWORK = track.artwork_url
     ? track.artwork_url.replace("-large.jpg", "-t500x500.jpg")
@@ -21,7 +22,7 @@ export const Latest = ({ artist }: { artist: SoundCloudArtist | null }) => {
       <div style={{ display: "flex", flexDirection: "column", width: "15rem" }}>
         <div className={style.Artwork}>
           <Image
-            src={HD_ARTWORK}
+            src={HD_ARTWORK }
             fill
             draggable={false}
             alt={track.title}

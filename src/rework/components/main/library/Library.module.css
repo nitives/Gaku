@@ -1,13 +1,30 @@
+.libraryList {
+  display: grid;
+}
+
 .libraryItem {
-  position: relative;
   display: flex;
+  background: hsl(0, 0%, 5%);
+  padding: 5px 7.5px 5px 5px;
+  gap: 7.5px;
   align-items: center;
-  margin: 10px;
-  margin-top: 0px;
-  padding-bottom: 10px;
-  width: 100%;
-  gap: 10px;
-  border-bottom: 1px solid var(--labelDivider);
+}
+
+.libraryItem:first-child {
+  border-radius: 10px 10px 0 0;
+}
+
+.libraryItem:last-child {
+  border-radius: 0 0 10px 10px;
+}
+
+.libraryItem:not(:last-child) {
+  border-bottom: 1px solid rgb(0, 0, 0);
+}
+
+/* Remove border if there's only one item */
+.libraryItem:first-child:last-child {
+  border-bottom: none;
 }
 
 .details {
@@ -15,12 +32,12 @@
   align-items: center;
   user-select: none;
   & h3 {
-    font-size: 1.2rem;
+    font-size: 0.9rem;
   }
   & a {
     color: var(--systemSecondary);
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     margin-top: -5px;
     &:hover {
       text-decoration: underline;
@@ -29,7 +46,7 @@
 }
 
 .image {
-  --imageSize: 50px;
+  --imageSize: 35px;
   width: var(--imageSize);
   height: var(--imageSize);
   position: relative;
@@ -38,7 +55,7 @@
   --albumArtworkSize: var(--albumHeaderHeight);
   aspect-ratio: 1 / 1;
   background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  border-radius: 5px;
   box-sizing: border-box;
   contain: content;
   overflow: hidden;
@@ -46,7 +63,7 @@
   &:after {
     content: "";
     border-radius: inherit;
-    box-shadow: inset 0 0 0 1px hsla(0, 0%, 75%, 0.1);
+    box-shadow: inset 0 0 0 0.5px hsla(0, 0%, 75%, 0.1);
     display: block;
     height: 0;
     max-height: 100%;
@@ -60,8 +77,4 @@
     z-index: 1;
     transition: opacity 0.1s ease;
   }
-}
-
-.libraryList {
-  display: grid;
 }

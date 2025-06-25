@@ -6,7 +6,7 @@ type ContextMenuProps = {
   type: "song" | "album" | "artist";
   itemId: string;
   children: React.ReactNode;
-  ref: React.Ref<any>;
+  ref?: React.Ref<any>;
   as?: React.ElementType;
   className?: string;
   title?: string;

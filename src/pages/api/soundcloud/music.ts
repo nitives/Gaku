@@ -13,10 +13,14 @@ export default async function handler(
       const trackResponse = await axios.get(trackApiUrl);
       const trackId = trackResponse.data.id;
 
+      console.log("Track ID:", trackId);
+
       // Step 2: Fetch track details
       const trackDetailsUrl = `https://api-v2.soundcloud.com/tracks/${trackId}?client_id=${process.env.SOUNDCLOUD_CLIENT_ID}`;
       const trackDetailsResponse = await axios.get(trackDetailsUrl);
       const transcodings = trackDetailsResponse.data.media.transcodings;
+
+      // console.log("transcodings:", transcodings);
 
       // Step 3: Find HLS transcoding
       const hlsTranscoding = transcodings.find(
@@ -27,20 +31,12 @@ export default async function handler(
         throw new Error("HLS transcoding not found");
       }
 
-      // Step 4: Get HLS playlist URL 
+      // Step 4: Get HLS playlist URL
       const hlsUrl = `${hlsTranscoding.url}?client_id=${process.env.SOUNDCLOUD_CLIENT_ID}`;
       const hlsResponse = await axios.get(hlsUrl);
       const playlistUrl = hlsResponse.data.url;
 
-      // Step 5: Get Lyrics
-      // console.log("Track Artist:", trackDetailsResponse.data.publisher_metadata.artist);
-      // console.log("Track Name:", trackDetailsResponse.data.publisher_metadata.release_title);
-      // const trackArtist = trackDetailsResponse.data.publisher_metadata.artist
-      // const trackName = trackDetailsResponse.data.publisher_metadata.release_title
-      // const LyricsAPI = `https://lyrix.vercel.app/getLyricsByName/${trackArtist}/${trackName}/?remix=false`;
-      // const lyricsResponse = await axios.get(LyricsAPI);
-      // const lyrics = lyricsResponse
-      // console.log("Lyrics:", lyrics);
+      console.log("HLS Playlist URL:", playlistUrl);
 
       res.status(200).json({ playlistUrl });
     } catch (error) {

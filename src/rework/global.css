@@ -228,3 +228,62 @@ body {
     background: var(--systemToolbarTitlebar);
   }
 }
+
+/* Performance optimizations for when fullscreen player is active */
+.fullscreen-active .invisible {
+  /* Prevent any animations, transitions, and pointer events */
+  animation-play-state: paused !important;
+  transition: none !important;
+  pointer-events: none !important;
+
+  /* Reduce painting costs */
+  will-change: auto !important;
+
+  /* Pause any CSS animations */
+  * {
+    animation-play-state: paused !important;
+  }
+}
+
+/* Reduce GPU usage in background elements when in fullscreen */
+.fullscreen-active .invisible * {
+  backface-visibility: hidden !important;
+  perspective: none !important;
+}
+
+/* Ensure fullscreen components are optimized for performance */
+.fullscreen-active {
+  /* Optimize rendering for the active fullscreen component */
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Create a stacking context for the entire app */
+#__next,
+body > div {
+  isolation: isolate;
+}
+
+/* Force fullscreen player to be on top of everything */
+.controlsBase {
+  /* position: fixed !important;
+  visibility: visible !important;
+  z-index: 9999 !important;
+  inset: 0 !important;
+  height: 100vh !important;
+  width: 100vw !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  contain: layout paint size !important; */
+}
+
+/* Prevent scrolling when fullscreen is active */
+body.fullscreen-active {
+  overflow: hidden !important;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import React, { useRef, useEffect, memo } from "react";
 import Image from "next/image";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import style from "./PlayerBar.module.css";
@@ -15,7 +15,7 @@ interface ArtworkProps {
  *   forcibly sets rotateY=0, then 0→240→180
  *   blurVal from 10→0 over 1s
  */
-export const Artwork: React.FC<ArtworkProps> = ({ src }) => {
+function ArtworkComponent({ src }: ArtworkProps) {
   const THEMED_DEFAULT_IMAGE = useThemedPlaceholder();
   const finalSrc = src || THEMED_DEFAULT_IMAGE;
   const oldSrcRef = useRef(finalSrc);
@@ -62,7 +62,6 @@ export const Artwork: React.FC<ArtworkProps> = ({ src }) => {
         rotateY,
         perspective: 1000,
         transformStyle: "preserve-3d",
-        // Removed filter from here
       }}
     >
       <div
@@ -119,4 +118,9 @@ export const Artwork: React.FC<ArtworkProps> = ({ src }) => {
       </div>
     </motion.div>
   );
-};
+}
+
+// Memoize the component, only re-render if `src` changes
+export const Artwork = memo(ArtworkComponent, (prev, next) => {
+  return prev.src === next.src;
+});

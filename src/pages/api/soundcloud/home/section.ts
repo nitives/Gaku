@@ -22,6 +22,8 @@ export default async function handler(
 
       // List of tracking_feature_name values to include
       const includedFeatureNames = [
+        "buzzing",
+        "trending-by-genre",
         "curated-charts-top-50",
         "curated-trending-music-on-soundcloud",
         "curated-fresh-pressed",

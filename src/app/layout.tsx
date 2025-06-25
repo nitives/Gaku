@@ -43,6 +43,7 @@ export default function RootLayout({
     >
       <html lang="en" suppressHydrationWarning={true}>
         <head>
+          <script src="./chromium-lyrics-style-fix.js" defer />
           <link rel="manifest" href="/manifest.json" />
           <link
             rel="preload"

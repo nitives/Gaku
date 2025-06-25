@@ -1,7 +1,7 @@
 "use client";
 import { SafeView } from "@/components/mobile/SafeView";
 import { useState, useEffect, useRef } from "react";
-import { useUser } from "@clerk/nextjs";
+import { SignOutButton, UserProfile, useUser } from "@clerk/nextjs";
 import {
   IoColorPaletteOutline,
   IoPersonOutline,
@@ -164,7 +164,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="pb-20 p-4 w-full">
+    <div className="pb-24 p-4 w-full">
       <div className="mb-4">
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-[--systemSecondary]">
@@ -367,6 +367,11 @@ export default function SettingsPage() {
             </div>
           </div>
         </section>
+        <SignOutButton>
+          <button className="px-4 py-2 select-none bg-background hover:bg-red-500/5 hover:text-red-500 border border-labelDivider hover:border-red-500 rounded-xl hover:bg-systemToolbarTitlebar transition-colors disabled:opacity-50">
+            Sign Out
+          </button>
+        </SignOutButton>
       </div>
     </div>
   );
