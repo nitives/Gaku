@@ -71,7 +71,7 @@ export default function UserLikedSongs({ user }: { user: any }) {
                 const item = transformedTracks[virtualItem.index];
                 return (
                   <LibraryItem
-                    key={item.id}
+                    key={item.id + Math}
                     ref={virtualItem.measureRef}
                     style={{
                       position: "absolute",

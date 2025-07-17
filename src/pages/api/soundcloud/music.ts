@@ -13,8 +13,6 @@ export default async function handler(
       const trackResponse = await axios.get(trackApiUrl);
       const trackId = trackResponse.data.id;
 
-      console.log("Track ID:", trackId);
-
       // Step 2: Fetch track details
       const trackDetailsUrl = `https://api-v2.soundcloud.com/tracks/${trackId}?client_id=${process.env.SOUNDCLOUD_CLIENT_ID}`;
       const trackDetailsResponse = await axios.get(trackDetailsUrl);
@@ -35,8 +33,6 @@ export default async function handler(
       const hlsUrl = `${hlsTranscoding.url}?client_id=${process.env.SOUNDCLOUD_CLIENT_ID}`;
       const hlsResponse = await axios.get(hlsUrl);
       const playlistUrl = hlsResponse.data.url;
-
-      console.log("HLS Playlist URL:", playlistUrl);
 
       res.status(200).json({ playlistUrl });
     } catch (error) {

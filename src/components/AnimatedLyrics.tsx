@@ -1,4 +1,4 @@
-// src\components\AnimatedLyrics.tsx
+"use client";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { fetchLyrics } from "@/lib/utils";

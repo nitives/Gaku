@@ -256,7 +256,7 @@ export default function SettingsPage() {
               </div>
               <p className="text-xs text-[--systemSecondary] mt-1">
                 You can find your User ID in your SoundCloud profile URL or
-                settings
+                settings (e.g., ...soundcloud.com/saber-<span className="text-[var(--keyColor)]">601742928</span>?...).
               </p>
             </div>
           </div>

@@ -1,4 +1,3 @@
-import MillionLint from "@million/lint";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
@@ -38,5 +37,4 @@ const nextConfig = {
   },
 };
 
-// export default MillionLint.next()(nextConfig);
 export default nextConfig;

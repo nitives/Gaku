@@ -51,6 +51,7 @@ const ContextMenu = ({
 
   return (
     <Element
+      key={itemId}
       ref={ref}
       {...(title ? { title } : {})} // dont add title if it's empty
       onContextMenu={(e: React.MouseEvent<HTMLElement>) => {

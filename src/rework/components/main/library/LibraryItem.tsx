@@ -98,7 +98,7 @@ export const LibraryItem = ({
       <div className={style.details}>
         <h3>
           {item.scTrack?.title ?? "Unknown title"}
-          {item.scTrack?.publisher_metadata.explicit}
+          {item.scTrack?.publisher_metadata?.explicit}
         </h3>
         <Link
           href={`/artist/${item.scTrack?.user.permalink}/${item.scTrack?.user.id}`}
