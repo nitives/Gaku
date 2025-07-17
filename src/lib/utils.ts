@@ -1,3 +1,4 @@
+import { showToast } from "@/hooks/useToast";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -9,8 +10,10 @@ export async function FetchHipHopEvents() {
   try {
     const response = await fetch(`/api/soundcloud/events/top50hiphop`);
     console.log("FetchHipHopEvents | response:", response);
-    if (!response.ok)
+    if (!response.ok) {
+      showToast("error", "Failed to fetch hip hop events");
       throw new Error("FetchHipHopEvents | Failed to fetch data");
+    }
     const data = await response.json();
     return data;
   } catch (error) {
@@ -22,8 +25,10 @@ export async function FetchNewHotEvents() {
   try {
     const response = await fetch(`/api/soundcloud/events/new&hot`);
     console.log("FetchNewHotEvents | response:", response);
-    if (!response.ok)
+    if (!response.ok) {
+      showToast("error", "Failed to fetch new & hot events");
       throw new Error("FetchNewHotEvents | Failed to fetch data");
+    }
     const data = await response.json();
     return data;
   } catch (error) {
@@ -34,7 +39,10 @@ export async function FetchNewHotEvents() {
 export async function FetchSearch(query: string) {
   try {
     const response = await fetch(`/api/soundcloud?q=${query}`);
-    if (!response.ok) throw new Error("FetchSearch | Failed to fetch data");
+    if (!response.ok) {
+      showToast("error", "Failed to fetch search results");
+      throw new Error("FetchSearch | Failed to fetch data");
+    }
     const data = await response.json();
     return data;
   } catch (error) {
@@ -47,7 +55,10 @@ export async function fetchPlaylistM3U8(trackUrl: string) {
     const response = await fetch(
       `/api/soundcloud/music?trackUrl=${encodeURIComponent(trackUrl)}`
     );
-    if (!response.ok) throw new Error("Failed to fetch playlist URL");
+    if (!response.ok) {
+      showToast("error", "Failed to fetch song");
+      throw new Error("Failed to fetch song/playlist URL");
+    }
     const data = await response.json();
     console.log("fetchPlaylistM3U8 | data:", data);
     return data.playlistUrl;
@@ -61,7 +72,10 @@ export async function fetchUserData(profileUrl: string) {
     const response = await fetch(
       `/api/soundcloud/user/userData?profileUrl=${profileUrl}`
     );
-    if (!response.ok) throw new Error("Failed to fetch users data");
+    if (!response.ok) {
+      showToast("error", "Failed to fetch users data");
+      throw new Error("Failed to fetch users data");
+    }
     const data = await response.json();
     return data;
   } catch (error) {
@@ -80,7 +94,10 @@ export async function fetchLyrics(title: string, artist: string) {
       `https://lyrix.vercel.app/getLyricsByName/${artist}/${title}/?remix=false`
     );
     console.log("fetchLyrics | response:", response);
-    if (!response.ok) throw new Error("Failed to fetch lyrics");
+    if (!response.ok) {
+      showToast("error", "Failed to fetch lyrics");
+      throw new Error("Failed to fetch lyrics");
+    }
     const data = await response.json();
     console.log("API fetchLyrics | data:", data);
     return data;
@@ -100,7 +117,10 @@ export async function fetchRichSyncLyrics(title: string, artist: string) {
       `/api/lyrics/get?artist=${artist}&track=${title}`
     );
     console.log("fetchRichSyncLyrics | response:", response);
-    if (!response.ok) throw new Error("Failed to fetch lyrics");
+    if (!response.ok) {
+      showToast("error", "Failed to fetch rich sync lyrics");
+      throw new Error("Failed to fetch rich sync lyrics");
+    }
     const data = await response.json();
     console.log("API fetchRichSyncLyrics | data:", data);
     return data;

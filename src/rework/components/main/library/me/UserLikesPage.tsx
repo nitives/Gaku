@@ -46,7 +46,7 @@ export default function UserLikedSongs({ user }: { user: any }) {
           Liked Songs
           <code
             title="Amount liked"
-            className="bg-white/15 opacity-50 text-sm border border-[--labelDivider] mx-2 px-1 rounded"
+            className="bg-white/15 opacity-50 select-none text-sm border border-[--labelDivider] mx-2 px-1 rounded"
           >
             {transformedTracks.length}
           </code>
