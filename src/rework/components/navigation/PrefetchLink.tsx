@@ -4,7 +4,7 @@ import { PropsWithChildren, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { dev } from "@/lib/utils";
-import { fetchArtistData } from "@/app/(pages)/artist/[artist_name]/[artist_id]/page";
+import { fetchArtistData } from "@/lib/artist";
 
 interface PrefetchLinkProps extends LinkProps {
   className?: string;

@@ -9,13 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { TryAgain } from "@/rework/components/extra/TryAgain";
 import Link from "next/link";
-
-export async function fetchArtistData(artistId: string, _artistName: string) {
-  const data = (await SoundCloudKit.getData(artistId, "artist", {
-    include: ["spotlight", "latest"],
-  })) as SoundCloudArtist;
-  return data;
-}
+import { fetchArtistData } from "@/lib/artist";
 
 const soundCloudOfficial = ["music-charts-us"];
 
