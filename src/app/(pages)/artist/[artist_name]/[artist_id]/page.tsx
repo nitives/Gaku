@@ -8,6 +8,7 @@ import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { TryAgain } from "@/rework/components/extra/TryAgain";
+import Link from "next/link";
 
 export async function fetchArtistData(artistId: string, _artistName: string) {
   const data = (await SoundCloudKit.getData(artistId, "artist", {
@@ -68,8 +69,16 @@ export default function ArtistPage() {
     <>
       <Banner artist={artist} />
       <div className="flex pb-12">
-        <Latest artist={artist} />  
+        <Latest artist={artist} />
         <Spotlight artist={artist} />
+      </div>
+      <div className="flex flex-col p-4 mb-20">
+        <Link
+          href={`/artist/${artist_name}/${artist_id}/see-all`}
+          className="text-[--systemSecondary]"
+        >
+          See all
+        </Link>
       </div>
     </>
   );

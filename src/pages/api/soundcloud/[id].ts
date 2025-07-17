@@ -152,6 +152,28 @@ export default async function handler(
         });
       }
 
+      // 5. If "allTracks" included → fetch all tracks
+      if (includes.includes("allTracks")) {
+        const allTracksResponse = await axios.get(
+          `https://api-v2.soundcloud.com/users/${id}/tracks?limit=500`,
+          {
+            headers: {
+              Host: "api-v2.soundcloud.com",
+              Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,
+            },
+          }
+        );
+
+        // Example: attach processed all tracks data to artist
+        const tracks = allTracksResponse.data.collection || [];
+        artist.allTracks = tracks.map((track: any) => ({
+          ...track,
+          artwork_url_hd: track.artwork_url
+            ? track.artwork_url.replace("large", "t500x500")
+            : null,
+        }));
+      }
+
       return res.status(200).json(artist);
     }
 

@@ -163,6 +163,8 @@ body {
 }
 @layer base {
   :root {
+    color-scheme: light dark;
+
     /* Default theme color that can be overridden dynamically */
     --keyColor: #5891fa;
 

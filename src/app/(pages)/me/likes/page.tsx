@@ -20,7 +20,7 @@ export default function UserLikes() {
     retry: false,
     refetchOnWindowFocus: false,
   });
-  if (!settings) return <p className="text-[--systemSecondary]">Loading user data.</p>;
+  if (!settings) return <p className="text-[--systemSecondary] shadow-lg">Loading user data.</p>;
   if (isLoading) return <Spinner />;
   if (error) {
     return (
