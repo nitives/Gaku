@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useAudioStoreNew } from "@/context/AudioContextNew";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import style from "./Controls.module.css";
@@ -765,7 +765,7 @@ export const VolumeSlider = ({
           <VolumeIcon
             volume={volume}
             isMuted={isMuted}
-            fill="white"
+            fill="var(--foreground)"
             size={12}
           />
         </button>

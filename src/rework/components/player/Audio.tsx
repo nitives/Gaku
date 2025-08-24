@@ -1,9 +1,11 @@
 "use client";
 import { useAudioStoreNew } from "@/context/AudioContextNew";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
 
 export const Audio = () => {
+  // Render only after client mounts to avoid hydration mismatches
+  const [mounted, setMounted] = useState(false);
   const {
     currentSong,
     isPlaying,
@@ -15,6 +17,11 @@ export const Audio = () => {
     volume,
   } = useAudioStoreNew();
   const playerRef = useRef<ReactPlayer>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     setPlayerRef(playerRef);
   }, [setPlayerRef]);
@@ -72,6 +79,9 @@ export const Audio = () => {
       };
     }
   }, [currentSong, isPlaying, duration, nextSong, previousSong, setIsPlaying]);
+
+  // Avoid rendering on the server or without a valid URL to keep SSR and CSR output consistent
+  if (!mounted || !currentSong?.src) return null;
 
   return (
     <ReactPlayer

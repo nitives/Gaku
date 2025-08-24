@@ -11,10 +11,6 @@ import { useUser } from "@/hooks/useUser";
 import { LikeFilledIcon } from "@/rework/components/player/new/PlayerBar";
 import ContextMenu from "@/rework/components/contextmenus/ContextMenu";
 import { Song } from "@/lib/audio/types";
-import { IoPlay } from "react-icons/io5";
-import { PiShuffleBold } from "react-icons/pi";
-import { usePlaylistFetcher } from "@/lib/audio/play";
-import React from "react";
 
 // Fetch artist data with all tracks
 async function fetchArtistAllTracks(artistId: string, _artistName: string) {

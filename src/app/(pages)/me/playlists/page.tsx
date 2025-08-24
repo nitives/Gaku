@@ -16,6 +16,7 @@ export default function UserPlaylist() {
   } = useQuery({
     queryKey: ["soundcloudUserID", settings?.soundcloudUserId],
     queryFn: () => SoundCloudKit.getUserData(settings!.soundcloudUserId),
+    staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!settings,
     retry: false,
     refetchOnWindowFocus: false,

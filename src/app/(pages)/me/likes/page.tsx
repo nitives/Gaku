@@ -14,13 +14,17 @@ export default function UserLikes() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["soundcloudUserID", settings?.soundcloudUserId],
-    queryFn: () => SoundCloudKit.getUserData(settings!.soundcloudUserId),
+    queryKey: ["soundcloudUserID", settings?.data?.soundcloudUserId],
+    queryFn: () => SoundCloudKit.getUserData(settings!.data!.soundcloudUserId),
     enabled: !!settings,
+    staleTime: 1000 * 60 * 5, // 5 minutes
     retry: false,
     refetchOnWindowFocus: false,
   });
-  if (!settings) return <p className="text-[--systemSecondary] shadow-lg">Loading user data.</p>;
+  if (settings.isLoading)
+    return (
+      <p className="text-[--systemSecondary] shadow-lg">Loading user data.</p>
+    );
   if (isLoading) return <Spinner />;
   if (error) {
     return (

@@ -3,8 +3,7 @@ import React, { ReactNode } from "react";
 import { ScrollPage } from "./ScrollPage";
 import { Sidebar } from "../navigation/Sidebar";
 import style from "./Main.module.css";
-import { PlayerBar } from "../player/PlayerBar";
-import { PlayerBar as NewPlayerBar } from "../player/new/PlayerBar";
+import { PlayerBar } from "../player/new/PlayerBar";
 import { useIsPWA } from "@/hooks/useIsPWA";
 import { MobileView } from "../mobile/MobileView";
 import { useAudioStoreNew } from "@/context/AudioContextNew";
@@ -42,8 +41,7 @@ export const Content = ({ children }: ContentProps) => {
       ) : (
         <div className={`${style.Content} ${isFullscreen ? "invisible" : ""}`}>
           <Sidebar />
-          {/* <PlayerBar /> */}
-          <NewPlayerBar />
+          <PlayerBar />
           <ScrollPage>{children}</ScrollPage>
         </div>
       )}

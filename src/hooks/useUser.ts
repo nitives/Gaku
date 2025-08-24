@@ -66,16 +66,25 @@ export const useUser = () => {
     },
   });
 
-  const settings = useQuery<UserSettings>({
+  const {
+    data: settings,
+    isLoading: isLoadingSettings,
+    error: settingsError,
+  } = useQuery<UserSettings>({
     queryKey: ["userSettings"],
     queryFn: async () => {
       const response = await axios.get("/api/user/settings");
       return response.data;
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   return {
-    settings: settings.data,
+    settings: {
+      data: settings,
+      isLoading: isLoadingSettings,
+      error: settingsError,
+    },
     librarySongs: data, // Array of songs or undefined if not loaded
     isLoading, // Boolean indicating loading state
     error, // Any error from fetching songs

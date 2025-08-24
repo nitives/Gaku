@@ -278,7 +278,7 @@ const Screen = () => {
             )}
           </motion.div>
           <BackgroundRender
-            fps={24}
+            fps={240}
             playing={isPlaying}
             style={{
               position: "fixed",

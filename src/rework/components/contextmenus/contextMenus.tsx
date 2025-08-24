@@ -2,7 +2,7 @@
 import { Menu, Item, ItemParams, PredicateParams } from "react-contexify";
 import { useUser } from "@/hooks/useUser";
 import { showToast } from "@/hooks/useToast";
-import { useCallback } from "react";
+import { Fragment, useCallback } from "react";
 
 export const SONG_MENU_ID = "songMenu";
 
@@ -66,9 +66,9 @@ export function SongMenu() {
 }
 
 export const contextMenus = (
-  <>
+  <Fragment key={SONG_MENU_ID}>
     <SongMenu />
     {/* <AlbumMenu /> */}
     {/* <ArtistMenu /> */}
-  </>
+  </Fragment>
 );
