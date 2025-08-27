@@ -1,22 +1,21 @@
 "use client";
 import { useUser } from "@/hooks/useUser";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
-import { Spinner } from "@/rework/components/extra/Spinner";
-import { TryAgain } from "@/rework/components/extra/TryAgain";
+import { Spinner } from "@/components/extra/Spinner";
+import { TryAgain } from "@/components/extra/TryAgain";
 import { useQuery } from "@tanstack/react-query";
 
 export default function UserPlaylist() {
   const { settings } = useUser();
-  console.log("Settings", settings);
   const {
     data: user,
     isLoading,
     error,
     refetch,
   } = useQuery({
-    queryKey: ["soundcloudUserID", settings?.soundcloudUserId],
-    queryFn: () => SoundCloudKit.getUserData(settings!.soundcloudUserId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    queryKey: ["soundcloudUserID", settings.data?.themeColor],
+    queryFn: () => SoundCloudKit.getUserData(settings!.data!.soundcloudUserId),
+    staleTime: 1000 * 60 * 5,
     enabled: !!settings,
     retry: false,
     refetchOnWindowFocus: false,
@@ -33,12 +32,10 @@ export default function UserPlaylist() {
       />
     );
   }
-  console.log("User", user);
 
   return (
     <div>
       <h1>User Playlist</h1>
-      <h2>Settings COlor:</h2>
     </div>
   );
 }

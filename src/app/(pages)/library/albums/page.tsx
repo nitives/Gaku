@@ -1,4 +1,4 @@
-import { LibraryAlbums } from "@/rework/components/main/library/albums/LibraryAlbums";
+import { LibraryAlbums } from "@/components/main/library/albums/LibraryAlbums";
 import { conf } from "@/lib/config";
 import { Metadata } from "next";
 

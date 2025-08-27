@@ -1,0 +1,45 @@
+.Content {
+  height: 100vh;
+  grid-gap: 0;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "structure-header structure-main-section"
+    "structure-upsell structure-upsell"
+    "structure-locale-switcher structure-locale-switcher";
+}
+
+@media not all and (min-width: 640px) {
+  .Content {
+    grid-template-columns: 0px minmax(0, 1fr);
+  }
+}
+
+.ScrollPage {
+  display: flex;
+  flex-direction: column;
+  grid-area: structure-main-section;
+  min-height: 100vh; /* Ensure the container takes up the full viewport height */
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: margin 0.1s linear, width 0.1s linear;
+  width: 100%;
+  z-index: var(--z-default);
+}
+
+/* .ScrollPage > :nth-child(1) {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.ScrollPage > :nth-child(2) {
+  flex-shrink: 0;
+  height: 5vh;
+  max-height: 5vh;
+} */
+
+.DynamicPage {
+  width: 100%;
+  height: calc(100vh - 96px);
+}

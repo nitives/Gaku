@@ -1,18 +1,16 @@
 :root {
   --slider-track-color: hsla(0, 0%, 80%, 0.1);
-  --slider-fill-color: hsla(
-    0,
-    0%,
-    100%,
-    0.8
-  ); /* default green, change as needed */
+  --slider-fill-color: hsla(0, 0%, 100%, 0.8);
   --slider-hover-color: rgba(255, 255, 255, 0.5);
-  --slider-thumb-color: #ffffff; /* default green, change as needed */
+  --slider-thumb-color: #ffffff;
   --volume-value: 0%;
   --seek-value: 0%;
+
+  --gaku-progress-bar-height: 6px;
+  --gaku-progress-thumb-size: 12px;
 }
 
-.apple-slider {
+.gaku-slider {
   align-items: center;
   -webkit-appearance: none;
   appearance: none;
@@ -34,12 +32,12 @@
   cursor: pointer;
 }
 
-.apple-slider:hover {
+.gaku-slider:hover {
   opacity: 1;
   backdrop-filter: blur(10px);
 }
 
-.apple-slider::-webkit-slider-thumb {
+/* .gaku-slider::-webkit-slider-thumb {
   opacity: 0;
   -webkit-appearance: none;
   appearance: none;
@@ -49,10 +47,10 @@
   background: var(--slider-thumb-color);
   cursor: pointer;
   position: relative;
-  z-index: 1; /* Ensure the thumb is above the track */
+  z-index: 1;
 }
 
-.apple-slider::-moz-range-thumb {
+.gaku-slider::-moz-range-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 1rem;
@@ -61,10 +59,10 @@
   background: var(--slider-thumb-color);
   cursor: pointer;
   position: relative;
-  z-index: 1; /* Ensure the thumb is above the track */
+  z-index: 1;
 }
 
-.apple-slider::-ms-thumb {
+.gaku-slider::-ms-thumb {
   appearance: none;
   width: 1rem;
   height: 1rem;
@@ -72,22 +70,22 @@
   background: var(--slider-thumb-color);
   cursor: pointer;
   position: relative;
-  z-index: 1; /* Ensure the thumb is above the track */
-}
+  z-index: 1;
+} */
 
-.apple-slider::-webkit-slider-runnable-track {
+.gaku-slider::-webkit-slider-runnable-track {
   width: 100%;
   height: 1rem;
   border-radius: 0.5rem;
 }
 
-.apple-slider::-moz-range-track {
+.gaku-slider::-moz-range-track {
   width: 100%;
   height: 1rem;
   border-radius: 0.5rem;
 }
 
-.apple-slider::-ms-track {
+.gaku-slider::-ms-track {
   width: 100%;
   height: 1rem;
   border-radius: 0.5rem;
@@ -96,12 +94,12 @@
   color: transparent;
 }
 
-.apple-slider::-ms-fill-lower {
+.gaku-slider::-ms-fill-lower {
   background: var(--slider-track-color);
   border-radius: 0.5rem;
 }
 
-.apple-slider::-ms-fill-upper {
+.gaku-slider::-ms-fill-upper {
   background: var(--slider-track-color);
   border-radius: 0.5rem;
 }
@@ -124,4 +122,20 @@
     var(--slider-track-color) var(--seek-value),
     var(--slider-track-color) 100%
   );
+}
+
+@supports (-moz-appearance: none) {
+  .gaku-slider {
+    height: var(--gaku-progress-bar-height, 4px);
+  }
+}
+
+.gaku-slider::-moz-range-thumb {
+  width: var(--gaku-progress-thumb-size);
+  height: var(--gaku-progress-thumb-size);
+  margin-top: calc(
+    (var(--gaku-progress-bar-height, 4px) - var(--gaku-progress-thumb-size)) / 2
+  );
+  background: white;
+  border: 0px solid transparent;
 }

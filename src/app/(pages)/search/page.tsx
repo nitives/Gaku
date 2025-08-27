@@ -1,10 +1,10 @@
 "use client";
-import { Banner } from "@/rework/components/navigation/search/page/Banner";
-import { Spinner } from "@/rework/components/extra/Spinner";
+import { Banner } from "@/components/navigation/search/page/Banner";
+import { Spinner } from "@/components/extra/Spinner";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
-import SearchResults from "@/rework/components/navigation/search/page/SearchResults";
-import { TryAgain } from "@/rework/components/extra/TryAgain";
+import SearchResults from "@/components/navigation/search/page/SearchResults";
+import { TryAgain } from "@/components/extra/TryAgain";
 import { Suspense } from "react";
 
 const fetchSoundCloudResults = async (query: string | null) => {

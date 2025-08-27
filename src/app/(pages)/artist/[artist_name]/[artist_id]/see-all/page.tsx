@@ -1,16 +1,18 @@
 "use client";
-import { Banner } from "@/rework/components/main/artist/banner/Banner";
-import { Spinner } from "@/rework/components/extra/Spinner";
+import { Banner } from "@/components/main/artist/banner/Banner";
+import { Spinner } from "@/components/extra/Spinner";
 import { SoundCloudArtist, SoundCloudTrack } from "@/lib/types/soundcloud";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { TryAgain } from "@/rework/components/extra/TryAgain";
-import { useAudioStoreNew } from "@/context/AudioContextNew";
+import { TryAgain } from "@/components/extra/TryAgain";
+import { useAudioStore } from "@/context/AudioContext";
 import { useUser } from "@/hooks/useUser";
-import { LikeFilledIcon } from "@/rework/components/player/new/PlayerBar";
-import ContextMenu from "@/rework/components/contextmenus/ContextMenu";
+import { LikeFilledIcon } from "@/components/player/new/PlayerBar";
+import ContextMenu from "@/components/contextmenus/ContextMenu";
 import { Song } from "@/lib/audio/types";
+
+const soundCloudOfficial = ["music-charts-us"];
 
 // Fetch artist data with all tracks
 async function fetchArtistAllTracks(artistId: string, _artistName: string) {
@@ -19,8 +21,6 @@ async function fetchArtistAllTracks(artistId: string, _artistName: string) {
   })) as SoundCloudArtist & { allTracks: SoundCloudTrack[] };
   return data;
 }
-
-const soundCloudOfficial = ["music-charts-us"];
 
 // Convert SoundCloud track to Song format
 const convertTrackToSong = (track: SoundCloudTrack): Song => {
@@ -42,6 +42,7 @@ const convertTrackToSong = (track: SoundCloudTrack): Song => {
     metadata: {
       artistName: track.publisher_metadata?.artist || "",
       albumTitle: track.publisher_metadata?.album_title || "",
+      isrc: track.publisher_metadata?.isrc || "",
     },
     artwork: {
       hdUrl: track.artwork_url
@@ -116,7 +117,6 @@ export default function SeeAllPage() {
   );
 }
 
-
 const TrackList = ({
   tracks,
   artist,
@@ -124,9 +124,9 @@ const TrackList = ({
   tracks: SoundCloudTrack[];
   artist: SoundCloudArtist;
 }) => {
-  const { setQueue } = useAudioStoreNew();
+  const { setQueue } = useAudioStore();
   const { librarySongs } = useUser();
-  const { currentSong } = useAudioStoreNew();
+  const { currentSong } = useAudioStore();
 
   const handlePlayFromIndex = async (index: number) => {
     try {

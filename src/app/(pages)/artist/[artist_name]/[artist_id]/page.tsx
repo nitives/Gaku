@@ -1,13 +1,12 @@
 "use client";
-import { Banner } from "@/rework/components/main/artist/banner/Banner";
-import { Spotlight } from "@/rework/components/main/artist/Spotlight";
-import { Latest } from "@/rework/components/main/artist/Latest";
-import { Spinner } from "@/rework/components/extra/Spinner";
+import { Banner } from "@/components/main/artist/banner/Banner";
+import { Spotlight } from "@/components/main/artist/Spotlight";
+import { Latest } from "@/components/main/artist/Latest";
+import { Spinner } from "@/components/extra/Spinner";
 import { SoundCloudArtist } from "@/lib/types/soundcloud";
-import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { TryAgain } from "@/rework/components/extra/TryAgain";
+import { TryAgain } from "@/components/extra/TryAgain";
 import Link from "next/link";
 import { fetchArtistData } from "@/lib/artist";
 

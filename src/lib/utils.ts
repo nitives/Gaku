@@ -55,15 +55,16 @@ export async function fetchPlaylistM3U8(trackUrl: string) {
     const response = await fetch(
       `/api/soundcloud/music?trackUrl=${encodeURIComponent(trackUrl)}`
     );
+    dev.log("fetchPlaylistM3U8 | response:", response);
     if (!response.ok) {
       showToast("error", "Failed to fetch song");
       throw new Error("Failed to fetch song/playlist URL");
     }
     const data = await response.json();
-    console.log("fetchPlaylistM3U8 | data:", data);
+    dev.log("fetchPlaylistM3U8 | data:", data);
     return data.playlistUrl;
   } catch (error) {
-    console.error("Error fetching playlist URL | fetchPlaylistM3U8:", error);
+    dev.error("Error fetching playlist URL | fetchPlaylistM3U8:", error);
   }
 }
 

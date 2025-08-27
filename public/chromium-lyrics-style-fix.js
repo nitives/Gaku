@@ -1,16 +1,24 @@
 function isChromiumBasedBrowser() {
-  const userAgent = navigator.userAgent.toLowerCase();
-  return (
-    userAgent.includes("chrome") ||
-    userAgent.includes("chromium") ||
-    userAgent.includes("edg")
-  );
+  try {
+    const userAgent = navigator?.userAgent?.toLowerCase();
+    if (!userAgent) return false;
+
+    return (
+      userAgent.includes("chrome") ||
+      userAgent.includes("chromium") ||
+      userAgent.includes("edg")
+    );
+  } catch (error) {
+    console.warn("Failed to detect browser type:", error);
+    return false;
+  }
 }
 
 function applyChromiumStyles() {
-  if (isChromiumBasedBrowser()) {
-    const style = document.createElement("style");
-    style.textContent = `
+  try {
+    if (isChromiumBasedBrowser()) {
+      const style = document.createElement("style");
+      style.textContent = `
         /* Target any class starting with lyricLine- */
         [class^="lyricLine-"],
         [class^="lyricPlayer-"] {
@@ -27,12 +35,41 @@ function applyChromiumStyles() {
           display: inline !important;
         }
       `;
-    document.head.appendChild(style);
+
+      if (document.head) {
+        document.head.appendChild(style);
+      } else {
+        console.warn("Document head not available for style injection");
+      }
+    }
+  } catch (error) {
+    console.error("Failed to apply Chromium styles:", error);
   }
 }
 
 // Run on page load and handle dynamic content
-document.addEventListener("DOMContentLoaded", applyChromiumStyles);
+try {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyChromiumStyles);
+  } else {
+    applyChromiumStyles();
+  }
+} catch (error) {
+  console.error("Failed to set up DOMContentLoaded listener:", error);
+}
+
 // Optional: Re-run if the DOM changes (e.g., via MutationObserver for dynamic content)
-const observer = new MutationObserver(applyChromiumStyles);
-observer.observe(document.body, { childList: true, subtree: true });
+try {
+  if (typeof MutationObserver !== "undefined" && document.body) {
+    const observer = new MutationObserver(() => {
+      try {
+        applyChromiumStyles();
+      } catch (error) {
+        console.error("Failed to apply styles during mutation:", error);
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+} catch (error) {
+  console.error("Failed to set up MutationObserver:", error);
+}

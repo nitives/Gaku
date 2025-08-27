@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useAudioStoreNew } from "@/context/AudioContextNew";
+import { useAudioStore } from "@/context/AudioContext";
 import { getURLFromID, mapSCDataToSongOrPlaylist } from "./fetchers";
 import { dev } from "../utils";
 
@@ -13,7 +13,7 @@ const shuffleArray = <T>(array: T[]): T[] => {
 };
 
 export const usePlaylistFetcher = () => {
-  const { setQueue, addToQueue } = useAudioStoreNew();
+  const { setQueue, addToQueue } = useAudioStore();
   const handleFetchPlaylist = useCallback(
     async (url: any, isID?: boolean) => {
       if (!url) return;

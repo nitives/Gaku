@@ -1,10 +1,10 @@
 "use client";
 import { useUser } from "@/hooks/useUser";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
-import { Spinner } from "@/rework/components/extra/Spinner";
+import { Spinner } from "@/components/extra/Spinner";
 import { useQuery } from "@tanstack/react-query";
-import UserLikedSongs from "@/rework/components/main/library/me/UserLikesPage";
-import { TryAgain } from "@/rework/components/extra/TryAgain";
+import UserLikedSongs from "@/components/main/library/me/UserLikesPage";
+import { TryAgain } from "@/components/extra/TryAgain";
 
 export default function UserLikes() {
   const { settings } = useUser();

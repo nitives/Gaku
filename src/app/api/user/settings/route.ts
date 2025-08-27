@@ -91,7 +91,6 @@ export async function PUT(req: Request) {
     const settings = await prisma.userSettings.update({
       where: { userId },
       data: {
-        // Only update fields that were provided in the request
         ...(data.themeColor !== undefined && { themeColor: data.themeColor }),
         ...(data.highlightedQueries !== undefined && {
           highlightedQueries: data.highlightedQueries,

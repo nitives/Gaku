@@ -4,6 +4,8 @@ import { fetchPlaylistM3U8, dev } from "@/lib/utils";
 import { EditorialVideo } from "../types/apple";
 import { showToast } from "@/hooks/useToast";
 import toast from "react-hot-toast";
+import { AppleLyricsResponse } from "@/types/apple";
+import { SoundCloudAlbum, SoundCloudTrack } from "../types/soundcloud";
 
 /**
  * Unified fetch helper with toast-based error handling
@@ -45,7 +47,6 @@ export async function fetchSongMedia(song: Song): Promise<{ HDCover: string }> {
     dev.log("fetchSongMedia", song);
     const trackInfo = await fetchTrackInfo(song.id);
     if (!trackInfo) return { HDCover: song.artwork.url ?? "" };
-    // const HDCover = await getHDCover(trackInfo.permalink_url);
     const HDCover = SoundCloudKit.getHD(trackInfo.artwork_url);
 
     return { HDCover: HDCover ?? song.artwork.url };
@@ -104,22 +105,27 @@ async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
   try {
     dev.log("mapTrackUrlToSong | url:", url, "isID:", isID);
     const trackId = Number(url);
-    const data = await fetchTrackInfo(trackId);
+    const data = (await fetchTrackInfo(trackId)) as
+      | SoundCloudTrack
+      | SoundCloudAlbum;
+    dev.log("mapTrackUrlToSong | trackId:", trackId);
     if (!data) return createEmptySong(trackId);
-    console.log("mapTrackUrlToSong data", data);
-    // const HDCover = await getHDCover(data.permalink_url);
+    dev.log("mapTrackUrlToSong data", data);
     const HDCover = SoundCloudKit.getHD(data.artwork_url);
 
     if (window.location.pathname.includes("/album/")) {
       const albumID = window.location.pathname.includes("/album/")
         ? window.location.pathname.split("/").pop()
-        : data.publisher_metadata?.album_id || 222;
-      const fetchedAlbumName = await SoundCloudKit.getData(albumID, "albums");
+        : data.publisher_metadata?.id || 222;
+      const fetchedAlbumName = await SoundCloudKit.getData(
+        albumID || "",
+        "albums"
+      );
       const albumName =
         data.publisher_metadata?.album_title || fetchedAlbumName.title;
       const appleKitCover = await AppleKit.getMediaData(
         albumName,
-        data.publisher_metadata.artist || data.user?.username,
+        data.publisher_metadata?.artist || data.user?.username,
         "albums"
       );
       dev.log("appleKitCover", appleKitCover);
@@ -142,6 +148,7 @@ async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
         metadata: {
           artistName: data.publisher_metadata?.artist || "",
           albumTitle: data.publisher_metadata?.album_title || "",
+          isrc: data.publisher_metadata?.isrc || "",
         },
         artwork: {
           hdUrl: HDCover,
@@ -172,6 +179,7 @@ async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
       metadata: {
         artistName: data.publisher_metadata?.artist || "",
         albumTitle: data.publisher_metadata?.album_title || "",
+        isrc: data.publisher_metadata?.isrc || "",
       },
       artwork: {
         hdUrl: HDCover,
@@ -235,7 +243,6 @@ async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
   const songs: Song[] = [];
   for (const track of tracks) {
     try {
-      // const HDCover = await getHDCover(track.artwork_url);
       const HDCover = SoundCloudKit.getHD(track.artwork_url);
       const song: Song = {
         albumName: track.publisher_metadata?.album_title || "",
@@ -253,6 +260,7 @@ async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
         metadata: {
           artistName: track.publisher_metadata?.artist || "",
           albumTitle: track.publisher_metadata?.album_title || "",
+          isrc: track.publisher_metadata?.isrc || "",
         },
         artwork: {
           hdUrl: HDCover,
@@ -273,24 +281,6 @@ async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
     }
   }
   return songs;
-}
-
-/**
- * Fetches the HD cover image given a track/playlist permalink URL.
- */
-export async function getHDCover(url: string): Promise<string> {
-  dev.log("getHDCover", url);
-  try {
-    const data = await fetchJson<any>(
-      `/api/extra/cover/${encodeURIComponent(url)}`,
-      `Failed to fetch HD cover`
-    );
-    if (!data) return "";
-    return data.imageUrl || "";
-  } catch (error) {
-    console.error("Error fetching HD cover:", error);
-    return "";
-  }
 }
 
 /**
@@ -346,6 +336,7 @@ function createEmptySong(id: number): Song {
     metadata: {
       artistName: "Unknown Artist",
       albumTitle: "Unknown Album",
+      isrc: "",
     },
     artwork: {
       hdUrl: "",
@@ -367,8 +358,6 @@ export async function fetchSongData(
     dev.log("fetchSongData", song);
     const trackInfo = await fetchTrackInfo(song.id);
     if (!trackInfo) throw new Error("Failed to fetch track info");
-
-    // const HDCover = await getHDCover(trackInfo.artwork_url);
     const HDCover = SoundCloudKit.getHD(trackInfo.artwork_url);
     const M3U8url = await fetchPlaylistM3U8(trackInfo.permalink_url);
 
@@ -386,9 +375,11 @@ export const AppleKit = {
   async getLyrics(
     title: string,
     artist: string,
+    isrc?: string,
     file: boolean = false
-  ): Promise<string> {
+  ): Promise<string | AppleLyricsResponse> {
     try {
+      dev.log("AppleKit | getLyrics", { title, artist, isrc, file });
       const cleanedTitle = title.split("(")[0].trim();
       let cleanedArtist = artist;
       cleanedArtist = artistMappings[cleanedArtist] || cleanedArtist;
@@ -400,8 +391,11 @@ export const AppleKit = {
         .join("+");
 
       const query = `${cleanedTitle.replace(/ /g, "+")}+${cleanedArtist}`;
-      const data = await fetchJson<any>(
-        `/api/apple/lyrics/${query}`,
+      const url = `/api/apple/lyrics/${query}${
+        isrc ? `?isrc=${encodeURIComponent(isrc)}` : ""
+      }`;
+      const data = await fetchJson<AppleLyricsResponse>(
+        url,
         `Failed to fetch lyrics for ${title}`
       );
       if (!data) return "";
@@ -413,7 +407,7 @@ export const AppleKit = {
       };
 
       if (file) {
-        return formatTTMLResponse(data.data[0].attributes.ttml);
+        return formatTTMLResponse(data.lyrics.data[0].attributes.ttml);
       }
 
       return data;
@@ -530,6 +524,29 @@ export const SoundCloudKit = {
    * Fetch SoundCloud home page sections.
    */
   async getHomeSections() {
+    // If running in a React client with React Query available, prefer the cached data.
+    // Otherwise, fall back to a plain fetch.
+    try {
+      const { homeSectionsQueryKey } = await import("@/hooks/useHomeSections");
+      // Access the global QueryClient if one exists via window.__REACT_QUERY_CLIENT__
+      // Otherwise, do a network fetch and return fresh data.
+      const anyWindow = globalThis as any;
+      const existingClient = anyWindow.__REACT_QUERY_CLIENT__;
+      if (existingClient && typeof existingClient.getQueryData === "function") {
+        const cached = existingClient.getQueryData(homeSectionsQueryKey);
+        if (cached) return cached;
+        const fresh = await fetchJson<any>(
+          `/api/soundcloud/home/section`,
+          `Failed to fetch home page`
+        );
+        if (!fresh) throw new Error("Failed to fetch home page");
+        existingClient.setQueryData(homeSectionsQueryKey, fresh);
+        return fresh;
+      }
+    } catch (_) {
+      // fall through to simple fetch when react-query isn't available
+    }
+
     const data = await fetchJson<any>(
       `/api/soundcloud/home/section`,
       `Failed to fetch home page`

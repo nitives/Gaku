@@ -1,26 +1,41 @@
 "use client";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
-import { SoundCloudTrack } from "@/lib/types/soundcloud";
-import { dev } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Spinner } from "@/components/extra/Spinner";
+import { TryAgain } from "@/components/extra/TryAgain";
+import { Song as SongComponent } from "@/components/main/song/Song";
 
 export default function Song() {
-  const [song, setSong] = useState<SoundCloudTrack | null>(null);
   const { song_title, song_id } = useParams() as {
     song_title: string;
     song_id: string;
   };
-  useEffect(() => {
-    const fetchSong = async () => {
-      const data = (await SoundCloudKit.getData(
-        song_id,
-        "songs"
-      )) as SoundCloudTrack;
-      dev.log("fetchSong | SoundCloudKit.getData", data);
-      setSong(data);
-    };
-    fetchSong();
-  }, [song_id, song_title]);
-  return <div>{song?.title}</div>;
+  const {
+    data: song,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["soundcloudSong", song_id],
+    queryFn: () => SoundCloudKit.getData(song_id, "songs"),
+    enabled: !!song_id,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
+  if (!song_id)
+    return <p className="text-[--systemSecondary]">No song found.</p>;
+  if (isLoading) return <Spinner />;
+  if (error) {
+    return (
+      <TryAgain
+        errorName={(error as Error).name}
+        errorMessage={(error as Error).message}
+        onTryAgain={() => refetch()}
+      />
+    );
+  }
+
+  return song ? <SongComponent data={song as any} /> : null;
 }

@@ -1,4 +1,4 @@
-import LibrarySongs from "@/rework/components/main/library/LibraryPage";
+import LibrarySongs from "@/components/main/library/LibraryPage";
 import { conf } from "@/lib/config";
 import { Metadata } from "next";
 

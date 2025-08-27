@@ -1,10 +1,10 @@
 "use client";
-import { Album } from "@/rework/components/main/album/Album";
-import { Spinner } from "@/rework/components/extra/Spinner";
+import { Album } from "@/components/main/album/Album";
+import { Spinner } from "@/components/extra/Spinner";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { TryAgain } from "@/rework/components/extra/TryAgain";
+import { TryAgain } from "@/components/extra/TryAgain";
 
 export default function AlbumPage() {
   const { album_id } = useParams() as {

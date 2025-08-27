@@ -28,25 +28,51 @@ export const useUser = () => {
 
   // Fetch the user's library songs
   const { data, isLoading, error } = useQuery<LibrarySongs>({
-    queryKey: ["librarySongs"],
-    queryFn: async () => {
-      const response = await axios.get("/api/user/songs");
-      return response.data;
-    },
+    queryKey: ["librarySongIDs"],
+    queryFn: async () => (await axios.get("/api/user/songs")).data,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   // Add a song to the user's library
   const { mutate: addSong } = useMutation({
     mutationFn: async (soundcloudId: string) => {
       const response = await axios.post("/api/user/songs", { soundcloudId });
-      return response.data;
+      return response.data as Song;
     },
-    onSuccess: () => {
-      // Invalidate the librarySongs query to refetch the updated list
-      queryClient.invalidateQueries({ queryKey: ["librarySongs"] });
+    // Optimistic update
+    onMutate: async (soundcloudId: string) => {
+      await queryClient.cancelQueries({ queryKey: ["librarySongIDs"] });
+      const previous = queryClient.getQueryData<LibrarySongs>([
+        "librarySongIDs",
+      ]);
+
+      const optimistic: Song = {
+        id: soundcloudId,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      queryClient.setQueryData<LibrarySongs>(["librarySongIDs"], (old) => {
+        const base = old ?? [];
+        // avoid duplicates
+        if (base.some((s) => s.id === soundcloudId)) return base;
+        return [...base, optimistic];
+      });
+
+      return { previous } as { previous?: LibrarySongs };
     },
-    onError: () => {
+    onError: (_err, _vars, ctx) => {
+      // rollback
+      if (ctx?.previous) {
+        queryClient.setQueryData(["librarySongIDs"], ctx.previous);
+      }
       showToast("error", `Failed to add song`);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["librarySongIDs"] });
     },
   });
 
@@ -56,13 +82,29 @@ export const useUser = () => {
       const response = await axios.delete("/api/user/songs", {
         data: { soundcloudId },
       });
-      return response.data;
+      return response.data as { success: boolean };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["librarySongs"] });
+    onMutate: async (soundcloudId: string) => {
+      await queryClient.cancelQueries({ queryKey: ["librarySongIDs"] });
+      const previous = queryClient.getQueryData<LibrarySongs>([
+        "librarySongIDs",
+      ]);
+
+      queryClient.setQueryData<LibrarySongs>(["librarySongIDs"], (old) => {
+        const base = old ?? [];
+        return base.filter((s) => s.id !== soundcloudId);
+      });
+
+      return { previous } as { previous?: LibrarySongs };
     },
-    onError: () => {
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(["librarySongIDs"], ctx.previous);
+      }
       showToast("error", `Failed to remove song`);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["librarySongIDs"] });
     },
   });
 
@@ -76,7 +118,7 @@ export const useUser = () => {
       const response = await axios.get("/api/user/settings");
       return response.data;
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 
   return {

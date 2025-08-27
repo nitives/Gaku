@@ -1,4 +1,4 @@
-import { LibraryArtists } from "@/rework/components/main/library/artist/LibraryArtists";
+import { LibraryArtists } from "@/components/main/library/artist/LibraryArtists";
 import { conf } from "@/lib/config";
 import { Metadata } from "next";
 

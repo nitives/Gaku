@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import { ThemeProvider as NextThemeProvider } from "@/components/theme-provider";
+import { NextThemeProvider } from "@/providers/NextThemeProvider";
 import type { Viewport } from "next";
-import { Toaster } from "react-hot-toast";
-import { Content } from "@/rework/components/main/Content";
+import { Toaster, ToastBar } from "react-hot-toast";
+import { Content } from "@/components/main/Content";
 import ReactQueryWrapper from "@/providers/QueryWrapper";
-import "../rework/global.css";
-import { Audio } from "@/rework/components/player/Audio";
+import { Audio } from "@/components/player/Audio";
 import { ClerkProvider } from "@clerk/nextjs";
+import { contextMenus } from "@/components/contextmenus/contextMenus";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import "react-contexify/dist/ReactContexify.css";
 import "../styles/contexifyGaku.css";
 import "../styles/playercontrols.css";
-import { contextMenus } from "@/rework/components/contextmenus/contextMenus";
-import { ThemeProvider } from "@/providers/ThemeProvider";
+import "./global.css";
+import { UserDataProvider } from "@/providers/UserDataProvider";
 
 export const metadata: Metadata = {
   title: "Gaku",
@@ -271,54 +272,56 @@ export default function RootLayout({
         </head>
         <body className="SFPro" suppressHydrationWarning>
           <ReactQueryWrapper>
-            <ThemeProvider>
-              <NextThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-              >
-                <Content>
-                  {children}
-                  {contextMenus}
-                </Content>
-                <Toaster
-                  position="bottom-center"
-                  toastOptions={{
-                    style: {
-                      padding: "12px 16px",
-                      borderRadius: "15px",
-                      background: "rgba(28, 28, 30, 0.85)",
-                      color: "#fff",
-                      fontSize: "15px",
-                      fontWeight: "500",
-                      maxWidth: "90%",
-                      textAlign: "center",
-                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                      backdropFilter: "blur(10px)",
-                      filter: "grayscale(1)",
-                    },
-                    success: {
-                      iconTheme: {
-                        primary: "#fff",
-                        secondary: "rgba(28, 28, 30, 0.85)",
+            <UserDataProvider>
+              <ThemeProvider>
+                <NextThemeProvider
+                  attribute="class"
+                  defaultTheme="system"
+                  enableSystem
+                >
+                  <Content>
+                    {children}
+                    {contextMenus}
+                  </Content>
+                  <Toaster
+                    position="bottom-center"
+                    toastOptions={{
+                      style: {
+                        padding: "12px 16px",
+                        borderRadius: "15px",
+                        background: "rgba(28, 28, 30, 0.85)",
+                        color: "#fff",
+                        fontSize: "15px",
+                        fontWeight: "500",
+                        maxWidth: "90%",
+                        textAlign: "center",
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                        backdropFilter: "blur(10px)",
+                        filter: "grayscale(1)",
                       },
-                      duration: 2000,
-                    },
-                    error: {
-                      iconTheme: {
-                        primary: "#fff",
-                        secondary: "rgba(28, 28, 30, 0.85)",
+                      success: {
+                        iconTheme: {
+                          primary: "#fff",
+                          secondary: "rgba(28, 28, 30, 0.85)",
+                        },
+                        duration: 2000,
                       },
-                      duration: 3000,
-                    },
-                  }}
-                  containerStyle={{
-                    bottom: 50,
-                  }}
-                />
-                <Audio />
-              </NextThemeProvider>
-            </ThemeProvider>
+                      error: {
+                        iconTheme: {
+                          primary: "#fff",
+                          secondary: "rgba(28, 28, 30, 0.85)",
+                        },
+                        duration: 3000,
+                      },
+                    }}
+                    containerStyle={{
+                      bottom: 50,
+                    }}
+                  />
+                  <Audio />
+                </NextThemeProvider>
+              </ThemeProvider>
+            </UserDataProvider>
           </ReactQueryWrapper>
         </body>
       </html>

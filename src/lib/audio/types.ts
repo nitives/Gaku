@@ -17,6 +17,7 @@ export interface Song {
   metadata?: {
     albumTitle?: string;
     artistName?: string;
+    isrc?: string;
   };
   artwork: Artwork;
   contentRating?: string;

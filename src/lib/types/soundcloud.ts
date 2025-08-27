@@ -98,15 +98,7 @@ export interface SoundCloudTrack {
   playback_count: number;
   policy: string;
   public: boolean;
-  publisher_metadata: {
-    artist: string;
-    contains_music: boolean;
-    explicit: boolean;
-    album_title: string;
-    id: number;
-    isrc: string;
-    urn: string;
-  };
+  publisher_metadata?: PublisherMetadata;
   purchase_title: string | null;
   purchase_url: string | null;
   release_date: string;
@@ -162,6 +154,22 @@ export interface SoundCloudAlbum {
   uri: string;
   user: SoundCloudArtist;
   user_id: number;
+  publisher_metadata?: PublisherMetadata;
+}
+
+export interface PublisherMetadata {
+  id?: number;
+  urn?: string;
+  artist?: string;
+  album_title?: string;
+  contains_music?: boolean;
+  explicit?: boolean;
+  isrc?: string;
+  p_line?: string;
+  p_line_for_display?: string;
+  c_line?: string;
+  c_line_for_display?: string;
+  release_title?: string;
 }
 
 export interface SoundCloudSearchResult {

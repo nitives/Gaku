@@ -1,4 +1,4 @@
-import { RecentlyAdded } from "@/rework/components/main/library/recently-added/RecentlyAdded";
+import { RecentlyAdded } from "@/components/main/library/recently-added/RecentlyAdded";
 import { conf } from "@/lib/config";
 import { Metadata } from "next";
 

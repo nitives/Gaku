@@ -1,0 +1,188 @@
+.SidebarContainer {
+  grid-gap: 0;
+  grid-area: structure-header;
+  height: 100%;
+  position: relative;
+  width: 100%;
+  z-index: var(--z-web-chrome);
+}
+
+.Sidebar {
+  background-color: rgba(235, 235, 235, 0.03);
+  border-inline-end: 1px solid var(--labelDivider);
+  box-shadow: none;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  z-index: var(--z-web-chrome);
+}
+
+/* SidebarHeader */
+.SidebarHeader {
+  width: auto;
+}
+
+@media not all and (min-width: 640px) {
+  .SidebarHeaderLogo {
+    display: none !important;
+  }
+}
+
+.SidebarHeaderLogo {
+  --SidebarHeaderLogo-padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  white-space: nowrap;
+  min-height: 55px;
+  padding-inline-end: var(--SidebarHeaderLogo-padding);
+  padding-top: var(--SidebarHeaderLogo-padding);
+  padding-inline-start: var(--SidebarHeaderLogo-padding);
+  -webkit-padding-start: var(--SidebarHeaderLogo-padding);
+  -moz-padding-start: var(--SidebarHeaderLogo-padding);
+  -webkit-padding-end: var(--SidebarHeaderLogo-padding);
+  -moz-padding-end: var(--SidebarHeaderLogo-padding);
+  & h1 {
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1;
+    opacity: 0.8;
+    user-select: none;
+    transition: opacity 0.2s ease-in-out;
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.SidebarContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.SidebarContentScrollArea {
+  -webkit-mask: linear-gradient(5deg, transparent 0px, black 32px);
+  mask: linear-gradient(5deg, transparent 0px, black 32px);
+  flex: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  padding-bottom: 5rem;
+  &::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    visibility: visible;
+    opacity: 1;
+  }
+  &:not(:hover)::-webkit-scrollbar-thumb {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s linear, opacity 0.3s linear;
+  }
+}
+
+.SidebarContentScrollArea a {
+  /* display: flex; */
+}
+
+.SidebarContentScrollArea svg {
+  fill: var(--systemSecondary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .SidebarFooter {
+    --blur-tint: hsla(0, 0%, 3%, 1);
+    --blur-tint-gradient: linear-gradient(
+      hsla(0, 0%, 3%, 0) 0%,
+      hsl(0, 0%, 3%) 100%
+    );
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .SidebarFooter {
+    --blur-tint: hsla(0, 0%, 100%, 1);
+    --blur-tint-gradient: linear-gradient(
+      hsla(0, 0%, 100%, 0) 0%,
+      hsl(0, 0%, 100%) 100%
+    );
+  }
+}
+
+.SidebarFooter {
+  position: relative;
+  width: 100%;
+  min-height: 100px;
+}
+
+/* ------------------------------------------------------------------------ */
+
+.SidebarList {
+  margin-inline: 12px;
+  padding-top: 0.5rem;
+}
+
+.SidebarItem {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  & a {
+    font-size: 1rem;
+    border-radius: 9px;
+    padding: 0.25rem 0.563rem;
+    min-width: 100%;
+    min-height: 100%;
+    transition: background-color 0.2s;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .SidebarItem {
+    & a {
+      background-color: rgba(255, 255, 255, 0);
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .SidebarItem {
+    & a {
+      background-color: rgba(0, 0, 0, 0);
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.033);
+      }
+    }
+  }
+}
+
+.SidebarSectionLabel {
+  color: var(--systemSecondary, rgba(235, 235, 235, 0.6));
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025rem;
+  padding: 1rem 0.25rem 0.25rem 0.25rem;
+}
+
+.SidebarItemLink {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.SidebarItemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  min-width: 20px;
+}

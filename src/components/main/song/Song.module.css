@@ -1,0 +1,135 @@
+@media not all and (min-width: 640px) {
+  .SongHeader {
+    flex-direction: column;
+    height: auto !important;
+    align-items: center;
+    padding-top: 40px;
+  }
+  .SongInfoNControls {
+    align-items: center;
+  }
+  .SongInfo {
+    align-items: center;
+  }
+}
+
+.SongHeader {
+  --songHeaderHeight: 250px;
+  display: flex;
+  height: var(--songHeaderHeight);
+  gap: 20px;
+}
+
+.SongArtwork {
+  user-select: none;
+  --songArtworkSize: var(--songHeaderHeight);
+  aspect-ratio: 1 / 1;
+  background-color: transparent;
+  border-radius: 12px;
+  box-sizing: border-box;
+  contain: content;
+  height: var(--songArtworkSize);
+  width: calc(var(--songArtworkSize) * 1);
+  overflow: hidden;
+  position: relative;
+}
+
+.SongArtwork:after {
+  content: "";
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px hsla(0, 0%, 50%, 0.1);
+  display: block;
+  height: 0;
+  max-height: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  min-width: 100%;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+  transition: opacity 0.1s ease;
+}
+
+.SongInfoNControls {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.SongInfo {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+}
+
+.SongTitle {
+  font-size: 30px;
+  line-height: 1.25;
+  font-weight: 700;
+  width: fit-content;
+  margin-top: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.SongArtist {
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 500;
+  width: fit-content;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--keyColor);
+}
+
+.SongArtist:hover {
+  text-decoration: underline;
+}
+
+.SongGenreNYear {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--systemSecondary);
+  gap: 0.125rem;
+}
+
+.Controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.Controls button {
+  border: 1.5px solid var(--labelDivider);
+  background-color: rgba(0, 0, 0, 0.025);
+  padding-inline: 14px;
+  padding-block: 6px;
+  border-radius: 12px;
+  gap: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  user-select: none;
+  transition: color 0.1s ease;
+}
+
+.Controls button:hover {
+  color: var(--keyColor);
+}
+
+@media (prefers-color-scheme: dark) {
+  .Controls button {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
