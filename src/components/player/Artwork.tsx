@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, memo } from "react";
 import Image from "next/image";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, useMotionValue, useTransform, animate } from "motion/react";
 import style from "./PlayerBar.module.css";
 import { useThemedPlaceholder } from "@/lib/utils/themedPlaceholder";
 

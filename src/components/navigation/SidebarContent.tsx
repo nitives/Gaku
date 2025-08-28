@@ -1,10 +1,10 @@
 import React from "react";
 import style from "./Sidebar.module.css";
-import { LinearBlur } from "progressive-blur";
+// import { LinearBlur } from "progressive-blur";
 import Link from "next/link";
 import { SidebarUserFooter } from "./SidebarUserFooter";
 import { AiFillHome, AiFillClockCircle, AiFillHeart } from "react-icons/ai";
-import { BiSolidAlbum, BiSolidPlaylist, BiSolidMusic } from "react-icons/bi";
+import { BiSolidAlbum, BiSolidMusic } from "react-icons/bi";
 import { FaUserAlt, FaListAlt } from "react-icons/fa";
 import { IoMusicalNote } from "react-icons/io5";
 import { useUser } from "@/hooks/useUser";
@@ -112,7 +112,7 @@ export const SidebarContent = () => {
               background: "var(--blur-tint-gradient)",
             }}
           />
-          <LinearBlur
+          {/* <LinearBlur
             style={{
               zIndex: 0,
               width: "100%",
@@ -122,7 +122,7 @@ export const SidebarContent = () => {
             }}
             side="bottom"
             tint="var(--blur-tint)"
-          />
+          /> */}
         </span>
       </div>
     </div>

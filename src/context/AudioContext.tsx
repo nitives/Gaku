@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { Song } from "@/lib/audio/types";
 import { fetchM3U8ForSong, fetchSongData } from "@/lib/audio/fetchers";
-import React from "react";
-import ReactPlayer from "react-player";
 import { showToast } from "@/hooks/useToast";
 import { loadState, saveState } from "@/lib/audio/persist";
 import { reseedFromTime, shuffleIndices } from "@/lib/audio/shuffle";
@@ -15,7 +13,7 @@ interface AudioState {
   currentIndex: number; // index into queue
   queue: Song[];
   isPlaying: boolean;
-  playerRef: React.RefObject<ReactPlayer> | null;
+  playerRef: React.RefObject<HTMLMediaElement | null> | null;
 
   // Timing/state
   currentTime: number;
@@ -77,7 +75,7 @@ interface AudioState {
   previousSong: () => Promise<void>;
   setIsPlaying: (playing: boolean) => void;
   prefetchNextN: (n: number) => Promise<void>;
-  setPlayerRef: (ref: React.RefObject<ReactPlayer>) => void;
+  setPlayerRef: (ref: React.RefObject<HTMLMediaElement | null>) => void;
   setAnimatedURL: (url: string) => void;
 
   setDuration: (duration: number) => void;
@@ -102,449 +100,448 @@ const PERSIST_KEY = "audio-engine:v1";
 const PERSIST_MAX_AGE_MS = 6 * 60 * 60 * 1000; // 6 hours
 const AUTORESUME_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
-export const useAudioStore = create<AudioState>((set, get) => ({
-  currentSong: null,
-  currentIndex: -1,
-  queue: [],
-  isPlaying: false,
-  playerRef: null,
+export const useAudioStore = create<AudioState>(
+  (set: (partial: Partial<AudioState>) => void, get: () => AudioState) => ({
+    currentSong: null,
+    currentIndex: -1,
+    queue: [],
+    isPlaying: false,
+    playerRef: null,
 
-  currentTime: 0,
-  duration: 0,
-  volume: 0.15,
-  muted: false,
-  playbackRate: 1,
-  audioCtx: null,
-  mediaNode: null,
-  gainNode: null,
-  engineReady: false,
-  suspendTimer: null,
-  crossfadeEnabled: false,
-  crossfadeSeconds: 6,
-  fineProgress: 0,
-  rafId: null,
+    currentTime: 0,
+    duration: 0,
+    volume: 0.15,
+    muted: false,
+    playbackRate: 1,
+    audioCtx: null,
+    mediaNode: null,
+    gainNode: null,
+    engineReady: false,
+    suspendTimer: null,
+    crossfadeEnabled: false,
+    crossfadeSeconds: 6,
+    fineProgress: 0,
+    rafId: null,
 
-  shuffle: false,
-  shuffleSeed: reseedFromTime(),
-  shuffleOrder: [],
-  shufflePtr: -1,
-  repeat: "off",
-  history: [],
+    shuffle: false,
+    shuffleSeed: reseedFromTime(),
+    shuffleOrder: [],
+    shufflePtr: -1,
+    repeat: "off",
+    history: [],
 
-  upNext: [],
-  later: [],
+    upNext: [],
+    later: [],
 
-  setIsPlaying: (playing) => {
-    set({ isPlaying: playing });
-    if (playing) {
-      get().startFineProgressUpdates();
-      // resume audio context promptly on play
-      try {
-        const ctx = get().audioCtx;
-        if (ctx && ctx.state === "suspended") ctx.resume();
-      } catch {}
-    } else {
-      get().stopFineProgressUpdates();
-      get().scheduleSuspend();
-    }
-    // persist lightweight playback flag
-    get().persist();
-  },
-
-  setPlayerRef: (ref) => set({ playerRef: ref }),
-
-  // New Public API
-  playNow: async (songs, startIndex = 0) => {
-    const list = Array.isArray(songs) ? songs : [songs];
-    if (list.length === 0) return;
-    // Reset order and history, compute shuffle order if needed
-    let shuffleOrder: number[] = [];
-    let shufflePtr = -1;
-    const shuffle = get().shuffle;
-    if (shuffle) {
-      shuffleOrder = shuffleIndices(list.length, get().shuffleSeed);
-      const target = shuffleOrder[startIndex] ?? 0;
-      shufflePtr = shuffleOrder.findIndex((i) => i === target);
-    }
-    set({
-      queue: list,
-      currentIndex: shuffle ? shuffleOrder[shufflePtr] : startIndex,
-      shuffleOrder,
-      shufflePtr,
-      history: [],
-      upNext: [],
-      later: [],
-    });
-    await get().playSongAtIndex(get().currentIndex);
-  },
-
-  playNext: (songOrList) => {
-    const songs = Array.isArray(songOrList) ? songOrList : [songOrList];
-    set({ upNext: [...get().upNext, ...songs] });
-    get().persist();
-  },
-
-  playLater: (songOrList) => {
-    const songs = Array.isArray(songOrList) ? songOrList : [songOrList];
-    set({ later: [...get().later, ...songs] });
-    get().persist();
-  },
-
-  removeAt: (index) => {
-    const { queue, currentIndex } = get();
-    if (index < 0 || index >= queue.length) return;
-    const newQueue = queue.slice();
-    newQueue.splice(index, 1);
-    let newCurrent = currentIndex;
-    if (index === currentIndex) {
-      // Removing current — move to same index item after removal
-      newCurrent = Math.min(index, newQueue.length - 1);
-    } else if (index < currentIndex) {
-      newCurrent = currentIndex - 1;
-    }
-    set({ queue: newQueue, currentIndex: newCurrent });
-    // Rebuild shuffle order if enabled
-    if (get().shuffle) get().rebuildShuffleOrder();
-    get().persist();
-  },
-
-  move: (from, to) => {
-    const { queue, currentIndex } = get();
-    if (
-      from < 0 ||
-      from >= queue.length ||
-      to < 0 ||
-      to >= queue.length ||
-      from === to
-    )
-      return;
-    const newQueue = queue.slice();
-    const [it] = newQueue.splice(from, 1);
-    newQueue.splice(to, 0, it);
-    // Adjust current index
-    let newCurrent = currentIndex;
-    if (from === currentIndex) newCurrent = to;
-    else if (from < currentIndex && to >= currentIndex) newCurrent -= 1;
-    else if (from > currentIndex && to <= currentIndex) newCurrent += 1;
-    set({ queue: newQueue, currentIndex: newCurrent });
-    if (get().shuffle) get().rebuildShuffleOrder();
-    get().persist();
-  },
-
-  next: async () => {
-    const {
-      repeat,
-      upNext,
-      later,
-      queue,
-      currentIndex,
-      shuffle,
-      shuffleOrder,
-      shufflePtr,
-    } = get();
-
-    // Repeat one
-    if (repeat === "one") {
-      // Robustly restart current track without reloading the URL
-      const { playerRef } = get();
-      if (playerRef?.current) {
+    setIsPlaying: (playing: boolean) => {
+      set({ isPlaying: playing });
+      if (playing) {
+        get().startFineProgressUpdates();
+        // resume audio context promptly on play
         try {
-          // Jump to start and ensure playback resumes
-          playerRef.current.seekTo(0, "seconds");
+          const ctx = get().audioCtx;
+          if (ctx && ctx.state === "suspended") ctx.resume();
         } catch {}
-        try {
-          const media = playerRef.current.getInternalPlayer?.() as
-            | HTMLMediaElement
-            | undefined;
-          await media?.play?.();
-        } catch {}
-        set({ isPlaying: true, currentTime: 0, fineProgress: 0 });
       } else {
-        // Fallback: trigger the same index
-        await get().playSongAtIndex(currentIndex);
+        get().stopFineProgressUpdates();
+        get().scheduleSuspend();
       }
-      return;
-    }
+      // persist lightweight playback flag
+      get().persist();
+    },
 
-    // Manual Up Next first
-    if (upNext.length > 0) {
-      const [song, ...rest] = upNext;
-      // If this song exists in queue, jump to it; otherwise append and play it
-      const idx = queue.findIndex((s) => s.id === song.id);
-      if (idx >= 0) {
-        set({ upNext: rest });
-        await get().playSongAtIndex(idx);
-      } else {
-        const newQueue = queue.concat([song]);
-        set({
-          queue: newQueue,
-          upNext: rest,
-          currentIndex: newQueue.length - 1,
-        });
-        if (shuffle) get().rebuildShuffleOrder();
-        await get().playSongAtIndex(get().currentIndex);
+    setPlayerRef: (ref) => set({ playerRef: ref }),
+
+    // New Public API
+    playNow: async (songs, startIndex = 0) => {
+      const list = Array.isArray(songs) ? songs : [songs];
+      if (list.length === 0) return;
+      // Reset order and history, compute shuffle order if needed
+      let shuffleOrder: number[] = [];
+      let shufflePtr = -1;
+      const shuffle = get().shuffle;
+      if (shuffle) {
+        shuffleOrder = shuffleIndices(list.length, get().shuffleSeed);
+        const target = shuffleOrder[startIndex] ?? 0;
+        shufflePtr = shuffleOrder.findIndex((i) => i === target);
       }
-      return;
-    }
+      set({
+        queue: list,
+        currentIndex: shuffle ? shuffleOrder[shufflePtr] : startIndex,
+        shuffleOrder,
+        shufflePtr,
+        history: [],
+        upNext: [],
+        later: [],
+      });
+      await get().playSongAtIndex(get().currentIndex);
+    },
 
-    // Derived order
-    if (shuffle) {
-      let ptr = shufflePtr + 1;
-      if (ptr >= shuffleOrder.length) {
-        if (later.length > 0) {
-          const [song, ...rest] = later;
-          const newQueue = queue.concat([song]);
-          set({ queue: newQueue, later: rest });
-          get().rebuildShuffleOrder();
-          set({
-            shufflePtr: get().shuffleOrder.findIndex(
-              (i) => i === newQueue.length - 1
-            ),
-          });
-          await get().playSongAtIndex(newQueue.length - 1);
-          return;
-        }
-        if (get().repeat === "all") {
-          ptr = 0; // restart same deterministic order
+    playNext: (songOrList) => {
+      const songs = Array.isArray(songOrList) ? songOrList : [songOrList];
+      set({ upNext: [...get().upNext, ...songs] });
+      get().persist();
+    },
+
+    playLater: (songOrList) => {
+      const songs = Array.isArray(songOrList) ? songOrList : [songOrList];
+      set({ later: [...get().later, ...songs] });
+      get().persist();
+    },
+
+    removeAt: (index) => {
+      const { queue, currentIndex } = get();
+      if (index < 0 || index >= queue.length) return;
+      const newQueue = queue.slice();
+      newQueue.splice(index, 1);
+      let newCurrent = currentIndex;
+      if (index === currentIndex) {
+        // Removing current — move to same index item after removal
+        newCurrent = Math.min(index, newQueue.length - 1);
+      } else if (index < currentIndex) {
+        newCurrent = currentIndex - 1;
+      }
+      set({ queue: newQueue, currentIndex: newCurrent });
+      // Rebuild shuffle order if enabled
+      if (get().shuffle) get().rebuildShuffleOrder();
+      get().persist();
+    },
+
+    move: (from, to) => {
+      const { queue, currentIndex } = get();
+      if (
+        from < 0 ||
+        from >= queue.length ||
+        to < 0 ||
+        to >= queue.length ||
+        from === to
+      )
+        return;
+      const newQueue = queue.slice();
+      const [it] = newQueue.splice(from, 1);
+      newQueue.splice(to, 0, it);
+      // Adjust current index
+      let newCurrent = currentIndex;
+      if (from === currentIndex) newCurrent = to;
+      else if (from < currentIndex && to >= currentIndex) newCurrent -= 1;
+      else if (from > currentIndex && to <= currentIndex) newCurrent += 1;
+      set({ queue: newQueue, currentIndex: newCurrent });
+      if (get().shuffle) get().rebuildShuffleOrder();
+      get().persist();
+    },
+
+    next: async () => {
+      const {
+        repeat,
+        upNext,
+        later,
+        queue,
+        currentIndex,
+        shuffle,
+        shuffleOrder,
+        shufflePtr,
+      } = get();
+
+      // Repeat one
+      if (repeat === "one") {
+        const player = get().playerRef?.current;
+        if (player) {
+          try {
+            player.currentTime = 0;
+          } catch {}
+          try {
+            await player.play?.();
+          } catch {}
+          set({ isPlaying: true, currentTime: 0, fineProgress: 0 });
         } else {
-          get().setIsPlaying(false);
-          return;
+          await get().playSongAtIndex(currentIndex);
         }
-      }
-      const targetIdx = get().shuffleOrder[ptr];
-      set({ shufflePtr: ptr });
-      await get().playSongAtIndex(targetIdx);
-      return;
-    } else {
-      let nextIdx = currentIndex + 1;
-      if (nextIdx >= queue.length) {
-        if (later.length > 0) {
-          const [song, ...rest] = later;
-          const newQueue = queue.concat([song]);
-          set({ queue: newQueue, later: rest });
-          await get().playSongAtIndex(newQueue.length - 1);
-          return;
-        }
-        if (repeat === "all") nextIdx = 0;
-        else {
-          get().setIsPlaying(false);
-          return;
-        }
-      }
-      await get().playSongAtIndex(nextIdx);
-      return;
-    }
-  },
-
-  previous: async () => {
-    const { playerRef, currentIndex, history } = get();
-    // If media has progressed >3s, just seek to start
-    if (playerRef?.current) {
-      const t = playerRef.current.getCurrentTime();
-      if (t > 3) {
-        playerRef.current.seekTo(0);
-        set({ currentTime: 0, fineProgress: 0 });
         return;
       }
-    }
-    if (history.length > 0) {
-      const last = history[history.length - 1];
-      set({ history: history.slice(0, -1) });
-      await get().playSongAtIndex(last);
-    } else if (currentIndex > 0) {
-      await get().playSongAtIndex(currentIndex - 1);
-    }
-  },
 
-  play: () => get().setIsPlaying(true),
-  pause: () => get().setIsPlaying(false),
-  toggle: () => get().setIsPlaying(!get().isPlaying),
-
-  // Note: `seek` expects seconds for backward-compatibility with existing UI
-  seek: (seconds: number) => {
-    const { playerRef } = get();
-    if (playerRef?.current) {
-      playerRef.current.seekTo(seconds);
-      set({ currentTime: seconds, fineProgress: seconds });
-    }
-  },
-  // ms-based API for future UI
-  seekMs: (ms: number) => {
-    const seconds = ms / 1000;
-    get().seek(seconds);
-  },
-
-  setVolume: (volume: number) => {
-    set({ volume });
-    get().persist();
-  },
-  mute: () => set({ muted: true }),
-  unmute: () => set({ muted: false }),
-  setPlaybackRate: (rate: number) => {
-    set({ playbackRate: Math.max(0.5, Math.min(3, rate)) });
-    get().applyPlaybackRate();
-  },
-  setShuffle: (enabled: boolean) => {
-    const { queue } = get();
-    if (enabled) {
-      const seed = get().shuffleSeed; // keep session seed
-      const order = shuffleIndices(queue.length, seed);
-      const ptr = order.findIndex((i) => i === get().currentIndex);
-      set({
-        shuffle: true,
-        shuffleSeed: seed,
-        shuffleOrder: order,
-        shufflePtr: ptr,
-      });
-    } else {
-      set({ shuffle: false, shuffleOrder: [], shufflePtr: -1 });
-    }
-    get().persist();
-  },
-  setRepeat: (mode: RepeatMode) => {
-    set({ repeat: mode });
-    get().persist();
-  },
-
-  // Compatibility wrappers
-  setQueue: async (songs: Song[]) => {
-    await get().playNow(songs, 0);
-  },
-  addToQueue: (songs: Song[]) => {
-    get().playLater(songs);
-  },
-
-  playSongAtIndex: async (index: number) => {
-    const { queue, currentIndex, history } = get();
-    if (index < 0 || index >= queue.length) {
-      console.warn("Invalid index for playSongAtIndex");
-      return;
-    }
-    let selectedSong = queue[index];
-    // Fetch media if needed
-    const needsMedia = !selectedSong.src || !selectedSong.artwork?.hdUrl;
-    if (needsMedia) {
-      const { HDCover, M3U8url } = await fetchSongData(selectedSong);
-      selectedSong = {
-        ...selectedSong,
-        artwork: { ...selectedSong.artwork, hdUrl: HDCover },
-        src: M3U8url,
-      };
-    }
-    const newQueue = [...queue];
-    newQueue[index] = selectedSong;
-    // push history if jumping forward to a different song
-    const newHistory =
-      currentIndex >= 0 && index !== currentIndex
-        ? [...history, currentIndex]
-        : history;
-
-    set({
-      currentSong: selectedSong,
-      currentIndex: index,
-      queue: newQueue,
-      isPlaying: true,
-      history: newHistory,
-    });
-
-    await get().prefetchNextN(PREFETCH_COUNT);
-    get().startFineProgressUpdates();
-    get().persist();
-  },
-
-  nextSong: async () => {
-    await get().next();
-  },
-
-  previousSong: async () => {
-    await get().previous();
-  },
-
-  prefetchNextN: async (n: number) => {
-    const { queue, currentIndex } = get();
-    const end = Math.min(currentIndex + n + 1, queue.length);
-    const fetchPromises = [];
-    for (let i = currentIndex + 1; i < end; i++) {
-      const song = queue[i];
-      if (!song.src) {
-        const promise = fetchM3U8ForSong(song)
-          .then((M3U8url) => {
-            const newQueue = [...get().queue];
-            newQueue[i] = { ...song, src: M3U8url };
-            set({ queue: newQueue });
-          })
-          .catch((err) => {
-            console.error(`Failed to prefetch M3U8 for ${song.name}:`, err);
-            showToast("error", "Failed to prefetch song");
+      // Manual Up Next first
+      if (upNext.length > 0) {
+        const [song, ...rest] = upNext;
+        // If this song exists in queue, jump to it; otherwise append and play it
+        const idx = queue.findIndex((s) => s.id === song.id);
+        if (idx >= 0) {
+          set({ upNext: rest });
+          await get().playSongAtIndex(idx);
+        } else {
+          const newQueue = queue.concat([song]);
+          set({
+            queue: newQueue,
+            upNext: rest,
+            currentIndex: newQueue.length - 1,
           });
-        fetchPromises.push(promise);
+          if (shuffle) get().rebuildShuffleOrder();
+          await get().playSongAtIndex(get().currentIndex);
+        }
+        return;
       }
-    }
-    await Promise.all(fetchPromises);
-  },
 
-  setDuration: (duration: number) => set({ duration }),
-  setCurrentTime: (time: number) => {
-    set({ currentTime: time, fineProgress: time });
-    // backup lightweight progress
-    get().persist();
-  },
+      // Derived order
+      if (shuffle) {
+        let ptr = shufflePtr + 1;
+        if (ptr >= shuffleOrder.length) {
+          if (later.length > 0) {
+            const [song, ...rest] = later;
+            const newQueue = queue.concat([song]);
+            set({ queue: newQueue, later: rest });
+            get().rebuildShuffleOrder();
+            set({
+              shufflePtr: get().shuffleOrder.findIndex(
+                (i) => i === newQueue.length - 1
+              ),
+            });
+            await get().playSongAtIndex(newQueue.length - 1);
+            return;
+          }
+          if (get().repeat === "all") {
+            ptr = 0; // restart same deterministic order
+          } else {
+            get().setIsPlaying(false);
+            return;
+          }
+        }
+        const targetIdx = get().shuffleOrder[ptr];
+        set({ shufflePtr: ptr });
+        await get().playSongAtIndex(targetIdx);
+        return;
+      } else {
+        let nextIdx = currentIndex + 1;
+        if (nextIdx >= queue.length) {
+          if (later.length > 0) {
+            const [song, ...rest] = later;
+            const newQueue = queue.concat([song]);
+            set({ queue: newQueue, later: rest });
+            await get().playSongAtIndex(newQueue.length - 1);
+            return;
+          }
+          if (repeat === "all") nextIdx = 0;
+          else {
+            get().setIsPlaying(false);
+            return;
+          }
+        }
+        await get().playSongAtIndex(nextIdx);
+        return;
+      }
+    },
 
-  // setVolume defined above
-
-  setAnimatedURL: (url: string) => {
-    const { currentSong } = get();
-    if (currentSong) {
-      set({
-        currentSong: {
-          ...currentSong,
-          artwork: {
-            ...currentSong.artwork,
-            animatedURL: url,
-          },
-        },
-      });
-    }
-  },
-
-  startFineProgressUpdates: () => {
-    const { rafId, playerRef, isPlaying } = get();
-    if (isPlaying && playerRef && playerRef.current && rafId === null) {
-      const update = () => {
-        const { playerRef, isPlaying } = get();
-        if (!isPlaying || !playerRef?.current) {
-          get().stopFineProgressUpdates();
+    previous: async () => {
+      const { playerRef, currentIndex, history } = get();
+      const player = playerRef?.current;
+      // If media has progressed >3s, just seek to start
+      if (player) {
+        const t = player.currentTime || 0;
+        if (t > 3) {
+          player.currentTime = 0;
+          set({ currentTime: 0, fineProgress: 0 });
           return;
         }
-        const currentTime = playerRef.current.getCurrentTime();
-        set({ currentTime: currentTime, fineProgress: currentTime });
+      }
+      if (history.length > 0) {
+        const last = history[history.length - 1];
+        set({ history: history.slice(0, -1) });
+        await get().playSongAtIndex(last);
+      } else if (currentIndex > 0) {
+        await get().playSongAtIndex(currentIndex - 1);
+      }
+    },
+
+    play: () => get().setIsPlaying(true),
+    pause: () => get().setIsPlaying(false),
+    toggle: () => get().setIsPlaying(!get().isPlaying),
+
+    // Note: `seek` expects seconds for backward-compatibility with existing UI
+    seek: (seconds: number) => {
+      const player = get().playerRef?.current;
+      if (player) {
+        try {
+          player.currentTime = seconds;
+        } catch {}
+        set({ currentTime: seconds, fineProgress: seconds });
+      }
+    },
+    // ms-based API for future UI
+    seekMs: (ms: number) => {
+      const seconds = ms / 1000;
+      get().seek(seconds);
+    },
+
+    setVolume: (volume: number) => {
+      set({ volume });
+      get().persist();
+    },
+    mute: () => set({ muted: true }),
+    unmute: () => set({ muted: false }),
+    setPlaybackRate: (rate: number) => {
+      set({ playbackRate: Math.max(0.5, Math.min(3, rate)) });
+      get().applyPlaybackRate();
+    },
+    setShuffle: (enabled: boolean) => {
+      const { queue } = get();
+      if (enabled) {
+        const seed = get().shuffleSeed; // keep session seed
+        const order = shuffleIndices(queue.length, seed);
+        const ptr = order.findIndex((i) => i === get().currentIndex);
+        set({
+          shuffle: true,
+          shuffleSeed: seed,
+          shuffleOrder: order,
+          shufflePtr: ptr,
+        });
+      } else {
+        set({ shuffle: false, shuffleOrder: [], shufflePtr: -1 });
+      }
+      get().persist();
+    },
+    setRepeat: (mode: RepeatMode) => {
+      set({ repeat: mode });
+      get().persist();
+    },
+
+    // Compatibility wrappers
+    setQueue: async (songs: Song[]) => {
+      await get().playNow(songs, 0);
+    },
+    addToQueue: (songs: Song[]) => {
+      get().playLater(songs);
+    },
+
+    playSongAtIndex: async (index: number) => {
+      const { queue, currentIndex, history } = get();
+      if (index < 0 || index >= queue.length) {
+        console.warn("Invalid index for playSongAtIndex");
+        return;
+      }
+      let selectedSong = queue[index];
+      // Fetch media if needed
+      const needsMedia = !selectedSong.src || !selectedSong.artwork?.hdUrl;
+      if (needsMedia) {
+        const { HDCover, M3U8url } = await fetchSongData(selectedSong);
+        selectedSong = {
+          ...selectedSong,
+          artwork: { ...selectedSong.artwork, hdUrl: HDCover },
+          src: M3U8url,
+        };
+      }
+      const newQueue = [...queue];
+      newQueue[index] = selectedSong;
+      // push history if jumping forward to a different song
+      const newHistory =
+        currentIndex >= 0 && index !== currentIndex
+          ? [...history, currentIndex]
+          : history;
+
+      set({
+        currentSong: selectedSong,
+        currentIndex: index,
+        queue: newQueue,
+        isPlaying: true,
+        history: newHistory,
+      });
+
+      await get().prefetchNextN(PREFETCH_COUNT);
+      get().startFineProgressUpdates();
+      get().persist();
+    },
+
+    nextSong: async () => {
+      await get().next();
+    },
+
+    previousSong: async () => {
+      await get().previous();
+    },
+
+    prefetchNextN: async (n: number) => {
+      const { queue, currentIndex } = get();
+      const end = Math.min(currentIndex + n + 1, queue.length);
+      const fetchPromises = [];
+      for (let i = currentIndex + 1; i < end; i++) {
+        const song = queue[i];
+        if (!song.src) {
+          const promise = fetchM3U8ForSong(song)
+            .then((M3U8url) => {
+              const newQueue = [...get().queue];
+              newQueue[i] = { ...song, src: M3U8url };
+              set({ queue: newQueue });
+            })
+            .catch((err) => {
+              console.error(`Failed to prefetch M3U8 for ${song.name}:`, err);
+              showToast("error", "Failed to prefetch song");
+            });
+          fetchPromises.push(promise);
+        }
+      }
+      await Promise.all(fetchPromises);
+    },
+
+    setDuration: (duration: number) => set({ duration }),
+    setCurrentTime: (time: number) => {
+      set({ currentTime: time, fineProgress: time });
+      // backup lightweight progress
+      get().persist();
+    },
+
+    // setVolume defined above
+
+    setAnimatedURL: (url: string) => {
+      const { currentSong } = get();
+      if (currentSong) {
+        set({
+          currentSong: {
+            ...currentSong,
+            artwork: {
+              ...currentSong.artwork,
+              animatedURL: url,
+            },
+          },
+        });
+      }
+    },
+
+    startFineProgressUpdates: () => {
+      const { rafId, playerRef, isPlaying } = get();
+      if (isPlaying && playerRef && playerRef.current && rafId === null) {
+        const update = () => {
+          const player = get().playerRef?.current;
+          if (!isPlaying || !player) {
+            get().stopFineProgressUpdates();
+            return;
+          }
+          const t = player.currentTime || 0;
+          set({ currentTime: t, fineProgress: t });
+          const newRafId = requestAnimationFrame(update);
+          set({ rafId: newRafId });
+        };
         const newRafId = requestAnimationFrame(update);
         set({ rafId: newRafId });
-      };
-      const newRafId = requestAnimationFrame(update);
-      set({ rafId: newRafId });
-    }
-  },
+      }
+    },
 
-  stopFineProgressUpdates: () => {
-    const { rafId } = get();
-    if (rafId !== null) {
-      cancelAnimationFrame(rafId);
-      set({ rafId: null });
-    }
-  },
+    stopFineProgressUpdates: () => {
+      const { rafId } = get();
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        set({ rafId: null });
+      }
+    },
 
-  isFullscreen: false,
-  setFullscreen: (fullscreen: boolean) => set({ isFullscreen: fullscreen }),
+    isFullscreen: false,
+    setFullscreen: (fullscreen: boolean) => set({ isFullscreen: fullscreen }),
 
-  // Helpers (added by closure augmentation below)
-  rebuildShuffleOrder: () => {},
-  persist: () => {},
-  applyPlaybackRate: () => {},
-  applyVolume: () => {},
-  scheduleSuspend: () => {},
-  initializeEngineIfNeeded: () => {},
-}));
+    // Helpers (added by closure augmentation below)
+    rebuildShuffleOrder: () => {},
+    persist: () => {},
+    applyPlaybackRate: () => {},
+    applyVolume: () => {},
+    scheduleSuspend: () => {},
+    initializeEngineIfNeeded: () => {},
+  })
+);
 
 // Augment store with helpers that need closure access
 type Store = ReturnType<typeof useAudioStore.getState> & {
@@ -569,7 +566,7 @@ const attachHelpers = () => {
   (useAudioStore.getState() as Store).applyPlaybackRate = () => {
     const { playerRef, playbackRate } = get();
     try {
-      const internal = playerRef?.current?.getInternalPlayer?.();
+      const internal = playerRef?.current;
       if (internal && typeof (internal as any).playbackRate !== "undefined") {
         (internal as HTMLMediaElement).playbackRate = playbackRate;
       }
@@ -629,10 +626,7 @@ const attachHelpers = () => {
   (useAudioStore.getState() as Store).initializeEngineIfNeeded = () => {
     const { engineReady, playerRef } = get();
     if (engineReady) return;
-    const media = playerRef?.current?.getInternalPlayer?.() as
-      | HTMLAudioElement
-      | HTMLVideoElement
-      | undefined;
+    const media = playerRef?.current;
     if (!media) return;
     try {
       const ctx = new (window.AudioContext ||

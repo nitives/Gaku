@@ -2,7 +2,7 @@ import React from "react";
 import style from "./Controls.module.css";
 import { IoPlay, IoPlayBack, IoPlayForward } from "react-icons/io5";
 import { PiPauseFill } from "react-icons/pi";
-import { motion } from "framer-motion";
+import { motion, MotionProps } from "motion/react";
 import { useAudioStore } from "@/context/AudioContext";
 
 export const Controls = () => {
@@ -43,7 +43,7 @@ const ControlButtons = ({
     },
     transition: { duration: 0.125, ease: "easeInOut" },
     className: "flex flex-col items-center rounded-full p-2",
-  };
+  } satisfies MotionProps & { className: string };
 
   return (
     <div className="flex items-center gap-2">

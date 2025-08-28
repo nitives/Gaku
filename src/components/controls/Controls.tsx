@@ -7,7 +7,12 @@ import { IoPlay, IoPlayBack, IoPlayForward } from "react-icons/io5";
 import { PiPauseFill } from "react-icons/pi";
 import { Volume2, VolumeX } from "lucide-react";
 
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  LayoutGroup,
+  MotionProps,
+} from "motion/react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { TitleOverflowAnimator } from "@/components/mobile/TitleOverflowAnimator";
@@ -99,7 +104,7 @@ export const playerImageProps = {
   exit: { filter: "blur(2px)" },
   layout: "position", // Ensures consistent layout animations
   transition: { ease: "easeInOut" },
-};
+} satisfies MotionProps;
 
 interface MiniPlayerProps {
   song?: Song;
@@ -160,15 +165,22 @@ const MiniPlayer = ({
   );
 };
 
+// export const buttonMotionProps = {
+//         whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+//         whileTap={{
+//           scale: 0.85,
+//           backgroundColor: "rgba(255, 255, 255, 0.1)",
+//         }}
+//         transition={{ duration: 0.125, ease: [0.4, 0.0, 0.2, 1] }}
+//         className="flex flex-col items-center rounded-full p-2"
+// };
+
 export const buttonMotionProps = {
   whileHover: { backgroundColor: "rgba(255, 255, 255, 0.05)" },
-  whileTap: {
-    scale: 0.85,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-  },
-  transition: { duration: 0.125, ease: "easeInOut" },
+  whileTap: { scale: 0.85, backgroundColor: "rgba(255, 255, 255, 0.1)" },
+  transition: { duration: 0.125, ease: [0.4, 0.0, 0.2, 1] },
   className: "flex flex-col items-center rounded-full p-2",
-};
+} satisfies MotionProps & { className: string };
 
 interface ControlButtonsProps {
   playing: boolean;
@@ -242,14 +254,13 @@ const ExpandedPlayer = ({
   }, [onClose]);
 
   const controlsBaseProps = {
-    // layout: true,
-    className:
-      "fixed inset-0 flex flex-col bg-black text-white z-[110] standalone:pt-10",
     initial: { opacity: 0, filter: "blur(10px)" },
     animate: { opacity: 1, filter: "blur(0px)" },
     exit: { opacity: 0, filter: "blur(10px)" },
     transition: { duration: 0.3, ease: "easeInOut" },
-  };
+    className:
+      "fixed inset-0 flex flex-col bg-black text-white z-[110] standalone:pt-10",
+  } satisfies MotionProps & { className: string };
 
   if (!isDesktop)
     return (
@@ -326,7 +337,7 @@ const ExpandedPlayer = ({
           </motion.span>
         )} */}
         <BackgroundRender
-          fps={30}
+          fps={30} 
           playing={isPlaying}
           style={{
             position: "fixed",
@@ -526,7 +537,7 @@ export const ExpandedPlayerControls = ({
     },
     transition: { duration: 0.125, ease: "easeInOut" },
     className: "flex flex-col items-center rounded-full p-2",
-  };
+  } satisfies MotionProps & { className: string };
 
   return (
     <div className="flex items-center gap-2">
@@ -613,7 +624,7 @@ export const LyricButton = ({
       damping: 17,
     },
     className: "flex flex-col items-center rounded-full p-2",
-  };
+  } satisfies MotionProps & { className: string };
   return (
     <motion.button
       title="Lyrics"
@@ -645,7 +656,7 @@ export const OptionsButton = ({ onClick }: { onClick: () => void }) => {
     },
     className:
       "flex flex-col items-center rounded-full p-2 justify-center size-8",
-  };
+  } satisfies MotionProps & { className: string };
   return (
     <motion.button
       style={{

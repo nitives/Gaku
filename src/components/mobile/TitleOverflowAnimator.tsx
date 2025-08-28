@@ -1,76 +1,5 @@
-// import React, { useState, useEffect, useRef } from "react";
-// import { motion, useAnimation } from "framer-motion";
-// import "../../styles/TitleOverflowAnimator.css";
-
-// export const TitleOverflowAnimator: React.FC<{ children: React.ReactNode }> = ({
-//   children,
-// }) => {
-//   const [isOverflowing, setIsOverflowing] = useState(false);
-//   const containerRef = useRef<HTMLDivElement>(null);
-//   const contentRef = useRef<HTMLDivElement>(null);
-//   const controls = useAnimation();
-
-//   useEffect(() => {
-//     const container = containerRef.current;
-//     const content = contentRef.current;
-//     const screenWidth = window.innerWidth;
-//     setIsOverflowing(screenWidth < 500);
-//     // console.log("marquee | screenWidth:", screenWidth);
-//     // console.log("marquee | is screenWidth under 500px?", screenWidth < 500);
-
-//     if (isOverflowing) {
-//       // console.log("marquee | isContentOverflowing:", isOverflowing);
-//       if (container && content) {
-//         const containerWidth = window.innerWidth * 0.45; // Fixed container width
-//         const contentWidth = content.scrollWidth;
-//         // console.log("marquee | contentWidth:", contentWidth);
-//         const isContentOverflowing = containerWidth;
-//         // console.log("marquee | container && content:", container && content);
-
-//         if (isContentOverflowing) {
-//           // console.log("contentWidth:", contentWidth);
-//           const singleCopyWidth = contentWidth / 2;
-//           // console.log("singleCopyWidth:", singleCopyWidth);
-//           const animationDistance = singleCopyWidth;
-//           // console.log("animationDistance:", animationDistance);
-//           const animationDuration = animationDistance / 45  ; // Adjust speed as needed
-//           // console.log("animationDuration:", animationDuration);
-
-//           setTimeout(() => {
-//             controls.start({
-//               x: [-0, -animationDistance],
-//               transition: {
-//                 duration: animationDuration,
-//                 ease: "linear",
-//                 repeat: Infinity,
-//                 repeatDelay: 10,
-//                 delay: 1,
-//               },
-//             });
-//           }, 1000); // 5 second delay before animation starts
-//         }
-//       }
-//     } else {
-//       controls.stop();
-//     }
-//   }, [children, controls, isOverflowing, setIsOverflowing]);
-
-//   return (
-//     <div className="marquee-container" ref={containerRef}>
-//       <motion.div
-//         className="marquee-content"
-//         ref={contentRef}
-//         animate={controls}
-//       >
-//         <span>{children}</span>
-//         {isOverflowing && <span>{children}</span>}
-//       </motion.div>
-//     </div>
-//   );
-// };
-
-import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, MotionProps } from "motion/react";
 import "../../styles/TitleOverflowAnimator.css";
 
 export const TitleOverflowAnimator: React.FC<{
@@ -116,7 +45,7 @@ export const TitleOverflowAnimator: React.FC<{
           }
         : {}, // No animation if not overflowing
     },
-  };
+  } satisfies MotionProps;
 
   return (
     <div className={`marquee-container ${className}`}>

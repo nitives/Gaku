@@ -7,7 +7,7 @@ import { AppleKit } from "@/lib/audio/fetchers";
 import { GakuStorage } from "@/lib/utils/storage";
 import { dev } from "@/lib/utils";
 import { QueueView } from "./QueueView";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 // SegmentControl component for switching views
 const SegmentControl = ({

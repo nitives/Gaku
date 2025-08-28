@@ -8,7 +8,7 @@ import React, {
 import { IoSearch } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import Link from "next/link";
 
 interface SafeViewProps {

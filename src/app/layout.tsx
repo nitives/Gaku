@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { NextThemeProvider } from "@/providers/NextThemeProvider";
 import type { Viewport } from "next";
-import { Toaster, ToastBar } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import { Content } from "@/components/main/Content";
 import ReactQueryWrapper from "@/providers/QueryWrapper";
 import { Audio } from "@/components/player/Audio";
@@ -280,8 +280,8 @@ export default function RootLayout({
                   enableSystem
                 >
                   <Content>
-                    {children}
-                    {contextMenus}
+                  {children}
+                  {contextMenus}
                   </Content>
                   <Toaster
                     position="bottom-center"

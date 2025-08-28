@@ -13,7 +13,7 @@ import { LoopIcon, LoopSingleIcon } from "@/components/icons/Loop";
 
 export const PlayerBar = () => {
   const { currentSong, volume, setVolume } = useAudioStore();
-  const setFullscreen = useAudioStore((state) => state.setFullscreen);
+  const setFullscreen = useAudioStore((state: any) => state.setFullscreen);
   const ArtworkSRC = SoundCloudKit.getHD(currentSong?.artwork.url || "");
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
@@ -77,7 +77,7 @@ const LikeButton = ({ song }: { song: any }) => {
 
   // Check if currentSong is in the user’s library
   const isInLibrary =
-    librarySongs?.some((librarySong) => librarySong?.id == songID) || false;
+    librarySongs?.some((librarySong: any) => librarySong?.id == songID) || false;
 
   // Handler to toggle add/remove from library
   const handleLikeToggle = () => {
@@ -140,7 +140,7 @@ const LikeOutlineIcon = () => (
 // Controls
 
 const ImmersiveButton = () => {
-  const setFullscreen = useAudioStore((state) => state.setFullscreen);
+  const setFullscreen = useAudioStore((state: any) => state.setFullscreen);
   return (
     <button
       className={style.immersiveButton}
@@ -153,9 +153,9 @@ const ImmersiveButton = () => {
 };
 
 const DurationBar = () => {
-  const currentTime = useAudioStore((state) => state.currentTime ?? 0);
-  const duration = useAudioStore((state) => state.duration ?? 0);
-  const seek = useAudioStore((state) => state.seek);
+  const currentTime = useAudioStore((state: any) => state.currentTime ?? 0);
+  const duration = useAudioStore((state: any) => state.duration ?? 0);
+  const seek = useAudioStore((state: any) => state.seek);
   const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = parseFloat(e.target.value);
     seek(newTime);
@@ -223,10 +223,10 @@ const DurationSlider = ({
 };
 
 const Buttons = () => {
-  const shuffle = useAudioStore((s) => s.shuffle);
-  const setShuffle = useAudioStore((s) => s.setShuffle);
-  const repeat = useAudioStore((s) => s.repeat);
-  const setRepeat = useAudioStore((s) => s.setRepeat);
+  const shuffle = useAudioStore((s: any) => s.shuffle);
+  const setShuffle = useAudioStore((s: any) => s.setShuffle);
+  const repeat = useAudioStore((s: any) => s.repeat);
+  const setRepeat = useAudioStore((s: any) => s.setRepeat);
 
   const onToggleShuffle = () => setShuffle(!shuffle);
   const onCycleRepeat = () =>
@@ -281,7 +281,7 @@ const Buttons = () => {
 
 const PlayPauseButtons = () => {
   const { isPlaying, setIsPlaying, nextSong, previousSong } = useAudioStore(
-    (state) => state
+    (state: any) => state
   );
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);

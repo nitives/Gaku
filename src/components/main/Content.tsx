@@ -15,7 +15,9 @@ interface ContentProps {
 export const Content = ({ children }: ContentProps) => {
   const isPWA = useIsPWA();
   // Get fullscreen state from audio store
-  const isFullscreen = useAudioStore((state) => state.isFullscreen);
+  const isFullscreen = useAudioStore(
+    (state: { isFullscreen: boolean }) => state.isFullscreen
+  );
 
   // Array of pages that should have a minimal layout (no sidebar, player, etc.)
   const minimalLayoutPages = [

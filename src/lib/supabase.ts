@@ -10,7 +10,7 @@ const supabase = async () => {
   }
   return createClient(url, key, {
     global: {
-      fetch: async (url, options) => {
+      fetch: async (url: any, options: any) => {
         const token = await getToken({ template: "supabase" });
         const headers = new Headers(options?.headers);
         headers.set("Authorization", `Bearer ${token}`);

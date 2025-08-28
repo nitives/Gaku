@@ -49,7 +49,6 @@ import { Spotlight } from "@/components/main/artist/Spotlight";
 import { Latest } from "@/components/main/artist/Latest";
 import { Spinner } from "@/components/extra/Spinner";
 import { SoundCloudArtist } from "@/lib/types/soundcloud";
-import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { TryAgain } from "@/components/extra/TryAgain";
@@ -139,6 +138,8 @@ import { LikeFilledIcon } from "@/components/player/new/PlayerBar";
 import ContextMenu from "@/components/contextmenus/ContextMenu";
 import { Song } from "@/lib/audio/types";
 
+const soundCloudOfficial = ["music-charts-us"];
+
 // Fetch artist data with all tracks
 async function fetchArtistAllTracks(artistId: string, _artistName: string) {
   const data = (await SoundCloudKit.getData(artistId, "artist", {
@@ -146,8 +147,6 @@ async function fetchArtistAllTracks(artistId: string, _artistName: string) {
   })) as SoundCloudArtist & { allTracks: SoundCloudTrack[] };
   return data;
 }
-
-const soundCloudOfficial = ["music-charts-us"];
 
 // Convert SoundCloud track to Song format
 const convertTrackToSong = (track: SoundCloudTrack): Song => {
@@ -169,6 +168,7 @@ const convertTrackToSong = (track: SoundCloudTrack): Song => {
     metadata: {
       artistName: track.publisher_metadata?.artist || "",
       albumTitle: track.publisher_metadata?.album_title || "",
+      isrc: track.publisher_metadata?.isrc || "",
     },
     artwork: {
       hdUrl: track.artwork_url
@@ -454,7 +454,7 @@ export default function UserPlaylist() {
   } = useQuery({
     queryKey: ["soundcloudUserID", settings.data?.themeColor],
     queryFn: () => SoundCloudKit.getUserData(settings!.data!.soundcloudUserId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
     enabled: !!settings,
     retry: false,
     refetchOnWindowFocus: false,
@@ -603,6 +603,7 @@ export default function Search() {
 import { SafeView } from "@/components/mobile/SafeView";
 import { useState, useEffect, useRef } from "react";
 import { SignOutButton, useUser } from "@clerk/nextjs";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   IoColorPaletteOutline,
   IoPersonOutline,
@@ -616,6 +617,7 @@ import { Switch } from "@/components/controls/Switch";
 
 export default function SettingsPage() {
   const { user, isLoaded } = useUser();
+  const queryClient = useQueryClient();
   const [username, setUsername] = useState("");
   const [themeColor, setThemeColor] = useState("#5891fa"); // Default color
   const [highlightedQueries, setHighlightedQueries] = useState(false);
@@ -706,6 +708,7 @@ export default function SettingsPage() {
         });
         if (response.ok) {
           showToast("success", "Theme color updated");
+          await queryClient.invalidateQueries({ queryKey: ["userSettings"] });
         } else {
           showToast("error", "Failed to save theme color");
         }
@@ -726,6 +729,7 @@ export default function SettingsPage() {
 
       if (response.ok) {
         showToast("success", "Setting updated");
+        await queryClient.invalidateQueries({ queryKey: ["userSettings"] });
         return true;
       } else {
         showToast("error", "Failed to save setting");
@@ -931,7 +935,7 @@ export default function SettingsPage() {
           <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
             <IoSearchOutline /> Search
           </h2>
-          <div className="space-y-4">
+          <div onClick={toggleHighlightedQueries} className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-medium">Highlight search queries</h3>
@@ -942,7 +946,7 @@ export default function SettingsPage() {
               <Switch
                 checked={highlightedQueries}
                 onCheckedChange={toggleHighlightedQueries}
-                id="show-sidebar-icons"
+                id="highlighted-queries"
               />
             </div>
           </div>
@@ -1036,15 +1040,26 @@ export default function Song() {
 }
 
 
+\c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\app\(pages)\t\page.tsx
+export default function TestPage() {
+  return (
+    <>
+      <p>Test Page</p>
+    </>
+  );
+}
+
+
 \c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\app\api\apple\artist\[query]\route.ts
 import { json, error, withErrorHandling } from "@/lib/api/respond";
+import { conf } from "@/lib/config";
 
-const APPLE_AUTH = process.env.APPLE_AUTH;
+const APPLE_AUTH = conf().APPLE.MUSIC.AUTH;
 
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(
-  async (_req: Request, { params }: { params: { query: string } }) => {
+  async (_req: Request, { params }: { params: Promise<{ query: string }> }) => {
     if (!APPLE_AUTH) return error("Missing APPLE_AUTH", 500);
     const { query } = await params;
     const searchRes = await fetch(
@@ -1059,7 +1074,7 @@ export const GET = withErrorHandling(
         cache: "no-store",
       }
     );
-    if (searchRes.statusText === "Unauthorized")
+    if (searchRes.status === 401 || searchRes.status === 403)
       return error("Reauthentication required", 502);
     if (!searchRes.ok) return error("Failed Apple artist search", 502);
     const search = await searchRes.json();
@@ -1086,32 +1101,73 @@ export const GET = withErrorHandling(
 import { json, error, withErrorHandling } from "@/lib/api/respond";
 import { conf } from "@/lib/config";
 
+const APPLE_AUTH = conf().APPLE.MUSIC.AUTH;
+const USER_TOKEN = conf().APPLE.MUSIC.USER_TOKEN;
+
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(
-  async (_req: Request, { params }: { params: { query: string } }) => {
-    const APPLE_AUTH = conf().APPLE.MUSIC.AUTH;
-    const USER_TOKEN = conf().APPLE.MUSIC.USER_TOKEN;
+  async (_req: Request, { params }: { params: Promise<{ query: string }> }) => {
+    if (!APPLE_AUTH) return error("Missing APPLE_AUTH", 500);
+    if (!USER_TOKEN) return error("Missing USER_TOKEN", 500);
 
     const { query } = await params;
+    const url = new URL(_req.url);
+    const isrc = url.searchParams.get("isrc")?.trim();
 
-    const searchRes = await fetch(
-      `https://api.music.apple.com/v1/catalog/us/search?types=songs&term=${encodeURIComponent(
-        query
-      )}&limit=10`,
-      {
-        headers: {
-          Origin: "https://music.apple.com",
-          Authorization: `Bearer ${APPLE_AUTH}`,
-        },
-        cache: "no-store",
+    // Try resolve by ISRC first (if provided), then fall back to term search
+    let songID: string | undefined;
+    let artwork: any | null = null;
+
+    if (isrc) {
+      const byIsrcRes = await fetch(
+        `https://api.music.apple.com/v1/catalog/us/songs?filter[isrc]=${encodeURIComponent(
+          isrc
+        )}`,
+        {
+          headers: {
+            Origin: "https://music.apple.com",
+            Authorization: `Bearer ${APPLE_AUTH}`,
+          },
+          cache: "no-store",
+        }
+      );
+      if (byIsrcRes.status === 401 || byIsrcRes.status === 403)
+        return error("Reauthentication required", 502);
+      if (byIsrcRes.ok) {
+        const byIsrcData = await byIsrcRes.json();
+        const first = byIsrcData?.data?.[0];
+        if (first?.id) {
+          songID = first.id;
+          artwork = first.attributes?.artwork ?? null;
+        }
       }
-    );
-    if (searchRes.statusText === "Unauthorized")
-      return error("Reauthentication required", 502);
-    if (!searchRes.ok) return error("Failed Apple search", 502);
-    const searchData = await searchRes.json();
-    const songID = searchData.results?.songs?.data?.[0]?.id;
+    }
+
+    if (!songID) {
+      const searchRes = await fetch(
+        `https://api.music.apple.com/v1/catalog/us/search?types=songs&term=${encodeURIComponent(
+          query
+        )}&limit=10`,
+        {
+          headers: {
+            Origin: "https://music.apple.com",
+            Authorization: `Bearer ${APPLE_AUTH}`,
+          },
+          cache: "no-store",
+        }
+      );
+      if (searchRes.status === 401 || searchRes.status === 403)
+        return error("Reauthentication required", 502);
+      if (!searchRes.ok) return error("Failed Apple search", 502);
+      const searchData = await searchRes.json();
+      songID = searchData.results?.songs?.data?.[0]?.id;
+      if (!artwork) {
+        artwork =
+          searchData.results?.songs?.data?.[0]?.attributes?.artwork ?? null;
+      }
+    }
+
     if (!songID) return error("Song not found", 404);
 
     const lyricsRes = await fetch(
@@ -1127,8 +1183,6 @@ export const GET = withErrorHandling(
     );
     if (!lyricsRes.ok) return error("Failed Apple lyrics", 502);
     const lyrics = await lyricsRes.json();
-    const artwork =
-      searchData.results.songs.data[0]?.attributes?.artwork ?? null;
     return json({ lyrics, artwork });
   }
 );
@@ -1136,13 +1190,14 @@ export const GET = withErrorHandling(
 
 \c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\app\api\apple\song\[query]\route.ts
 import { json, error, withErrorHandling } from "@/lib/api/respond";
+import { conf } from "@/lib/config";
 
-const APPLE_AUTH = process.env.APPLE_AUTH;
+const APPLE_AUTH = conf().APPLE.MUSIC.AUTH;
 
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(
-  async (request: Request, { params }: { params: { query: string } }) => {
+  async (request: Request, { params }: { params: Promise<{ query: string }> }) => {
     if (!APPLE_AUTH) return error("Missing APPLE_AUTH", 500);
     const { query } = await params;
     if (!query) return error("Query parameter is required", 400);
@@ -1161,7 +1216,7 @@ export const GET = withErrorHandling(
         cache: "no-store",
       }
     );
-    if (searchRes.statusText === "Unauthorized")
+    if (searchRes.status === 401 || searchRes.status === 403)
       return error("Reauthentication required", 502);
     if (!searchRes.ok) return error("Failed Apple search", 502);
     const search = await searchRes.json();
@@ -1243,7 +1298,7 @@ import { json, error, withErrorHandling } from "@/lib/api/respond";
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(
-  async (_req: Request, { params }: { params: { id: string } }) => {
+  async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
     const headers = {
       Host: "api-v2.soundcloud.com",
       Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,
@@ -1295,7 +1350,7 @@ const GENIUS_ACCESS_TOKEN = process.env.GENIUS_ACCESS_TOKEN;
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(
-  async (_req: Request, { params }: { params: { query: string } }) => {
+  async (_req: Request, { params }: { params: Promise<{ query: string }> }) => {
     if (!GENIUS_ACCESS_TOKEN) return error("Missing GENIUS_ACCESS_TOKEN", 500);
     const { query } = await params;
     if (!query) return badRequest("Query parameter is required");
@@ -1500,8 +1555,8 @@ import { json, badRequest, error, withErrorHandling } from "@/lib/api/respond";
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(
-  async (_req: Request, { params }: { params: { url: string } }) => {
-    const { url } = params;
+  async (_req: Request, { params }: { params: Promise<{ url: string }> }) => {
+    const { url } = await params;
     if (!url) return badRequest("URL parameter is required");
     const decodedUrl = decodeURIComponent(url);
     if (!decodedUrl) return badRequest("URL parameter is required");
@@ -1789,7 +1844,7 @@ import { json, error, withErrorHandling } from "@/lib/api/respond";
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
 
     // Use nextUrl for robust query parsing in Next 15
@@ -2066,7 +2121,6 @@ export async function PUT(req: Request) {
     const settings = await prisma.userSettings.update({
       where: { userId },
       data: {
-        // Only update fields that were provided in the request
         ...(data.themeColor !== undefined && { themeColor: data.themeColor }),
         ...(data.highlightedQueries !== undefined && {
           highlightedQueries: data.highlightedQueries,
@@ -3430,7 +3484,12 @@ import { IoPlay, IoPlayBack, IoPlayForward } from "react-icons/io5";
 import { PiPauseFill } from "react-icons/pi";
 import { Volume2, VolumeX } from "lucide-react";
 
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  LayoutGroup,
+  MotionProps,
+} from "motion/react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { TitleOverflowAnimator } from "@/components/mobile/TitleOverflowAnimator";
@@ -3522,7 +3581,7 @@ export const playerImageProps = {
   exit: { filter: "blur(2px)" },
   layout: "position", // Ensures consistent layout animations
   transition: { ease: "easeInOut" },
-};
+} satisfies MotionProps;
 
 interface MiniPlayerProps {
   song?: Song;
@@ -3583,15 +3642,22 @@ const MiniPlayer = ({
   );
 };
 
+// export const buttonMotionProps = {
+//         whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+//         whileTap={{
+//           scale: 0.85,
+//           backgroundColor: "rgba(255, 255, 255, 0.1)",
+//         }}
+//         transition={{ duration: 0.125, ease: [0.4, 0.0, 0.2, 1] }}
+//         className="flex flex-col items-center rounded-full p-2"
+// };
+
 export const buttonMotionProps = {
   whileHover: { backgroundColor: "rgba(255, 255, 255, 0.05)" },
-  whileTap: {
-    scale: 0.85,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-  },
-  transition: { duration: 0.125, ease: "easeInOut" },
+  whileTap: { scale: 0.85, backgroundColor: "rgba(255, 255, 255, 0.1)" },
+  transition: { duration: 0.125, ease: [0.4, 0.0, 0.2, 1] },
   className: "flex flex-col items-center rounded-full p-2",
-};
+} satisfies MotionProps & { className: string };
 
 interface ControlButtonsProps {
   playing: boolean;
@@ -3665,14 +3731,13 @@ const ExpandedPlayer = ({
   }, [onClose]);
 
   const controlsBaseProps = {
-    // layout: true,
-    className:
-      "fixed inset-0 flex flex-col bg-black text-white z-[110] standalone:pt-10",
     initial: { opacity: 0, filter: "blur(10px)" },
     animate: { opacity: 1, filter: "blur(0px)" },
     exit: { opacity: 0, filter: "blur(10px)" },
     transition: { duration: 0.3, ease: "easeInOut" },
-  };
+    className:
+      "fixed inset-0 flex flex-col bg-black text-white z-[110] standalone:pt-10",
+  } satisfies MotionProps & { className: string };
 
   if (!isDesktop)
     return (
@@ -3949,7 +4014,7 @@ export const ExpandedPlayerControls = ({
     },
     transition: { duration: 0.125, ease: "easeInOut" },
     className: "flex flex-col items-center rounded-full p-2",
-  };
+  } satisfies MotionProps & { className: string };
 
   return (
     <div className="flex items-center gap-2">
@@ -4036,7 +4101,7 @@ export const LyricButton = ({
       damping: 17,
     },
     className: "flex flex-col items-center rounded-full p-2",
-  };
+  } satisfies MotionProps & { className: string };
   return (
     <motion.button
       title="Lyrics"
@@ -4068,7 +4133,7 @@ export const OptionsButton = ({ onClick }: { onClick: () => void }) => {
     },
     className:
       "flex flex-col items-center rounded-full p-2 justify-center size-8",
-  };
+  } satisfies MotionProps & { className: string };
   return (
     <motion.button
       style={{
@@ -4123,9 +4188,9 @@ export const DurationSlider = ({
         max={duration || 1}
         value={currentTime}
         onChange={onChange}
-        whileHover={{ scaleY: 1.5 }}
-        whileTap={{ scaleY: 0.995 }}
-        className="apple-slider seek-slider"
+        // whileHover={{ scaleY: 1.5 }}
+        // whileTap={{ scaleY: 0.995 }}
+        className="gaku-slider seek-slider"
       />
     </div>
   );
@@ -4193,7 +4258,7 @@ export const VolumeSlider = ({
           />
         </button>
         <input
-          className="apple-slider volume-slider"
+          className="gaku-slider volume-slider"
           type="range"
           min={0}
           max={1}
@@ -4223,7 +4288,7 @@ export const VolumeSlider = ({
       <motion.input
         whileHover={{ scaleY: 1.5 }}
         whileTap={{ scaleY: 0.995 }}
-        className="apple-slider volume-slider"
+        className="gaku-slider volume-slider"
         type="range"
         min={0}
         max={1}
@@ -4701,31 +4766,6 @@ export const PausedIcon: React.FC<IconBaseProps> = ({
 };
 
 
-\c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\components\icons\PlayPause.tsx
-import React from "react";
-import Lottie from "lottie-react";
-import playing from "./lottie/playing.json";
-import paused from "./lottie/paused.json";
-
-export const Playing = () => {
-  return (
-    <div>
-      {/* <Lottie animationData={playing} loop={true} /> */}
-      IlI|
-    </div>
-  );
-};
-
-export const Paused = () => {
-  return (
-    <div>
-      {/* <Lottie animationData={paused} loop={true} /> */}
-      ...
-    </div>
-  );
-};
-
-
 \c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\components\icons\XMark.tsx
 export const XMark = ({
   className,
@@ -4762,7 +4802,7 @@ import { AppleKit } from "@/lib/audio/fetchers";
 import { GakuStorage } from "@/lib/utils/storage";
 import { dev } from "@/lib/utils";
 import { QueueView } from "./QueueView";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 // SegmentControl component for switching views
 const SegmentControl = ({
@@ -4824,12 +4864,19 @@ export const AppleLyrics = () => {
           return;
         }
 
+        dev.log("Fetching lyrics for", {
+          title: currentSong?.name,
+          artist: currentSong?.artist.name,
+          isrc: currentSong?.metadata?.isrc,
+        });
+
         const lyrics = await AppleKit.getLyrics(
           currentSong?.name || "",
           currentSong?.artist.name || "",
+          currentSong?.metadata?.isrc || undefined,
           true
         );
-        const parsedLyrics = parseTTML(lyrics).lyricLines;
+        const parsedLyrics = parseTTML(lyrics as string).lyricLines;
         setLyricLines(parsedLyrics);
 
         GakuStorage.updateData((data) => {
@@ -4859,7 +4906,11 @@ export const AppleLyrics = () => {
       }
     };
     loadLyrics();
-  }, [currentSong?.artist.name, currentSong?.name]);
+  }, [
+    currentSong?.artist.name,
+    currentSong?.name,
+    currentSong?.metadata?.isrc,
+  ]);
 
   useEffect(() => {
     if (lyricPlayerRef.current?.lyricPlayer) {
@@ -8536,315 +8587,6 @@ export const parsedJson = {
 };
 
 
-\c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\components\lyrics\lrc\lrc-line.tsx
-import Syllable from "./lrc-syllable";
-import cn from "classnames";
-import { useState, useEffect } from "react";
-import { parseMills } from "./utils/lyricUtils";
-
-interface Props {
-  currentTime: number;
-  begin: string;
-  end: string;
-  span: {
-    "@begin": string;
-    "@end": string;
-    "#text": string;
-  }[];
-}
-
-const LrcLine = ({ currentTime, begin, end, span }: Props) => {
-  const [hasBeenCurrent, setHasBeenCurrent] = useState(false);
-  const beginMills = parseMills(begin);
-  const endMills = parseMills(end);
-  const alreadyShown = currentTime > Number(endMills);
-  const isCurrent =
-    currentTime >= Number(beginMills) && currentTime <= Number(endMills);
-
-  useEffect(() => {
-    if (isCurrent && !hasBeenCurrent) {
-      // Once line is current at least once, set hasBeenCurrent
-      setHasBeenCurrent(true);
-    }
-  }, [isCurrent, hasBeenCurrent]);
-
-  return (
-    <button
-      begin={begin}
-      end={end}
-      className={cn(
-        "block !mb-14 text-left",
-        hasBeenCurrent && "current", // keep "current" once line has ever been active
-        isCurrent && "active" // "active" only while currently active
-      )}
-    >
-      {span.map((span, j) => (
-        <Syllable
-          key={j}
-          currentTime={currentTime}
-          begin={span["@begin"]}
-          end={span["@end"]}
-          text={span["#text"]}
-        />
-      ))}
-    </button>
-  );
-};
-
-export default LrcLine;
-
-
-\c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\components\lyrics\lrc\lrc-syllable.tsx
-import { getGradientPercentage, parseMills } from "./utils/lyricUtils";
-import { motion } from "framer-motion";
-
-interface Props {
-  currentTime: number;
-  begin: string;
-  end: string;
-  text: string;
-}
-
-const Syllable = ({ currentTime, begin, end, text }: Props) => {
-  const beginMills = parseMills(begin || "");
-  const endMills = parseMills(end || "");
-  const style: Record<string, string> = {};
-  const startTime = Number(beginMills);
-  const endTime = Number(endMills);
-  const duration = endTime - startTime;
-  const isActive = currentTime >= startTime && currentTime <= endTime;
-  const isGone = currentTime > endTime;
-  const longLasting = duration > 0.5;
-
-  if (isActive) {
-    style["--gradient-progress"] = getGradientPercentage(
-      currentTime,
-      +beginMills,
-      +endMills
-    );
-  } else if (isGone) {
-    style["--gradient-progress"] = "100%";
-  } else {
-    style["--gradient-progress"] = "0%";
-  }
-
-  let baseScale = 1;
-  if (isActive && longLasting) {
-    const growthRate = 0.18;
-    baseScale = 1.05 + (duration - 0.5) * growthRate;
-    baseScale = Math.min(baseScale, 1.15);
-  } else if (isGone) {
-    baseScale = 1;
-  }
-
-  // If active and longLasting, scale: [1, baseScale, 1]
-  // Otherwise just baseScale.
-  const animateScale = isActive && longLasting ? [1, baseScale, 1] : baseScale;
-
-  // Make the total animation duration depend on the duration of the syllable.
-  const extraTime = duration > 0.5 ? (duration - 0.5) * 1 : 0;
-  const animationDuration = 0.5 + extraTime;
-
-  const glow = [
-    "0px 0px 10px rgba(255, 255, 255, 0)",
-    "0px 0px 5px rgba(255, 255, 255, 0.3)",
-    "0px 0px 3px rgba(255, 255, 255, 0.6)",
-    "0px 0px 1px rgba(255, 255, 255, 1)",
-    "0px 0px 20px rgba(255, 255, 255, 0.6)",
-    "0px 0px 5px rgba(255, 255, 255, 0.3)",
-    "0px 0px 10px rgba(255, 255, 255, 0)",
-  ].join(", ");
-
-  const glowOff = [
-    "0px 0px 10px rgba(255, 255, 255, 0)",
-    "0px 0px 5px rgba(255, 255, 255, 0)",
-    "0px 0px 3px rgba(255, 255, 255, 0)",
-    "0px 0px 1px rgba(255, 255, 255, 0)",
-    "0px 0px 20px rgba(255, 255, 255, 0)",
-    "0px 0px 5px rgba(255, 255, 255, 0)",
-    "0px 0px 10px rgba(255, 255, 255, 0)",
-  ].join(", ");
-
-  return (
-    <motion.span
-      className="syllable inline-block"
-      begin={begin}
-      end={end}
-      style={style}
-      initial={{ y: 0 }}
-      animate={{
-        y: isActive || isGone ? -2 : 0,
-        scale: animateScale,
-        textShadow:
-          isActive && longLasting
-            ? [glowOff, glow, glowOff]
-            : "0px 0px 0px rgba(255, 255, 255, 0)",
-      }}
-      transition={{
-        duration: isActive && longLasting ? animationDuration : 0.33,
-        ease: "easeOut",
-        times: isActive && longLasting ? [0, 0.5, 1] : undefined,
-      }}
-    >
-      {text}
-    </motion.span>
-  );
-};
-
-export default Syllable;
-
-
-\c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\components\lyrics\lrc\lrc-view.tsx
-"use client";
-import { Fragment, RefObject, useEffect, useRef, useState } from "react";
-import LrcLine from "./lrc-line";
-import ReactPlayer from "react-player";
-import { AppleKit } from "@/lib/audio/fetchers";
-import { parseTTML } from "./utils/TTMLparser";
-
-interface Props {
-  audioRef: RefObject<HTMLAudioElement> | React.RefObject<ReactPlayer> | null;
-  currentTime: number;
-  title: string;
-  artist: string;
-}
-
-const LrcView = ({ currentTime, title, artist }: Props) => {
-  const [parsedJson, setParsedJson] = useState<any>(null);
-
-  // Create a ref for the scrollable container
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const fetchLyrics = async () => {
-      const lyrics = await AppleKit.getLyrics(title, artist);
-      const parsedJson = parseTTML(lyrics);
-      setParsedJson(parsedJson);
-    };
-    fetchLyrics();
-  }, [title]);
-
-  useEffect(() => {
-    // On each time update, scroll the current line into view
-    if (!containerRef.current) return;
-
-    // Find the current line
-    const currentLine = containerRef.current.querySelector(".active");
-    if (currentLine) {
-      currentLine.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }
-  }, [currentTime]);
-
-  if (!parsedJson?.body.div) {
-    return (
-      <div className="primary-vocals translate-y-1/2 max-w-4xl mx-auto flex-1">
-        <p className="text-center">No lyrics found</p>
-      </div>
-    );
-  }
-
-  return (
-    // Make sure this container is scrollable if content exceeds its size
-    <div
-      ref={containerRef}
-      className="primary-vocals my-16 max-w-4xl mx-auto flex-1 overflow-auto"
-      style={{ maxHeight: "80vh" }} // Adjust as needed
-    >
-      {parsedJson.body.div.map((div: any, i: any) => (
-        <Fragment key={i}>
-          {div.p.map((p: any, idx: any) => (
-            <LrcLine
-              key={idx}
-              currentTime={currentTime}
-              begin={p["@begin"]}
-              end={p["@end"]}
-              span={p.span as any}
-            />
-          ))}
-        </Fragment>
-      ))}
-    </div>
-  );
-};
-
-export default LrcView;
-
-
-\c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\components\lyrics\lrc\utils\lyricUtils.ts
-export const parseTtml = (ttml: string): any => {
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(ttml, "text/xml");
-
-  const result = parseNode(xmlDoc);
-  console.log("Result", result);
-  return result;
-};
-
-function parseNode(node: Document) {
-  // if (node.childNodes.length === 1 && node.childNodes[0].nodeType === Node.TEXT_NODE) {
-  //     result.text = node.childNodes[0].nodeValue.trim();
-  // } else if (node.childNodes.length > 0) {
-  //     for (let i = 0; i < node.childNodes.length; i++) {
-  //         const child = node.childNodes[i];
-  //         if (child.nodeType === Node.ELEMENT_NODE) {
-  //             result[child.nodeName] = result[child.nodeName] || [];
-  //             result[child.nodeName].push(parseNode(child));
-  //         }
-  //     }
-  // }
-  const result = {};
-  // console.log("Primary document", node);
-
-  const body = node.querySelector("body");
-
-  // console.log(body);
-
-  return result;
-}
-
-export const parseMills = (time: string) => {
-  const parts = time.split(":");
-  let minutes: string;
-  let seconds: string;
-  let mills: string;
-
-  if (parts.length == 2) {
-    minutes = parts[0];
-    const secPart = parts[1];
-    seconds = secPart.split(".")[0];
-    mills = secPart.split(".")[1];
-  } else {
-    minutes = "0";
-    const secPart = parts[0];
-    seconds = secPart.split(".")[0];
-    mills = secPart.split(".")[1];
-  }
-
-  const totalMilliseconds =
-    Number(minutes) * 60 * 1000 + Number(seconds) * 1000 + Number(mills);
-  return totalMilliseconds / 1000;
-};
-
-export const getGradientPercentage = (
-  currentTime: number,
-  begin: number,
-  end: number
-) => {
-  if (currentTime < begin || currentTime > end) {
-    return "0%";
-  }
-
-  const range = end - begin;
-  const passedValue = currentTime - begin;
-  const percentage = (passedValue / range) * 100;
-
-  return `${percentage.toFixed()}%`;
-};
-
-
 \c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\components\lyrics\lrc\utils\TTMLparser.ts
 interface TTMLMetadata {
   key: string;
@@ -9181,6 +8923,17 @@ const convertTrackToSong = (track: any): Song => {
       city: "",
       avatar: track.user.avatar_url,
     },
+    metadata: {
+      artistName: track.publisher_metadata
+        ? (track.publisher_metadata as any).artist || ""
+        : "",
+      albumTitle: track.publisher_metadata
+        ? (track.publisher_metadata as any).album_title || ""
+        : "",
+      isrc: track.publisher_metadata
+        ? (track.publisher_metadata as any).isrc || ""
+        : "",
+    },
     artwork: {
       hdUrl: track.artwork_url
         ? track.artwork_url.replace("-large", "-t500x500")
@@ -9199,12 +8952,12 @@ const convertTrackToSong = (track: any): Song => {
 
 const SongList = ({ data }: { data: SoundCloudAlbum["tracks"] }) => {
   // grab only the stable action; do NOT subscribe to currentSong here
-  const setQueue = useAudioStore(s => s.setQueue);
+  const setQueue = useAudioStore((s) => s.setQueue);
   const { librarySongs } = useUser(); // this will no longer rerun due to currentSong changes
 
   // build a fast lookup once (or whenever user’s library changes)
   const likedIds = useMemo(
-    () => new Set((librarySongs ?? []).map(s => String(s?.id))),
+    () => new Set((librarySongs ?? []).map((s) => String(s?.id))),
     [librarySongs]
   );
 
@@ -9249,7 +9002,7 @@ const SongRow = memo(function SongRow({
   liked: boolean;
   onClick: () => void;
 }) {
-  const isCurrent = useAudioStore(s => s.currentSong?.id === track.id);
+  const isCurrent = useAudioStore((s) => s.currentSong?.id === track.id);
 
   return (
     <ContextMenu
@@ -9275,7 +9028,6 @@ const SongRow = memo(function SongRow({
     </ContextMenu>
   );
 });
-
 
 function formatDate(dateString: string | number | Date, format = "full") {
   const date = new Date(dateString);
@@ -9417,12 +9169,12 @@ export const Banner = ({ artist }: { artist: SoundCloudArtist | null }) => {
 
       {editorialVideo ? (
         <ReactPlayer
-          url={editorialVideo}
+          src={editorialVideo}
           playing
           className={style.BannerVideo}
           loop
           muted
-          playsinline
+          playsInline
           width="100%"
           height="100%"
           style={{
@@ -9701,8 +9453,8 @@ export const Content = ({ children }: ContentProps) => {
         <div className={style.Content}>{children}</div>
       ) : (
         <div className={`${style.Content} ${isFullscreen ? "invisible" : ""}`}>
-          <Sidebar />
-          <PlayerBar />
+          {/* <Sidebar /> */}
+          {/* <PlayerBar /> */}
           <ScrollPage>{children}</ScrollPage>
         </div>
       )}
@@ -10003,6 +9755,17 @@ const convertTrackToSong = (track: SoundCloudTrack): Song => {
       city: "",
       avatar: track.user.avatar_url,
     },
+    metadata: {
+      artistName: track.publisher_metadata
+        ? (track.publisher_metadata as any).artist || ""
+        : "",
+      albumTitle: track.publisher_metadata
+        ? (track.publisher_metadata as any).album_title || ""
+        : "",
+      isrc: track.publisher_metadata
+        ? (track.publisher_metadata as any).isrc || ""
+        : "",
+    },
     artwork: {
       hdUrl: track.artwork_url?.replace("-large", "-t500x500") || "",
       url: track.artwork_url || "",
@@ -10094,7 +9857,7 @@ import type { SoundCloudTrack } from "@/lib/types/soundcloud";
 import { Spinner } from "@/components/extra/Spinner";
 import { LibraryItem } from "@/components/main/library/LibraryItem";
 import style from "@/components/main/library/Library.module.css";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 export default function LibrarySongs() {
@@ -10296,7 +10059,7 @@ import style from "@/components/main/library/Library.module.css";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { SoundCloudTrack } from "@/lib/types/soundcloud";
 import { dev } from "@/lib/utils";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 
 export default function UserLikedSongs({ user }: { user: any }) {
   const { isLoading, error } = useUser();
@@ -10592,6 +10355,17 @@ const SongInfoNControls = ({ data }: { data: SoundCloudTrack }) => {
         city: "",
         avatar: track.user.avatar_url,
       },
+      metadata: {
+        artistName: track.publisher_metadata
+          ? (track.publisher_metadata as any).artist || ""
+          : "",
+        albumTitle: track.publisher_metadata
+          ? (track.publisher_metadata as any).album_title || ""
+          : "",
+        isrc: track.publisher_metadata
+          ? (track.publisher_metadata as any).isrc || ""
+          : "",
+      },
       artwork: {
         hdUrl: track.artwork_url
           ? track.artwork_url.replace("-large", "-t500x500")
@@ -10733,7 +10507,7 @@ import React, {
 import { IoSearch } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import Link from "next/link";
 
 interface SafeViewProps {
@@ -11034,7 +10808,7 @@ export const BackButton = ({ className }: { className?: string }) => {
 
 \c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\components\mobile\TitleOverflowAnimator.tsx
 // import React, { useState, useEffect, useRef } from "react";
-// import { motion, useAnimation } from "framer-motion";
+// import { motion, useAnimation } from "motion/react";
 // import "../../styles/TitleOverflowAnimator.css";
 
 // export const TitleOverflowAnimator: React.FC<{ children: React.ReactNode }> = ({
@@ -11105,7 +10879,7 @@ export const BackButton = ({ className }: { className?: string }) => {
 // };
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, MotionProps } from "motion/react";
 import "../../styles/TitleOverflowAnimator.css";
 
 export const TitleOverflowAnimator: React.FC<{
@@ -11151,7 +10925,7 @@ export const TitleOverflowAnimator: React.FC<{
           }
         : {}, // No animation if not overflowing
     },
-  };
+  } satisfies MotionProps;
 
   return (
     <div className={`marquee-container ${className}`}>
@@ -11635,7 +11409,7 @@ export const SearchIcon = () => {
 
 \c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\components\navigation\search\SearchDropdown.tsx
 import React from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import {
   SoundCloudAlbum,
   SoundCloudArtist,
@@ -11704,7 +11478,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
             }}
           >
             <span className="flex flex-col">
-              {settings?.highlightedQueries ? (
+              {settings?.data?.highlightedQueries ? (
                 <p
                   className="search-hint-text truncate"
                   // Dangerously set the HTML with the highlight
@@ -11883,6 +11657,11 @@ const pinnedItems = [
     text: "Eternal Atake 2",
     icon: <IoMusicalNote />,
   },
+  {
+    href: "/album/lyfestyle-7/1891771676",
+    text: "LYFESTYLE",
+    icon: <IoMusicalNote />,
+  },
 ];
 
 export const SidebarContent = () => {
@@ -11891,7 +11670,6 @@ export const SidebarContent = () => {
       <div className={style.SidebarContentScrollArea}>
         <ul className={style.SidebarList}>
           <Item href="/" text="Home" icon={<AiFillHome />} />
-
           <SectionLabel label="Library" />
           {libraryItems.map((item, index) => (
             <Item
@@ -11982,7 +11760,7 @@ const Item = ({
   return (
     <li className={style.SidebarItem}>
       <Link href={href} className={style.SidebarItemLink}>
-        {settings?.showSidebarIcons && icon && (
+        {settings?.data?.showSidebarIcons && icon && (
           <span className={style.SidebarItemIcon}>{icon}</span>
         )}
         <span>{text}</span>
@@ -12040,6 +11818,7 @@ export const SidebarUserFooter = () => {
               alt="User profile image"
               width={40}
               height={40}
+              unoptimized
               className="object-cover h-full w-full"
             />
           </div>
@@ -12085,11 +11864,11 @@ export const AnimatedCover: React.FC<AnimatedCoverProps> = ({ url, style }) => {
   return (
     <>
       <ReactPlayer
-        url={url}
+        src={url}
         playing
         loop
         muted
-        playsinline
+        playsInline
         width="100%"
         height="100%"
         controls={false}
@@ -12107,13 +11886,13 @@ export const AnimatedCoverFull: React.FC<AnimatedCoverProps> = ({ url }) => {
         <div className="-z-10 overflow-x-clip grid items-end justify-center w-screen h-[20rem] absolute top-0">
           <div className="scale-[1.2] absolute top-0 standalone:top-[-1rem] left-0 w-screen h-screen animated-video-container flex">
             <ReactPlayer
-              url={url}
+              src={url}
               playing={true}
               loop={true}
               muted={true}
               height={"25rem"}
               controls={false}
-              playsinline={true}
+              playsInline={true}
               style={{ aspectRatio: "1/1" }}
             />
           </div>
@@ -12134,7 +11913,7 @@ export default AnimatedCover;
 
 import React, { useRef, useEffect, memo } from "react";
 import Image from "next/image";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, useMotionValue, useTransform, animate } from "motion/react";
 import style from "./PlayerBar.module.css";
 import { useThemedPlaceholder } from "@/lib/utils/themedPlaceholder";
 
@@ -12280,7 +12059,7 @@ export const Audio = () => {
     playbackRate,
     repeat,
   } = useAudioStore();
-  const playerRef = useRef<ReactPlayer>(null);
+  const playerRef = useRef<HTMLMediaElement | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -12299,76 +12078,72 @@ export const Audio = () => {
   }, [setPlayerRef]);
 
   useEffect(() => {
-    if ("mediaSession" in navigator) {
-      const isIPhone = /iPhone/i.test(navigator.userAgent);
-      const displayTitle =
-        isIPhone && currentSong?.explicit
-          ? `${currentSong?.name} 🅴`
-          : currentSong?.name;
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: displayTitle || "Unknown Title",
-        artist: currentSong?.artist.name || "Unknown Artist",
-        album: currentSong?.albumName || "",
-        artwork: [
-          {
-            src: currentSong?.artwork.hdUrl || "default-image.jpg",
-            sizes: "512x512",
-            type: "image/png",
-          },
-        ],
-      });
+    if (!("mediaSession" in navigator)) return;
+    const isIPhone = /iPhone/i.test(navigator.userAgent);
+    const displayTitle =
+      isIPhone && currentSong?.explicit
+        ? `${currentSong?.name} 🅴`
+        : currentSong?.name;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: displayTitle || "Unknown Title",
+      artist: currentSong?.artist.name || "Unknown Artist",
+      album: currentSong?.albumName || "",
+      artwork: [
+        {
+          src: currentSong?.artwork.hdUrl || "default-image.jpg",
+          sizes: "512x512",
+          type: "image/png",
+        },
+      ],
+    });
 
-      navigator.mediaSession.setActionHandler("play", () => {
-        setIsPlaying(true);
-      });
-      navigator.mediaSession.setActionHandler("pause", () => {
-        setIsPlaying(false);
-      });
-      navigator.mediaSession.setActionHandler("nexttrack", () => {
-        nextSong();
-      });
-      navigator.mediaSession.setActionHandler("previoustrack", () => {
-        previousSong();
-      });
-      navigator.mediaSession.setActionHandler("seekto", (details) => {
-        if (details.seekTime && playerRef.current) {
-          playerRef.current.seekTo(details.seekTime, "seconds");
-        }
-      });
-      const updatePositionState = () => {
-        try {
-          if (!playerRef.current) return;
-          const internalPlayer = playerRef.current.getInternalPlayer?.();
-          // Prefer store duration, fall back to player's own duration
-          let d =
-            typeof duration === "number" && isFinite(duration) && duration > 0
-              ? duration
-              : (playerRef.current as any).getDuration?.() || 0;
-          if (!isFinite(d) || d < 0) d = 0;
-          // Current playback position
-          let pos = playerRef.current.getCurrentTime();
-          if (!isFinite(pos) || pos < 0) pos = 0;
-          // If duration is unknown/zero, force position to 0 to satisfy API
-          if (d <= 0) pos = 0;
-          // Otherwise clamp within [0, d]
-          else if (pos > d) pos = d;
+    navigator.mediaSession.setActionHandler("play", () => {
+      setIsPlaying(true);
+    });
+    navigator.mediaSession.setActionHandler("pause", () => {
+      setIsPlaying(false);
+    });
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+      nextSong();
+    });
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
+      previousSong();
+    });
+    navigator.mediaSession.setActionHandler("seekto", (details) => {
+      if (playerRef.current && details.seekTime != null) {
+        playerRef.current.currentTime = details.seekTime;
+      }
+    });
+    const updatePositionState = () => {
+      try {
+        const player = playerRef.current;
+        if (!player) return;
+        let d =
+          typeof duration === "number" && isFinite(duration) && duration > 0
+            ? duration
+            : player.duration || 0;
+        if (!isFinite(d) || d < 0) d = 0;
+        // Current playback position
+        let pos = player.currentTime || 0;
+        if (!isFinite(pos) || pos < 0) pos = 0;
+        // If duration is unknown/zero, force position to 0 to satisfy API
+        if (d <= 0) pos = 0;
+        // Otherwise clamp within [0, d]
+        else if (pos > d) pos = d;
 
-          navigator.mediaSession.setPositionState({
-            duration: d,
-            playbackRate: internalPlayer
-              ? (internalPlayer as any).playbackRate ?? 1
-              : 1,
-            position: pos,
-          });
-        } catch {
-          // Swallow MediaSession errors (e.g., during track transitions)
-        }
-      };
-      const positionUpdateInterval = setInterval(updatePositionState, 1000);
-      return () => {
-        clearInterval(positionUpdateInterval);
-      };
-    }
+        navigator.mediaSession.setPositionState({
+          duration: d,
+          playbackRate: player.playbackRate ?? 1,
+          position: pos,
+        });
+      } catch {
+        // Swallow MediaSession errors (e.g., during track transitions)
+      }
+    };
+    const positionUpdateInterval = setInterval(updatePositionState, 1000);
+    return () => {
+      clearInterval(positionUpdateInterval);
+    };
   }, [currentSong, isPlaying, duration, nextSong, previousSong, setIsPlaying]);
 
   // Avoid rendering on the server or without a valid URL to keep SSR and CSR output consistent
@@ -12376,17 +12151,23 @@ export const Audio = () => {
 
   return (
     <ReactPlayer
-      ref={playerRef}
-      url={currentSong?.src}
+      ref={(player) => {
+        playerRef.current = player;
+      }}
+      src={currentSong?.src}
       playing={isPlaying}
       loop={repeat === "one"}
       onEnded={nextSong}
       volume={muted ? 0 : volume}
       playbackRate={playbackRate}
-      onProgress={({ playedSeconds }) =>
-        useAudioStore.getState().setCurrentTime(playedSeconds)
+      onTimeUpdate={() =>
+        useAudioStore
+          .getState()
+          .setCurrentTime(playerRef.current?.currentTime ?? 0)
       }
-      onDuration={(duration) => useAudioStore.getState().setDuration(duration)}
+      onDurationChange={() =>
+        useAudioStore.getState().setDuration(playerRef.current?.duration ?? 0)
+      }
       width="0px"
       height="0px"
     />
@@ -12399,7 +12180,7 @@ import React from "react";
 import style from "./Controls.module.css";
 import { IoPlay, IoPlayBack, IoPlayForward } from "react-icons/io5";
 import { PiPauseFill } from "react-icons/pi";
-import { motion } from "framer-motion";
+import { motion, MotionProps } from "motion/react";
 import { useAudioStore } from "@/context/AudioContext";
 
 export const Controls = () => {
@@ -12440,7 +12221,7 @@ const ControlButtons = ({
     },
     transition: { duration: 0.125, ease: "easeInOut" },
     className: "flex flex-col items-center rounded-full p-2",
-  };
+  } satisfies MotionProps & { className: string };
 
   return (
     <div className="flex items-center gap-2">
@@ -12460,7 +12241,7 @@ const ControlButtons = ({
 
 \c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\components\player\FullScreenButton.tsx
 import { Attributes, useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, MotionProps } from "motion/react";
 import { LucideFullscreen } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useAudioStore } from "@/context/AudioContext";
@@ -12570,7 +12351,7 @@ const Screen = () => {
     animate: { opacity: 1, filter: "blur(0px)" },
     exit: { opacity: 0, filter: "blur(10px)" },
     transition: { duration: 0.3, ease: "easeInOut" },
-  };
+  } satisfies MotionProps & { className: string };
 
   return (
     <AnimatePresence>
@@ -13022,7 +12803,7 @@ const DurationSlider = ({
         max={duration || 1}
         value={currentTime}
         onChange={onChange}
-        className="apple-slider seek-slider"
+        className="gaku-slider seek-slider"
       />
     </div>
   );
@@ -13347,7 +13128,7 @@ interface AudioState {
   currentIndex: number; // index into queue
   queue: Song[];
   isPlaying: boolean;
-  playerRef: React.RefObject<ReactPlayer> | null;
+  playerRef: React.RefObject<HTMLMediaElement> | null;
 
   // Timing/state
   currentTime: number;
@@ -13409,7 +13190,7 @@ interface AudioState {
   previousSong: () => Promise<void>;
   setIsPlaying: (playing: boolean) => void;
   prefetchNextN: (n: number) => Promise<void>;
-  setPlayerRef: (ref: React.RefObject<ReactPlayer>) => void;
+  setPlayerRef: (ref: React.RefObject<HTMLMediaElement>) => void;
   setAnimatedURL: (url: string) => void;
 
   setDuration: (duration: number) => void;
@@ -13577,22 +13358,16 @@ export const useAudioStore = create<AudioState>((set, get) => ({
 
     // Repeat one
     if (repeat === "one") {
-      // Robustly restart current track without reloading the URL
-      const { playerRef } = get();
-      if (playerRef?.current) {
+      const player = get().playerRef?.current;
+      if (player) {
         try {
-          // Jump to start and ensure playback resumes
-          playerRef.current.seekTo(0, "seconds");
+          player.currentTime = 0;
         } catch {}
         try {
-          const media = playerRef.current.getInternalPlayer?.() as
-            | HTMLMediaElement
-            | undefined;
-          await media?.play?.();
+          await player.play?.();
         } catch {}
         set({ isPlaying: true, currentTime: 0, fineProgress: 0 });
       } else {
-        // Fallback: trigger the same index
         await get().playSongAtIndex(currentIndex);
       }
       return;
@@ -13670,11 +13445,12 @@ export const useAudioStore = create<AudioState>((set, get) => ({
 
   previous: async () => {
     const { playerRef, currentIndex, history } = get();
+    const player = playerRef?.current;
     // If media has progressed >3s, just seek to start
-    if (playerRef?.current) {
-      const t = playerRef.current.getCurrentTime();
+    if (player) {
+      const t = player.currentTime || 0;
       if (t > 3) {
-        playerRef.current.seekTo(0);
+        player.currentTime = 0;
         set({ currentTime: 0, fineProgress: 0 });
         return;
       }
@@ -13694,9 +13470,11 @@ export const useAudioStore = create<AudioState>((set, get) => ({
 
   // Note: `seek` expects seconds for backward-compatibility with existing UI
   seek: (seconds: number) => {
-    const { playerRef } = get();
-    if (playerRef?.current) {
-      playerRef.current.seekTo(seconds);
+    const player = get().playerRef?.current;
+    if (player) {
+      try {
+        player.currentTime = seconds;
+      } catch {}
       set({ currentTime: seconds, fineProgress: seconds });
     }
   },
@@ -13843,13 +13621,13 @@ export const useAudioStore = create<AudioState>((set, get) => ({
     const { rafId, playerRef, isPlaying } = get();
     if (isPlaying && playerRef && playerRef.current && rafId === null) {
       const update = () => {
-        const { playerRef, isPlaying } = get();
-        if (!isPlaying || !playerRef?.current) {
+        const player = get().playerRef?.current;
+        if (!isPlaying || !player) {
           get().stopFineProgressUpdates();
           return;
         }
-        const currentTime = playerRef.current.getCurrentTime();
-        set({ currentTime: currentTime, fineProgress: currentTime });
+        const t = player.currentTime || 0;
+        set({ currentTime: t, fineProgress: t });
         const newRafId = requestAnimationFrame(update);
         set({ rafId: newRafId });
       };
@@ -13901,7 +13679,7 @@ const attachHelpers = () => {
   (useAudioStore.getState() as Store).applyPlaybackRate = () => {
     const { playerRef, playbackRate } = get();
     try {
-      const internal = playerRef?.current?.getInternalPlayer?.();
+      const internal = playerRef?.current;
       if (internal && typeof (internal as any).playbackRate !== "undefined") {
         (internal as HTMLMediaElement).playbackRate = playbackRate;
       }
@@ -13961,10 +13739,7 @@ const attachHelpers = () => {
   (useAudioStore.getState() as Store).initializeEngineIfNeeded = () => {
     const { engineReady, playerRef } = get();
     if (engineReady) return;
-    const media = playerRef?.current?.getInternalPlayer?.() as
-      | HTMLAudioElement
-      | HTMLVideoElement
-      | undefined;
+    const media = playerRef?.current;
     if (!media) return;
     try {
       const ctx = new (window.AudioContext ||
@@ -14460,10 +14235,11 @@ export const useUser = () => {
   // Fetch the user's library songs
   const { data, isLoading, error } = useQuery<LibrarySongs>({
     queryKey: ["librarySongIDs"],
-    queryFn: async () => {
-      const response = await axios.get("/api/user/songs");
-      return response.data;
-    },
+    queryFn: async () => (await axios.get("/api/user/songs")).data,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   // Add a song to the user's library
@@ -14475,7 +14251,9 @@ export const useUser = () => {
     // Optimistic update
     onMutate: async (soundcloudId: string) => {
       await queryClient.cancelQueries({ queryKey: ["librarySongIDs"] });
-      const previous = queryClient.getQueryData<LibrarySongs>(["librarySongIDs"]);
+      const previous = queryClient.getQueryData<LibrarySongs>([
+        "librarySongIDs",
+      ]);
 
       const optimistic: Song = {
         id: soundcloudId,
@@ -14514,7 +14292,9 @@ export const useUser = () => {
     },
     onMutate: async (soundcloudId: string) => {
       await queryClient.cancelQueries({ queryKey: ["librarySongIDs"] });
-      const previous = queryClient.getQueryData<LibrarySongs>(["librarySongIDs"]);
+      const previous = queryClient.getQueryData<LibrarySongs>([
+        "librarySongIDs",
+      ]);
 
       queryClient.setQueryData<LibrarySongs>(["librarySongIDs"], (old) => {
         const base = old ?? [];
@@ -14651,6 +14431,7 @@ import { EditorialVideo } from "../types/apple";
 import { showToast } from "@/hooks/useToast";
 import toast from "react-hot-toast";
 import { AppleLyricsResponse } from "@/types/apple";
+import { SoundCloudAlbum, SoundCloudTrack } from "../types/soundcloud";
 
 /**
  * Unified fetch helper with toast-based error handling
@@ -14750,21 +14531,27 @@ async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
   try {
     dev.log("mapTrackUrlToSong | url:", url, "isID:", isID);
     const trackId = Number(url);
-    const data = await fetchTrackInfo(trackId);
+    const data = (await fetchTrackInfo(trackId)) as
+      | SoundCloudTrack
+      | SoundCloudAlbum;
+    dev.log("mapTrackUrlToSong | trackId:", trackId);
     if (!data) return createEmptySong(trackId);
-    console.log("mapTrackUrlToSong data", data);
+    dev.log("mapTrackUrlToSong data", data);
     const HDCover = SoundCloudKit.getHD(data.artwork_url);
 
     if (window.location.pathname.includes("/album/")) {
       const albumID = window.location.pathname.includes("/album/")
         ? window.location.pathname.split("/").pop()
-        : data.publisher_metadata?.album_id || 222;
-      const fetchedAlbumName = await SoundCloudKit.getData(albumID, "albums");
+        : data.publisher_metadata?.id || 222;
+      const fetchedAlbumName = await SoundCloudKit.getData(
+        albumID || "",
+        "albums"
+      );
       const albumName =
         data.publisher_metadata?.album_title || fetchedAlbumName.title;
       const appleKitCover = await AppleKit.getMediaData(
         albumName,
-        data.publisher_metadata.artist || data.user?.username,
+        data.publisher_metadata?.artist || data.user?.username,
         "albums"
       );
       dev.log("appleKitCover", appleKitCover);
@@ -14787,6 +14574,7 @@ async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
         metadata: {
           artistName: data.publisher_metadata?.artist || "",
           albumTitle: data.publisher_metadata?.album_title || "",
+          isrc: data.publisher_metadata?.isrc || "",
         },
         artwork: {
           hdUrl: HDCover,
@@ -14817,6 +14605,7 @@ async function mapTrackUrlToSong(url: string, isID: boolean): Promise<Song> {
       metadata: {
         artistName: data.publisher_metadata?.artist || "",
         albumTitle: data.publisher_metadata?.album_title || "",
+        isrc: data.publisher_metadata?.isrc || "",
       },
       artwork: {
         hdUrl: HDCover,
@@ -14897,6 +14686,7 @@ async function mapTracksToSongs(tracks: any[]): Promise<Song[]> {
         metadata: {
           artistName: track.publisher_metadata?.artist || "",
           albumTitle: track.publisher_metadata?.album_title || "",
+          isrc: track.publisher_metadata?.isrc || "",
         },
         artwork: {
           hdUrl: HDCover,
@@ -14972,6 +14762,7 @@ function createEmptySong(id: number): Song {
     metadata: {
       artistName: "Unknown Artist",
       albumTitle: "Unknown Album",
+      isrc: "",
     },
     artwork: {
       hdUrl: "",
@@ -15010,9 +14801,11 @@ export const AppleKit = {
   async getLyrics(
     title: string,
     artist: string,
+    isrc?: string,
     file: boolean = false
   ): Promise<string | AppleLyricsResponse> {
     try {
+      dev.log("AppleKit | getLyrics", { title, artist, isrc, file });
       const cleanedTitle = title.split("(")[0].trim();
       let cleanedArtist = artist;
       cleanedArtist = artistMappings[cleanedArtist] || cleanedArtist;
@@ -15024,8 +14817,11 @@ export const AppleKit = {
         .join("+");
 
       const query = `${cleanedTitle.replace(/ /g, "+")}+${cleanedArtist}`;
+      const url = `/api/apple/lyrics/${query}${
+        isrc ? `?isrc=${encodeURIComponent(isrc)}` : ""
+      }`;
       const data = await fetchJson<AppleLyricsResponse>(
-        `/api/apple/lyrics/${query}`,
+        url,
         `Failed to fetch lyrics for ${title}`
       );
       if (!data) return "";
@@ -15367,6 +15163,7 @@ export interface Song {
   metadata?: {
     albumTitle?: string;
     artistName?: string;
+    isrc?: string;
   };
   artwork: Artwork;
   contentRating?: string;
@@ -15495,6 +15292,25 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export default prisma;
+
+
+\c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\lib\rscSafe.ts
+// lib/rscSafe.ts
+export function rscSafe<T>(value: T): T {
+  try {
+    // dev-proof clone → new, extensible objects
+    // @ts-ignore structuredClone exists in Node 18+/modern browsers
+    return typeof structuredClone === "function"
+      ? structuredClone(value)
+      : JSON.parse(JSON.stringify(value));
+  } catch {
+    return JSON.parse(JSON.stringify(value)) as T;
+  }
+}
+
+// nice dev-only wrapper
+export const rscSafeDev = <T>(v: T) =>
+  process.env.NODE_ENV === "development" ? rscSafe(v) : v;
 
 
 \c\Users\covaw\Desktop\Desktop\Coding\Gaku\musicpla\src\lib\supabase.ts
@@ -15649,15 +15465,7 @@ export interface SoundCloudTrack {
   playback_count: number;
   policy: string;
   public: boolean;
-  publisher_metadata: {
-    artist: string;
-    contains_music: boolean;
-    explicit: boolean;
-    album_title: string;
-    id: number;
-    isrc: string;
-    urn: string;
-  };
+  publisher_metadata?: PublisherMetadata;
   purchase_title: string | null;
   purchase_url: string | null;
   release_date: string;
@@ -15713,6 +15521,22 @@ export interface SoundCloudAlbum {
   uri: string;
   user: SoundCloudArtist;
   user_id: number;
+  publisher_metadata?: PublisherMetadata;
+}
+
+export interface PublisherMetadata {
+  id?: number;
+  urn?: string;
+  artist?: string;
+  album_title?: string;
+  contains_music?: boolean;
+  explicit?: boolean;
+  isrc?: string;
+  p_line?: string;
+  p_line_for_display?: string;
+  c_line?: string;
+  c_line_for_display?: string;
+  release_title?: string;
 }
 
 export interface SoundCloudSearchResult {
@@ -16038,16 +15862,16 @@ export async function fetchPlaylistM3U8(trackUrl: string) {
     const response = await fetch(
       `/api/soundcloud/music?trackUrl=${encodeURIComponent(trackUrl)}`
     );
-    console.log("fetchPlaylistM3U8 | response:", response);
+    dev.log("fetchPlaylistM3U8 | response:", response);
     if (!response.ok) {
       showToast("error", "Failed to fetch song");
       throw new Error("Failed to fetch song/playlist URL");
     }
     const data = await response.json();
-    console.log("fetchPlaylistM3U8 | data:", data);
+    dev.log("fetchPlaylistM3U8 | data:", data);
     return data.playlistUrl;
   } catch (error) {
-    console.error("Error fetching playlist URL | fetchPlaylistM3U8:", error);
+    dev.error("Error fetching playlist URL | fetchPlaylistM3U8:", error);
   }
 }
 
@@ -16210,7 +16034,7 @@ export const config = {
 
 import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
-import { type ThemeProviderProps } from "next-themes/dist/types";
+import { type ThemeProviderProps } from "next-themes";
 
 export function NextThemeProvider({ children, ...props }: ThemeProviderProps) {
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>;

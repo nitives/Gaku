@@ -54,7 +54,6 @@
 
 @media (prefers-color-scheme: dark) {
   .SearchInput {
-    --SearchIcon-fill: hsl(0, 0%, 100%);
     background-color: hsla(0, 0%, 100%, 0.05);
     border-color: hsla(0, 0%, 100%, 0.15);
     color: #f5f5f5;

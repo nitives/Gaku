@@ -1,4 +1,3 @@
-import React from "react";
 import { useAudioStore } from "@/context/AudioContext";
 import Image from "next/image";
 import { useThemedPlaceholder } from "@/lib/utils/themedPlaceholder";

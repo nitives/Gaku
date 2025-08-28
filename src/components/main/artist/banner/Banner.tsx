@@ -123,12 +123,12 @@ export const Banner = ({ artist }: { artist: SoundCloudArtist | null }) => {
 
       {editorialVideo ? (
         <ReactPlayer
-          url={editorialVideo}
+          src={editorialVideo}
           playing
           className={style.BannerVideo}
           loop
           muted
-          playsinline
+          playsInline
           width="100%"
           height="100%"
           style={{

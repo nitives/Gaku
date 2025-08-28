@@ -1,5 +1,6 @@
-import { Attributes, useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+"use client";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence, MotionProps } from "motion/react";
 import { LucideFullscreen } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useAudioStore } from "@/context/AudioContext";
@@ -39,7 +40,7 @@ const BackgroundRender = dynamic(
     ssr: false,
   }
 );
-
+ 
 const FullScreenButton = () => {
   const setFullscreen = useAudioStore((state) => state.setFullscreen);
   return (
@@ -109,7 +110,7 @@ const Screen = () => {
     animate: { opacity: 1, filter: "blur(0px)" },
     exit: { opacity: 0, filter: "blur(10px)" },
     transition: { duration: 0.3, ease: "easeInOut" },
-  };
+  } satisfies MotionProps & { className: string };
 
   return (
     <AnimatePresence>

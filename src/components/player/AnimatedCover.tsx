@@ -10,11 +10,11 @@ export const AnimatedCover: React.FC<AnimatedCoverProps> = ({ url, style }) => {
   return (
     <>
       <ReactPlayer
-        url={url}
+        src={url}
         playing
         loop
         muted
-        playsinline
+        playsInline
         width="100%"
         height="100%"
         controls={false}
@@ -32,13 +32,13 @@ export const AnimatedCoverFull: React.FC<AnimatedCoverProps> = ({ url }) => {
         <div className="-z-10 overflow-x-clip grid items-end justify-center w-screen h-[20rem] absolute top-0">
           <div className="scale-[1.2] absolute top-0 standalone:top-[-1rem] left-0 w-screen h-screen animated-video-container flex">
             <ReactPlayer
-              url={url}
+              src={url}
               playing={true}
               loop={true}
               muted={true}
               height={"25rem"}
               controls={false}
-              playsinline={true}
+              playsInline={true}
               style={{ aspectRatio: "1/1" }}
             />
           </div>

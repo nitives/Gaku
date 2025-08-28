@@ -19,7 +19,7 @@ export const Audio = () => {
     playbackRate,
     repeat,
   } = useAudioStore();
-  const playerRef = useRef<ReactPlayer>(null);
+  const playerRef = useRef<HTMLMediaElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -38,76 +38,72 @@ export const Audio = () => {
   }, [setPlayerRef]);
 
   useEffect(() => {
-    if ("mediaSession" in navigator) {
-      const isIPhone = /iPhone/i.test(navigator.userAgent);
-      const displayTitle =
-        isIPhone && currentSong?.explicit
-          ? `${currentSong?.name} 🅴`
-          : currentSong?.name;
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: displayTitle || "Unknown Title",
-        artist: currentSong?.artist.name || "Unknown Artist",
-        album: currentSong?.albumName || "",
-        artwork: [
-          {
-            src: currentSong?.artwork.hdUrl || "default-image.jpg",
-            sizes: "512x512",
-            type: "image/png",
-          },
-        ],
-      });
+    if (!("mediaSession" in navigator)) return;
+    const isIPhone = /iPhone/i.test(navigator.userAgent);
+    const displayTitle =
+      isIPhone && currentSong?.explicit
+        ? `${currentSong?.name} 🅴`
+        : currentSong?.name;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: displayTitle || "Unknown Title",
+      artist: currentSong?.artist.name || "Unknown Artist",
+      album: currentSong?.albumName || "",
+      artwork: [
+        {
+          src: currentSong?.artwork.hdUrl || "default-image.jpg",
+          sizes: "512x512",
+          type: "image/png",
+        },
+      ],
+    });
 
-      navigator.mediaSession.setActionHandler("play", () => {
-        setIsPlaying(true);
-      });
-      navigator.mediaSession.setActionHandler("pause", () => {
-        setIsPlaying(false);
-      });
-      navigator.mediaSession.setActionHandler("nexttrack", () => {
-        nextSong();
-      });
-      navigator.mediaSession.setActionHandler("previoustrack", () => {
-        previousSong();
-      });
-      navigator.mediaSession.setActionHandler("seekto", (details) => {
-        if (details.seekTime && playerRef.current) {
-          playerRef.current.seekTo(details.seekTime, "seconds");
-        }
-      });
-      const updatePositionState = () => {
-        try {
-          if (!playerRef.current) return;
-          const internalPlayer = playerRef.current.getInternalPlayer?.();
-          // Prefer store duration, fall back to player's own duration
-          let d =
-            typeof duration === "number" && isFinite(duration) && duration > 0
-              ? duration
-              : (playerRef.current as any).getDuration?.() || 0;
-          if (!isFinite(d) || d < 0) d = 0;
-          // Current playback position
-          let pos = playerRef.current.getCurrentTime();
-          if (!isFinite(pos) || pos < 0) pos = 0;
-          // If duration is unknown/zero, force position to 0 to satisfy API
-          if (d <= 0) pos = 0;
-          // Otherwise clamp within [0, d]
-          else if (pos > d) pos = d;
+    navigator.mediaSession.setActionHandler("play", () => {
+      setIsPlaying(true);
+    });
+    navigator.mediaSession.setActionHandler("pause", () => {
+      setIsPlaying(false);
+    });
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+      nextSong();
+    });
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
+      previousSong();
+    });
+    navigator.mediaSession.setActionHandler("seekto", (details) => {
+      if (playerRef.current && details.seekTime != null) {
+        playerRef.current.currentTime = details.seekTime;
+      }
+    });
+    const updatePositionState = () => {
+      try {
+        const player = playerRef.current;
+        if (!player) return;
+        let d =
+          typeof duration === "number" && isFinite(duration) && duration > 0
+            ? duration
+            : player.duration || 0;
+        if (!isFinite(d) || d < 0) d = 0;
+        // Current playback position
+        let pos = player.currentTime || 0;
+        if (!isFinite(pos) || pos < 0) pos = 0;
+        // If duration is unknown/zero, force position to 0 to satisfy API
+        if (d <= 0) pos = 0;
+        // Otherwise clamp within [0, d]
+        else if (pos > d) pos = d;
 
-          navigator.mediaSession.setPositionState({
-            duration: d,
-            playbackRate: internalPlayer
-              ? (internalPlayer as any).playbackRate ?? 1
-              : 1,
-            position: pos,
-          });
-        } catch {
-          // Swallow MediaSession errors (e.g., during track transitions)
-        }
-      };
-      const positionUpdateInterval = setInterval(updatePositionState, 1000);
-      return () => {
-        clearInterval(positionUpdateInterval);
-      };
-    }
+        navigator.mediaSession.setPositionState({
+          duration: d,
+          playbackRate: player.playbackRate ?? 1,
+          position: pos,
+        });
+      } catch {
+        // Swallow MediaSession errors (e.g., during track transitions)
+      }
+    };
+    const positionUpdateInterval = setInterval(updatePositionState, 1000);
+    return () => {
+      clearInterval(positionUpdateInterval);
+    };
   }, [currentSong, isPlaying, duration, nextSong, previousSong, setIsPlaying]);
 
   // Avoid rendering on the server or without a valid URL to keep SSR and CSR output consistent
@@ -115,17 +111,23 @@ export const Audio = () => {
 
   return (
     <ReactPlayer
-      ref={playerRef}
-      url={currentSong?.src}
+      ref={(player) => {
+        playerRef.current = player;
+      }}
+      src={currentSong?.src}
       playing={isPlaying}
       loop={repeat === "one"}
       onEnded={nextSong}
       volume={muted ? 0 : volume}
       playbackRate={playbackRate}
-      onProgress={({ playedSeconds }) =>
-        useAudioStore.getState().setCurrentTime(playedSeconds)
+      onTimeUpdate={() =>
+        useAudioStore
+          .getState()
+          .setCurrentTime(playerRef.current?.currentTime ?? 0)
       }
-      onDuration={(duration) => useAudioStore.getState().setDuration(duration)}
+      onDurationChange={() =>
+        useAudioStore.getState().setDuration(playerRef.current?.duration ?? 0)
+      }
       width="0px"
       height="0px"
     />
