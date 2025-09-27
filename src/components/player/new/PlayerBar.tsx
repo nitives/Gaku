@@ -19,6 +19,7 @@ export const PlayerBar = () => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
   };
+  dev.log("[PLAYER BAR] Current Song:", currentSong);
   return (
     <div className={style.playerBarContainer}>
       <div className={style.playerBar}>
@@ -44,7 +45,12 @@ export const PlayerBar = () => {
           <ImmersiveButton />
         </div>
       </div>
-      <FullScreen.Screen />
+      <div id="fullscreen-screen" className="max-md:hidden">
+        <FullScreen.Screen />
+      </div>
+      <div id="mobile-fullscreen-screen" className="md:hidden">
+        <FullScreen.MobileScreen />
+      </div>
     </div>
   );
 };

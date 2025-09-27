@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "Gaku",
-    statusBarStyle: "black-translucent",
+    // statusBarStyle: "black-translucent",
   },
 };
 
@@ -32,7 +32,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  viewportFit: "cover",
+  viewportFit: "cover",  
 };
 
 const USE_PERSONAL_TOKEN = conf().APPLE.MUSIC.USE_PERSONAL_TOKEN;
@@ -274,10 +274,10 @@ export default function RootLayout({
           />
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta
+          {/* <meta
             name="apple-mobile-web-app-status-bar-style"
             content="black-translucent"
-          />
+          /> */}
           <meta
             name="viewport"
             content="width=device-width, initial-scale=1, viewport-fit=cover"

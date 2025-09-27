@@ -21,6 +21,7 @@ import { showToast } from "@/hooks/useToast";
 import Link from "next/link";
 import { isIPhone } from "@/hooks/useIsiPhone";
 import { VibrantText } from "../vibrant-text";
+import { MobileScreen } from "./MobileScreen";
 
 // Using dynamic imports with loading strategy to optimize performance
 const AppleLyrics = dynamic(
@@ -305,14 +306,9 @@ const Screen = () => {
   );
 };
 
-const FullScreen = () => {
-  return (
-    <>
-      <Screen key="expanded" />
-    </>
-  );
-};
+const FullScreen = () => null;
 
 FullScreen.Button = FullScreenButton;
 FullScreen.Screen = Screen;
+FullScreen.MobileScreen = MobileScreen;
 export { FullScreen };

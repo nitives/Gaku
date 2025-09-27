@@ -537,16 +537,22 @@ export const ExpandedPlayerControls = ({
     className: "flex flex-col items-center rounded-full p-2",
   } satisfies MotionProps & { className: string };
 
+  const isMobile = useMediaQuery("(max-width: 786px)");
+
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 justify-center">
       <motion.button {...buttonMotionProps} onClick={onPrev}>
-        <IoPlayBack size={32} />
+        <IoPlayBack size={isMobile ? 48 : 32} />
       </motion.button>
       <motion.button {...buttonMotionProps} onClick={onPlayPause}>
-        {playing ? <PiPauseFill size={32} /> : <IoPlay size={32} />}
+        {playing ? (
+          <PiPauseFill size={isMobile ? 48 : 32} />
+        ) : (
+          <IoPlay size={isMobile ? 48 : 32} />
+        )}
       </motion.button>
       <motion.button {...buttonMotionProps} onClick={onNext}>
-        <IoPlayForward size={32} />
+        <IoPlayForward size={isMobile ? 48 : 32} />
       </motion.button>
     </div>
   );
@@ -557,11 +563,13 @@ export const AppleCover = ({
   song,
   isAnimated,
   imageSize = 400,
+  style,
 }: {
   isDesktop: boolean;
   song: Song | undefined;
   isAnimated: boolean;
   imageSize?: number;
+  style?: React.CSSProperties;
 }) => {
   const PLACEHOLDER_IMAGE = useThemedPlaceholder();
   const IMAGEHD = SoundCloudKit.getHD(song?.artwork?.url || "");
@@ -578,13 +586,19 @@ export const AppleCover = ({
     return (
       // did have style={squircleStyle} but it was causing issues with layout shifts
       <div className="select-none">
-        <AnimatedCover
-          style={{
+        {(() => {
+          const coverStyle: React.CSSProperties = {
             width: imageSize,
             height: imageSize,
-          }}
-          url={song?.artwork?.animatedURL || ""}
-        />
+            ...(style ?? {}),
+          };
+          return (
+            <AnimatedCover
+              style={coverStyle}
+              url={song?.artwork?.animatedURL || ""}
+            />
+          );
+        })()}
       </div>
     );
   }
@@ -592,15 +606,25 @@ export const AppleCover = ({
   return (
     // did have style={squircleStyle} but it was causing issues with layout shifts
     <div className="select-none">
-      <Image
-        className={isDesktop ? "" : ""}
-        src={IMAGEHD || PLACEHOLDER_IMAGE}
-        alt={song?.name || "Missing Image"}
-        width={imageSize}
-        height={imageSize}
-        unoptimized={true}
-        draggable={false}
-      />
+      {(() => {
+        const coverStyle: React.CSSProperties = {
+          width: imageSize,
+          height: imageSize,
+          ...(style ?? {}),
+        };
+        return (
+          <Image
+            className={isDesktop ? "" : ""}
+            src={IMAGEHD || PLACEHOLDER_IMAGE}
+            alt={song?.name || "Missing Image"}
+            style={coverStyle}
+            width={imageSize}
+            height={imageSize}
+            unoptimized={true}
+            draggable={false}
+          />
+        );
+      })()}
     </div>
   );
 };

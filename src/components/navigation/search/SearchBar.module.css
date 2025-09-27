@@ -1,5 +1,5 @@
 .SearchBarWrapper {
-  --SearchIcon-fill: light-dark(hsl (0, 0%, 75%), hsl(0, 0%, 100%));
+  --SearchIcon-fill: light-dark(hsl(0, 0%, 75%), hsl(0, 0%, 100%));
   --SearchBarWrapper-inline-margin: 12px;
   height: 54px;
   display: flex;

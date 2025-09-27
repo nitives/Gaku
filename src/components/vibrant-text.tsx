@@ -124,8 +124,8 @@ export const VibrantText = forwardRef<HTMLSpanElement, VibrantTextProps>(
           // allow per-instance overrides (custom preset, tint, etc.)
           ["--TextVibrancySettings" as any]: filterString || undefined,
           ["--TextVibrancyTint" as any]: tint || "rgba(255, 255, 255, 0.5)",
-          ["--vtxt-w" as any]: "0px",
-          ["--vtxt-h" as any]: "0px",
+          ["--vtxt-w" as any]: "300px",
+          ["--vtxt-h" as any]: "24px",
           ["--vtxt-ty" as any]: "0px",
           ...style,
         }}

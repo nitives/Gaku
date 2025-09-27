@@ -136,7 +136,7 @@ export async function fetchRichSyncLyrics(title: string, artist: string) {
 export const dev = {
   log: (message?: any, ...optionalParams: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
-      dev.log(
+      console.log(
         `%c[LOG]`,
         "color: #9ae517; font-weight: bold",
         message,
@@ -146,7 +146,7 @@ export const dev = {
   },
   info: (message?: any, ...optionalParams: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
-      dev.info(
+      console.info(
         `%c[INFO]`,
         "color: blue; font-weight: bold",
         message,
@@ -156,7 +156,7 @@ export const dev = {
   },
   warn: (message?: any, ...optionalParams: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
-      dev.warn(
+      console.warn(
         `%c[WARN]`,
         "color: orange; font-weight: bold",
         message,
@@ -166,7 +166,7 @@ export const dev = {
   },
   error: (message?: any, ...optionalParams: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
-      dev.error(
+      console.error(
         `%c[ERROR]`,
         "color: red; font-weight: bold",
         message,
@@ -176,7 +176,7 @@ export const dev = {
   },
   debug: (message?: any, ...optionalParams: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
-      dev.debug(
+      console.debug(
         `%c[DEBUG]`,
         "color: purple; font-weight: bold",
         message,
