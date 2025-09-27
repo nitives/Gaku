@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import { TryAgain } from "@/components/extra/TryAgain";
 import Link from "next/link";
 import { fetchArtistData } from "@/lib/artist";
+import { dev } from "@/lib/utils";
 
 const soundCloudOfficial = ["music-charts-us"];
 
@@ -31,6 +32,8 @@ export default function ArtistPage() {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
+
+  dev.log("[ARTIST] Data:", artist);
 
   if (soundCloudOfficial.includes(artist_name)) {
     return (

@@ -307,7 +307,7 @@ export async function getURLFromID(id: string) {
   try {
     const data = await fetchTrackInfo(Number(id));
     if (!data) return "";
-    console.log("getURLFromID data", data);
+    dev.log("getURLFromID data", data);
     return data.permalink_url;
   } catch (error) {
     console.error("Error getting URL from ID:", error);

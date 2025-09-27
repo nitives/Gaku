@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 export async function FetchHipHopEvents() {
   try {
     const response = await fetch(`/api/soundcloud/events/top50hiphop`);
-    console.log("FetchHipHopEvents | response:", response);
+    dev.log("FetchHipHopEvents | response:", response);
     if (!response.ok) {
       showToast("error", "Failed to fetch hip hop events");
       throw new Error("FetchHipHopEvents | Failed to fetch data");
@@ -17,14 +17,14 @@ export async function FetchHipHopEvents() {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.log("Error | FetchHipHopEvents:", error);
+    dev.log("Error | FetchHipHopEvents:", error);
   }
 }
 
 export async function FetchNewHotEvents() {
   try {
     const response = await fetch(`/api/soundcloud/events/new&hot`);
-    console.log("FetchNewHotEvents | response:", response);
+    dev.log("FetchNewHotEvents | response:", response);
     if (!response.ok) {
       showToast("error", "Failed to fetch new & hot events");
       throw new Error("FetchNewHotEvents | Failed to fetch data");
@@ -32,7 +32,7 @@ export async function FetchNewHotEvents() {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.log("Error | FetchNewHotEvents:", error);
+    dev.log("Error | FetchNewHotEvents:", error);
   }
 }
 
@@ -46,7 +46,7 @@ export async function FetchSearch(query: string) {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.log("Error | FetchSearch:", error);
+    dev.log("Error | FetchSearch:", error);
   }
 }
 
@@ -80,7 +80,7 @@ export async function fetchUserData(profileUrl: string) {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching users data | fetchUserData:", error);
+    dev.error("Error fetching users data | fetchUserData:", error);
   }
 }
 
@@ -90,20 +90,20 @@ export async function fetchLyrics(title: string, artist: string) {
     if (artist.toLowerCase() === "octobersveryown") {
       artist = "Drake";
     }
-    console.log(`fetchLyrics | artist and title:", ${artist} - ${title})`);
+    dev.log(`fetchLyrics | artist and title:", ${artist} - ${title})`);
     const response = await fetch(
       `https://lyrix.vercel.app/getLyricsByName/${artist}/${title}/?remix=false`
     );
-    console.log("fetchLyrics | response:", response);
+    dev.log("fetchLyrics | response:", response);
     if (!response.ok) {
       showToast("error", "Failed to fetch lyrics");
       throw new Error("Failed to fetch lyrics");
     }
     const data = await response.json();
-    console.log("API fetchLyrics | data:", data);
+    dev.log("API fetchLyrics | data:", data);
     return data;
   } catch (error) {
-    console.error("Error fetching lyrics | fetchLyrics:", error);
+    dev.error("Error fetching lyrics | fetchLyrics:", error);
   }
 }
 
@@ -117,16 +117,16 @@ export async function fetchRichSyncLyrics(title: string, artist: string) {
     const response = await fetch(
       `/api/lyrics/get?artist=${artist}&track=${title}`
     );
-    console.log("fetchRichSyncLyrics | response:", response);
+    dev.log("fetchRichSyncLyrics | response:", response);
     if (!response.ok) {
       showToast("error", "Failed to fetch rich sync lyrics");
       throw new Error("Failed to fetch rich sync lyrics");
     }
     const data = await response.json();
-    console.log("API fetchRichSyncLyrics | data:", data);
+    dev.log("API fetchRichSyncLyrics | data:", data);
     return data;
   } catch (error) {
-    console.error(
+    dev.error(
       "Error fetching rich sync lyrics | fetchRichSyncLyrics:",
       error
     );
@@ -136,7 +136,7 @@ export async function fetchRichSyncLyrics(title: string, artist: string) {
 export const dev = {
   log: (message?: any, ...optionalParams: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
-      console.log(
+      dev.log(
         `%c[LOG]`,
         "color: #9ae517; font-weight: bold",
         message,
@@ -146,7 +146,7 @@ export const dev = {
   },
   info: (message?: any, ...optionalParams: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
-      console.info(
+      dev.info(
         `%c[INFO]`,
         "color: blue; font-weight: bold",
         message,
@@ -156,7 +156,7 @@ export const dev = {
   },
   warn: (message?: any, ...optionalParams: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
-      console.warn(
+      dev.warn(
         `%c[WARN]`,
         "color: orange; font-weight: bold",
         message,
@@ -166,7 +166,7 @@ export const dev = {
   },
   error: (message?: any, ...optionalParams: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
-      console.error(
+      dev.error(
         `%c[ERROR]`,
         "color: red; font-weight: bold",
         message,
@@ -176,7 +176,7 @@ export const dev = {
   },
   debug: (message?: any, ...optionalParams: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
-      console.debug(
+      dev.debug(
         `%c[DEBUG]`,
         "color: purple; font-weight: bold",
         message,

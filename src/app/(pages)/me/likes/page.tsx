@@ -5,6 +5,7 @@ import { Spinner } from "@/components/extra/Spinner";
 import { useQuery } from "@tanstack/react-query";
 import UserLikedSongs from "@/components/main/library/me/UserLikesPage";
 import { TryAgain } from "@/components/extra/TryAgain";
+import { dev } from "@/lib/utils";
 
 export default function UserLikes() {
   const { settings } = useUser();
@@ -21,6 +22,7 @@ export default function UserLikes() {
     retry: false,
     refetchOnWindowFocus: false,
   });
+  dev.log("[USER LIKES] Data:", user);
   if (settings.isLoading)
     return (
       <p className="text-[--systemSecondary] shadow-lg">Loading user data.</p>

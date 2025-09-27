@@ -69,8 +69,6 @@ export const ShelfItem: React.FC<{
     }
   }
 
-  // console.log("ShelfItem", song);
-
   return (
     <ContextMenu
       title={song.title}

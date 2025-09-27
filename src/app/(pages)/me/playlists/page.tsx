@@ -4,10 +4,10 @@ import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { Spinner } from "@/components/extra/Spinner";
 import { TryAgain } from "@/components/extra/TryAgain";
 import { useQuery } from "@tanstack/react-query";
+import { dev } from "@/lib/utils";
 
 export default function UserPlaylist() {
   const { settings } = useUser();
-  console.log("Settings", settings);
   const {
     data: user,
     isLoading,
@@ -21,6 +21,7 @@ export default function UserPlaylist() {
     retry: false,
     refetchOnWindowFocus: false,
   });
+  dev.log("[USER PLAYLIST] Data:", user);
   if (!settings)
     return <p className="text-[--systemSecondary]">Loading user data.</p>;
   if (isLoading) return <Spinner />;
@@ -33,7 +34,6 @@ export default function UserPlaylist() {
       />
     );
   }
-  console.log("User", user);
 
   return (
     <div>

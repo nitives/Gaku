@@ -64,8 +64,8 @@ export const LibraryItem = ({
 }: {
   item: LibraryItem;
   allItems: LibraryItem[];
-  ref?: React.Ref<HTMLLIElement>;
-} & React.HTMLAttributes<HTMLLIElement>) => {
+  ref?: React.Ref<HTMLElement>;
+} & React.HTMLAttributes<HTMLElement>) => {
   const { setQueue } = useAudioStore();
 
   const handlePlay = async () => {

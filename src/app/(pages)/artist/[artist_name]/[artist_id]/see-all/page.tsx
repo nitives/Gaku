@@ -11,6 +11,7 @@ import { useUser } from "@/hooks/useUser";
 import { LikeFilledIcon } from "@/components/player/new/PlayerBar";
 import ContextMenu from "@/components/contextmenus/ContextMenu";
 import { Song } from "@/lib/audio/types";
+import { dev } from "@/lib/utils";
 
 // Fetch artist data with all tracks
 async function fetchArtistAllTracks(artistId: string, _artistName: string) {
@@ -77,6 +78,8 @@ export default function SeeAllPage() {
     refetchOnReconnect: false,
   });
 
+  dev.log("[ARTIST ALL TRACKS] Data:", artistData);
+
   if (soundCloudOfficial.includes(artist_name)) {
     return (
       <p className="text-[--systemSecondary]">
@@ -84,8 +87,6 @@ export default function SeeAllPage() {
       </p>
     );
   }
-
-  console.log("Artist Data:", artistData);
 
   if (isLoading) {
     return <Spinner />;

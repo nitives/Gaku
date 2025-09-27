@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import SearchResults from "@/components/navigation/search/page/SearchResults";
 import { TryAgain } from "@/components/extra/TryAgain";
 import { Suspense } from "react";
+import { dev } from "@/lib/utils";
 
 const fetchSoundCloudResults = async (query: string | null) => {
   if (!query) return null;
@@ -41,6 +42,7 @@ function SearchContent() {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
+  dev.log("[SEARCH] Data:", data);
 
   if (!searchParams) return null;
 

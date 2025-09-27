@@ -5,6 +5,7 @@ import { SoundCloudKit } from "@/lib/audio/fetchers";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { TryAgain } from "@/components/extra/TryAgain";
+import { dev } from "@/lib/utils";
 
 export default function AlbumPage() {
   const { album_id } = useParams() as {
@@ -25,6 +26,7 @@ export default function AlbumPage() {
     retry: false,
     refetchOnWindowFocus: false,
   });
+  dev.log("[ALBUM] Data:", album);
   if (!album_id)
     return <p className="text-[--systemSecondary]">No album found.</p>;
   if (isLoading) return <Spinner />;

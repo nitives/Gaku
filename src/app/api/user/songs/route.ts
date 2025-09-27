@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
+import { dev } from "@/lib/utils";
 
 // 1) Create or find local user
 async function getOrCreateUser(userId: string, email: string) {
@@ -120,10 +121,10 @@ export async function DELETE(req: Request) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.log("DELETE | userId", userId);
+    dev.log("DELETE | userId", userId);
 
     const { soundcloudId } = await req.json();
-    console.log("DELETE | soundcloudId", soundcloudId);
+    dev.log("DELETE | soundcloudId", soundcloudId);
     if (!soundcloudId) {
       return NextResponse.json(
         { error: "SoundCloud ID is required" },
@@ -132,7 +133,7 @@ export async function DELETE(req: Request) {
     }
 
     const library = await getOrCreateLibrary(userId);
-    console.log("DELETE | library", library);
+    dev.log("DELETE | library", library);
 
     await prisma.library.update({
       where: { id: library.id },

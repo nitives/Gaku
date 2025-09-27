@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { Spinner } from "@/components/extra/Spinner";
 import { TryAgain } from "@/components/extra/TryAgain";
 import { Song as SongComponent } from "@/components/main/song/Song";
+import { dev } from "@/lib/utils";
 
 export default function Song() {
   const { song_title, song_id } = useParams() as {
@@ -23,6 +24,7 @@ export default function Song() {
     retry: false,
     refetchOnWindowFocus: false,
   });
+  dev.log("[SONG] Data:", song);
 
   if (!song_id)
     return <p className="text-[--systemSecondary]">No song found.</p>;

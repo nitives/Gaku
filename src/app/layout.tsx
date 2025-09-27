@@ -14,6 +14,7 @@ import "../styles/contexifyGaku.css";
 import "../styles/playercontrols.css";
 import "./global.css";
 import Script from "next/script";
+import { conf } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Gaku",
@@ -34,6 +35,8 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+const USE_PERSONAL_TOKEN = conf().APPLE.MUSIC.USE_PERSONAL_TOKEN;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -49,9 +52,11 @@ export default function RootLayout({
             src="https://js-cdn.music.apple.com/musickit/v3/musickit.js"
             strategy="afterInteractive"
           />
-          <Script src="./apple-music.js" strategy="afterInteractive" async />
+          {!USE_PERSONAL_TOKEN && (
+            <Script src="/apple-music.js" strategy="afterInteractive" async />
+          )}
           <Script
-            src="./chromium-lyrics-style-fix.js"
+            src="/chromium-lyrics-style-fix.js"
             strategy="afterInteractive"
           />
           <link rel="manifest" href="/manifest.json" />
