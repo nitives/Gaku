@@ -25,8 +25,6 @@ import { LyricIcon } from "@/components/icons/LyricIcon";
 import { Options } from "@/components/icons/Options";
 import { useThemedPlaceholder } from "@/lib/utils/themedPlaceholder";
 import { SoundCloudKit } from "@/lib/audio/fetchers";
-// import { AppleLyrics } from "../lyrics/AppleLyrics";
-// import { BackgroundRender } from "@applemusic-like-lyrics/react";
 
 // Fix document not defined error
 const AppleLyrics = dynamic(
