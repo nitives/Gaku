@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence, MotionProps } from "motion/react";
+import { motion, AnimatePresence, MotionProps } from "framer-motion";
 import { LucideFullscreen } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useAudioStore } from "@/context/AudioContext";
@@ -19,6 +19,8 @@ import {
 } from "@/components/controls/Controls";
 import { showToast } from "@/hooks/useToast";
 import Link from "next/link";
+import { isIPhone } from "@/hooks/useIsiPhone";
+import { VibrantText } from "../vibrant-text";
 
 // Using dynamic imports with loading strategy to optimize performance
 const AppleLyrics = dynamic(
@@ -40,7 +42,7 @@ const BackgroundRender = dynamic(
     ssr: false,
   }
 );
- 
+
 const FullScreenButton = () => {
   const setFullscreen = useAudioStore((state) => state.setFullscreen);
   return (
@@ -105,12 +107,14 @@ const Screen = () => {
 
   const controlsBaseProps = {
     className:
-      "controlsBase fixed inset-0 flex flex-col bg-black text-white z-[110] standalone:pt-10 !visible !pointer-events-auto",
+      "controlsBase fixed inset-0 flex flex-col bg-black text-white z-[110] max-sm:pt-10 !visible !pointer-events-auto",
     initial: { opacity: 0, filter: "blur(10px)" },
     animate: { opacity: 1, filter: "blur(0px)" },
     exit: { opacity: 0, filter: "blur(10px)" },
     transition: { duration: 0.3, ease: "easeInOut" },
   } satisfies MotionProps & { className: string };
+
+  const isIPhoneDevice = isIPhone();
 
   return (
     <AnimatePresence>
@@ -138,10 +142,10 @@ const Screen = () => {
               <motion.div
                 layout="position"
                 layoutId="playerImage"
-                className="relative max-sm:scale-[0.8] max-sm:translate-x-[-1rem] max-sm:translate-y-[-1rem]"
+                className="relative max-sm:scale-75 rounded-[2rem] overflow-hidden"
               >
                 <Image
-                  className="rounded-[1rem] blur-md opacity-25 translate-y-1 select-none"
+                  className="rounded-[1rem] blur-md opacity-25 select-none"
                   src={
                     currentSong?.artwork?.hdUrl ||
                     currentSong?.artwork?.url ||
@@ -199,7 +203,9 @@ const Screen = () => {
                           }
                         }}
                       >
-                        {currentSong?.artist.name}
+                        <VibrantText className="text-sm text-left text-white/75 cursor-pointer hover:underline">
+                          {currentSong?.artist.name || "Unknown Artist"}
+                        </VibrantText>
                       </Link>
                     </motion.h2>
                   </motion.div>
@@ -217,9 +223,9 @@ const Screen = () => {
                   className="flex-col mt-4 flex items-center w-full gap-2"
                 >
                   <div className="flex w-full items-center gap-2">
-                    <span className="text-xs text-white/75 select-none">
+                    <VibrantText className="text-xs select-none">
                       {formatTime(currentTime)}
-                    </span>
+                    </VibrantText>
                     <DurationSlider
                       duration={duration}
                       currentTime={currentTime}
@@ -242,9 +248,13 @@ const Screen = () => {
                         }
                       }}
                     >
-                      <span id="timeLeft" data-showing="total">
-                        {formatTime(duration)}
-                      </span>
+                      <VibrantText
+                        id="timeLeft"
+                        data-showing="total"
+                        className="text-xs select-none"
+                      >
+                        {formatTime(duration) || "--:--"}
+                      </VibrantText>
                     </span>
                   </div>
                   <div>
@@ -255,12 +265,14 @@ const Screen = () => {
                       onPrev={previousSong}
                     />
                   </div>
-                  <div className="flex items-center w-full justify-between">
-                    <VolumeSlider
-                      onChange={handleVolumeChange}
-                      volume={volume}
-                    />
-                  </div>
+                  {!isIPhoneDevice && (
+                    <div className="flex items-center w-full justify-between">
+                      <VolumeSlider
+                        onChange={handleVolumeChange}
+                        volume={volume}
+                      />
+                    </div>
+                  )}
                 </motion.div>
               </motion.div>
             </motion.span>

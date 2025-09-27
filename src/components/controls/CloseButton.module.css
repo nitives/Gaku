@@ -1,4 +1,8 @@
 .closeButton {
+  --closeButton-vibrant-saturation: saturate(125%);
+  --closeButton-vibrant-brightness: brightness(125%);
+  backdrop-filter: var(--closeButton-vibrant-saturation)
+    var(--closeButton-vibrant-brightness);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -9,7 +13,6 @@
   margin: 20px;
   padding: 9px;
   background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
   transition: 0.125s opacity ease-out, 0.125s transform ease-out,
     0.125s background-color ease-out;
   border-radius: 50%;

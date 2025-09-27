@@ -7,7 +7,7 @@ import style from "@/components/main/library/Library.module.css";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { SoundCloudTrack } from "@/lib/types/soundcloud";
 import { dev } from "@/lib/utils";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function UserLikedSongs({ user }: { user: any }) {
   const { isLoading, error } = useUser();

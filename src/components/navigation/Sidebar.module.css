@@ -19,6 +19,14 @@
   z-index: var(--z-web-chrome);
 }
 
+@media not all and (min-width: 640px) {
+  .Sidebar {
+    width: 0px;
+    border: none !important;
+    box-shadow: none;
+  }
+}
+
 /* SidebarHeader */
 .SidebarHeader {
   width: auto;

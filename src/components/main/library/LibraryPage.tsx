@@ -6,7 +6,7 @@ import type { SoundCloudTrack } from "@/lib/types/soundcloud";
 import { Spinner } from "@/components/extra/Spinner";
 import { LibraryItem } from "@/components/main/library/LibraryItem";
 import style from "@/components/main/library/Library.module.css";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 export default function LibrarySongs() {

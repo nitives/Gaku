@@ -7,7 +7,7 @@ import { AppleKit } from "@/lib/audio/fetchers";
 import { GakuStorage } from "@/lib/utils/storage";
 import { dev } from "@/lib/utils";
 import { QueueView } from "./QueueView";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // SegmentControl component for switching views
 const SegmentControl = ({
@@ -18,12 +18,12 @@ const SegmentControl = ({
   onChange: (view: "lyrics" | "queue") => void;
 }) => {
   return (
-    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 bg-neutral-600/25 backdrop-blur-lg rounded-full p-1 flex opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 bg-white/10 vibrant rounded-full p-1 flex opacity-0 group-hover:opacity-100 transition-opacity duration-300">
       <button
         onClick={() => onChange("lyrics")}
         className={`px-4 py-1 rounded-full text-sm font-medium transition-colors ${
           activeView === "lyrics"
-            ? "bg-neutral-300/15 text-white"
+            ? "bg-white/15 text-white vibrant"
             : "text-white/60 hover:text-white"
         }`}
       >
@@ -33,7 +33,7 @@ const SegmentControl = ({
         onClick={() => onChange("queue")}
         className={`px-4 py-1 rounded-full text-sm font-medium transition-colors ${
           activeView === "queue"
-            ? "bg-neutral-300/15 text-white"
+            ? "bg-white/15 text-white vibrant"
             : "text-white/60 hover:text-white"
         }`}
       >

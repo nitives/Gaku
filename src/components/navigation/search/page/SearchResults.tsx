@@ -193,6 +193,11 @@ function SongCard({
   const THEMED_DEFAULT_IMAGE = useThemedPlaceholder();
   const artwork = item.artwork_url || THEMED_DEFAULT_IMAGE;
   const artist = item.publisher_metadata?.artist || item.user?.username;
+  const router = useRouter();
+
+  const openSongLink = () => {
+    router.push(`/song/${item.title}/${item.id}`);
+  };
 
   return (
     <ContextMenu
@@ -200,6 +205,7 @@ function SongCard({
       as={"li"}
       type="song"
       title={item.title}
+      onClick={openSongLink}
       itemId={String(item.id)}
     >
       <button onClick={onPlay} className={styles.songArtworkWrapper}>

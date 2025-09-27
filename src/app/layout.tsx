@@ -8,11 +8,12 @@ import { Audio } from "@/components/player/Audio";
 import { ClerkProvider } from "@clerk/nextjs";
 import { contextMenus } from "@/components/contextmenus/contextMenus";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { UserDataProvider } from "@/providers/UserDataProvider";
 import "react-contexify/dist/ReactContexify.css";
 import "../styles/contexifyGaku.css";
 import "../styles/playercontrols.css";
 import "./global.css";
-import { UserDataProvider } from "@/providers/UserDataProvider";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Gaku",
@@ -44,7 +45,15 @@ export default function RootLayout({
     >
       <html lang="en" suppressHydrationWarning={true}>
         <head>
-          <script src="./chromium-lyrics-style-fix.js" defer />
+          <Script
+            src="https://js-cdn.music.apple.com/musickit/v3/musickit.js"
+            strategy="afterInteractive"
+          />
+          <Script src="./apple-music.js" strategy="afterInteractive" async />
+          <Script
+            src="./chromium-lyrics-style-fix.js"
+            strategy="afterInteractive"
+          />
           <link rel="manifest" href="/manifest.json" />
           <link
             rel="preload"
@@ -280,8 +289,8 @@ export default function RootLayout({
                   enableSystem
                 >
                   <Content>
-                  {children}
-                  {contextMenus}
+                    {children}
+                    {contextMenus}
                   </Content>
                   <Toaster
                     position="bottom-center"

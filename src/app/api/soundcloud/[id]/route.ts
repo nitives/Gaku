@@ -6,7 +6,10 @@ import { json, error, withErrorHandling } from "@/lib/api/respond";
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(
-  async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+  async (
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+  ) => {
     const { id } = await params;
 
     // Use nextUrl for robust query parsing in Next 15

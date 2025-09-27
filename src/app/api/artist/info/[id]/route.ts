@@ -9,10 +9,10 @@ export const GET = withErrorHandling(
       Host: "api-v2.soundcloud.com",
       Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,
     } as Record<string, string>;
-    const res = await fetch(
-      `https://api-v2.soundcloud.com/users/${id}`,
-      { headers, cache: "no-store" }
-    );
+    const res = await fetch(`https://api-v2.soundcloud.com/users/${id}`, {
+      headers,
+      cache: "no-store",
+    });
     if (!res.ok) return error("Failed to fetch artist data", 502);
     return json(await res.json());
   }

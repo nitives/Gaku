@@ -4,6 +4,7 @@ import { fetchM3U8ForSong, fetchSongData } from "@/lib/audio/fetchers";
 import { showToast } from "@/hooks/useToast";
 import { loadState, saveState } from "@/lib/audio/persist";
 import { reseedFromTime, shuffleIndices } from "@/lib/audio/shuffle";
+import ReactPlayer from "react-player";
 
 type RepeatMode = "off" | "one" | "all";
 
@@ -13,7 +14,7 @@ interface AudioState {
   currentIndex: number; // index into queue
   queue: Song[];
   isPlaying: boolean;
-  playerRef: React.RefObject<HTMLMediaElement | null> | null;
+  playerRef: React.RefObject<ReactPlayer | null> | null;
 
   // Timing/state
   currentTime: number;
@@ -75,7 +76,7 @@ interface AudioState {
   previousSong: () => Promise<void>;
   setIsPlaying: (playing: boolean) => void;
   prefetchNextN: (n: number) => Promise<void>;
-  setPlayerRef: (ref: React.RefObject<HTMLMediaElement | null>) => void;
+  setPlayerRef: (ref: React.RefObject<ReactPlayer | null>) => void;
   setAnimatedURL: (url: string) => void;
 
   setDuration: (duration: number) => void;
@@ -151,6 +152,8 @@ export const useAudioStore = create<AudioState>(
     },
 
     setPlayerRef: (ref) => set({ playerRef: ref }),
+
+    _mediaEl: undefined as unknown as () => HTMLMediaElement | null,
 
     // New Public API
     playNow: async (songs, startIndex = 0) => {
@@ -244,13 +247,15 @@ export const useAudioStore = create<AudioState>(
 
       // Repeat one
       if (repeat === "one") {
-        const player = get().playerRef?.current;
-        if (player) {
+        const inst = get().playerRef?.current as any;
+        const el: HTMLMediaElement | null =
+          inst?.getInternalPlayer?.() ?? inst?.el ?? inst?.player ?? null;
+        if (el) {
           try {
-            player.currentTime = 0;
+            el.currentTime = 0;
           } catch {}
           try {
-            await player.play?.();
+            await el.play?.();
           } catch {}
           set({ isPlaying: true, currentTime: 0, fineProgress: 0 });
         } else {
@@ -330,17 +335,20 @@ export const useAudioStore = create<AudioState>(
     },
 
     previous: async () => {
-      const { playerRef, currentIndex, history } = get();
-      const player = playerRef?.current;
-      // If media has progressed >3s, just seek to start
-      if (player) {
-        const t = player.currentTime || 0;
+      const inst = get().playerRef?.current as any;
+      const el: HTMLMediaElement | null =
+        inst?.getInternalPlayer?.() ?? inst?.el ?? inst?.player ?? null;
+
+      // If media progressed >3s, just restart track
+      if (el) {
+        const t = el.currentTime || 0;
         if (t > 3) {
-          player.currentTime = 0;
+          el.currentTime = 0;
           set({ currentTime: 0, fineProgress: 0 });
           return;
         }
       }
+      const { history, currentIndex } = get();
       if (history.length > 0) {
         const last = history[history.length - 1];
         set({ history: history.slice(0, -1) });
@@ -356,14 +364,17 @@ export const useAudioStore = create<AudioState>(
 
     // Note: `seek` expects seconds for backward-compatibility with existing UI
     seek: (seconds: number) => {
-      const player = get().playerRef?.current;
-      if (player) {
+      const inst = get().playerRef?.current as any;
+      const el: HTMLMediaElement | null =
+        inst?.getInternalPlayer?.() ?? inst?.el ?? inst?.player ?? null;
+      if (el) {
         try {
-          player.currentTime = seconds;
+          el.currentTime = seconds;
         } catch {}
         set({ currentTime: seconds, fineProgress: seconds });
       }
     },
+
     // ms-based API for future UI
     seekMs: (ms: number) => {
       const seconds = ms / 1000;
@@ -504,15 +515,17 @@ export const useAudioStore = create<AudioState>(
     },
 
     startFineProgressUpdates: () => {
-      const { rafId, playerRef, isPlaying } = get();
-      if (isPlaying && playerRef && playerRef.current && rafId === null) {
+      const { rafId, isPlaying } = get();
+      if (isPlaying && rafId === null) {
         const update = () => {
-          const player = get().playerRef?.current;
-          if (!isPlaying || !player) {
+          const inst = get().playerRef?.current as any;
+          const el: HTMLMediaElement | null =
+            inst?.getInternalPlayer?.() ?? inst?.el ?? inst?.player ?? null;
+          if (!get().isPlaying || !el) {
             get().stopFineProgressUpdates();
             return;
           }
-          const t = player.currentTime || 0;
+          const t = el.currentTime || 0;
           set({ currentTime: t, fineProgress: t });
           const newRafId = requestAnimationFrame(update);
           set({ rafId: newRafId });
@@ -539,7 +552,30 @@ export const useAudioStore = create<AudioState>(
     applyPlaybackRate: () => {},
     applyVolume: () => {},
     scheduleSuspend: () => {},
-    initializeEngineIfNeeded: () => {},
+    initializeEngineIfNeeded: () => {
+      const { engineReady, playerRef } = get();
+      if (engineReady) return;
+      const inst = playerRef?.current as any;
+      const media: HTMLMediaElement | null =
+        inst?.getInternalPlayer?.() ?? inst?.el ?? inst?.player ?? null;
+      if (!media) return;
+      try {
+        const Ctx =
+          (window as any).AudioContext || (window as any).webkitAudioContext;
+        const ctx = new Ctx();
+        const source = ctx.createMediaElementSource(media);
+        const gain = ctx.createGain();
+        source.connect(gain).connect(ctx.destination);
+        set({
+          audioCtx: ctx,
+          mediaNode: source,
+          gainNode: gain,
+          engineReady: true,
+        });
+        (get() as any).applyVolume?.();
+        (get() as any).applyPlaybackRate?.();
+      } catch {}
+    },
   })
 );
 
@@ -566,10 +602,10 @@ const attachHelpers = () => {
   (useAudioStore.getState() as Store).applyPlaybackRate = () => {
     const { playerRef, playbackRate } = get();
     try {
-      const internal = playerRef?.current;
-      if (internal && typeof (internal as any).playbackRate !== "undefined") {
-        (internal as HTMLMediaElement).playbackRate = playbackRate;
-      }
+      const inst = playerRef?.current as any;
+      const el: HTMLMediaElement | null =
+        inst?.getInternalPlayer?.() ?? inst?.el ?? inst?.player ?? null;
+      if (el) el.playbackRate = playbackRate;
     } catch {}
   };
 
@@ -626,12 +662,17 @@ const attachHelpers = () => {
   (useAudioStore.getState() as Store).initializeEngineIfNeeded = () => {
     const { engineReady, playerRef } = get();
     if (engineReady) return;
-    const media = playerRef?.current;
+
+    const inst = playerRef?.current as any;
+    const media: HTMLMediaElement | null =
+      inst?.getInternalPlayer?.() ?? inst?.el ?? inst?.player ?? null;
+
     if (!media) return;
     try {
-      const ctx = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
-      const source = ctx.createMediaElementSource(media as HTMLMediaElement);
+      const Ctx =
+        (window as any).AudioContext || (window as any).webkitAudioContext;
+      const ctx = new Ctx();
+      const source = ctx.createMediaElementSource(media);
       const gain = ctx.createGain();
       source.connect(gain).connect(ctx.destination);
       set({
@@ -640,11 +681,9 @@ const attachHelpers = () => {
         gainNode: gain,
         engineReady: true,
       });
-      (useAudioStore.getState() as Store).applyVolume();
-      (useAudioStore.getState() as Store).applyPlaybackRate();
-    } catch (e) {
-      // If creation fails (e.g., user gesture missing), leave engine uninitialized
-    }
+      (get() as any).applyVolume?.();
+      (get() as any).applyPlaybackRate?.();
+    } catch {}
   };
 };
 

@@ -2,7 +2,7 @@ import React from "react";
 import style from "./Controls.module.css";
 import { IoPlay, IoPlayBack, IoPlayForward } from "react-icons/io5";
 import { PiPauseFill } from "react-icons/pi";
-import { motion, MotionProps } from "motion/react";
+import { motion, MotionProps } from "framer-motion";
 import { useAudioStore } from "@/context/AudioContext";
 
 export const Controls = () => {

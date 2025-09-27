@@ -1,13 +1,21 @@
-import { json, error, withErrorHandling } from "@/lib/api/respond";
 import { conf } from "@/lib/config";
-
-const APPLE_AUTH = conf().APPLE.MUSIC.AUTH;
+import { json, error, withErrorHandling } from "@/lib/api/respond";
+import { AppleKit } from "@/lib/apple/kit";
 
 export const dynamic = "force-dynamic";
 
+const USE_PERSONAL_TOKEN = conf().APPLE.MUSIC.USE_PERSONAL_TOKEN;
+const APPLE_AUTH = conf().APPLE.MUSIC.AUTH;
+
 export const GET = withErrorHandling(
-  async (request: Request, { params }: { params: Promise<{ query: string }> }) => {
-    if (!APPLE_AUTH) return error("Missing APPLE_AUTH", 500);
+  async (
+    request: Request,
+    { params }: { params: Promise<{ query: string }> }
+  ) => {
+    const devToken = USE_PERSONAL_TOKEN
+      ? APPLE_AUTH
+      : await AppleKit.createAppleDevToken();
+    if (!devToken) return error("Missing APPLE_AUTH", 500);
     const { query } = await params;
     if (!query) return error("Query parameter is required", 400);
     const { searchParams } = new URL(request.url);
@@ -19,8 +27,8 @@ export const GET = withErrorHandling(
       )}&types=${type}`,
       {
         headers: {
+          Authorization: `Bearer ${devToken}`,
           Origin: "https://music.apple.com",
-          Authorization: `Bearer ${APPLE_AUTH}`,
         },
         cache: "no-store",
       }
@@ -36,8 +44,8 @@ export const GET = withErrorHandling(
       `https://amp-api.music.apple.com/v1/catalog/us/albums/${albumId}?l=en-US&extend=editorialArtwork%2CeditorialVideo%2CextendedAssetUrls%2Coffers%2CtrackCount%2Ctags`,
       {
         headers: {
+          Authorization: `Bearer ${devToken}`,
           Origin: "https://music.apple.com",
-          Authorization: `Bearer ${APPLE_AUTH}`,
         },
         cache: "no-store",
       }

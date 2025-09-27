@@ -21,7 +21,8 @@ const Artwork: React.FC<ArtworkProps> = ({ artworkUrl, altText, onClick }) => {
           src={artworkUrl || PLACEHOLDER_IMAGE}
           alt={altText}
           fill
-          // layout="fill"
+          style={{ userSelect: "none" }}
+          draggable={false}
           objectFit="cover"
           placeholder="blur"
           blurDataURL={PLACEHOLDER_IMAGE}

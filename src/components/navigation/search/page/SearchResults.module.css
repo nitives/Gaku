@@ -20,6 +20,9 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  @media (max-width: 640px) {
+    flex-direction: column;
+  }
 }
 
 /* Card styling */
@@ -193,6 +196,9 @@
   height: auto;
   margin-block: auto;
   max-width: 175px;
+  @media (max-width: 640px) {
+    max-width: calc(100% - var(--SearchCardPadding));
+  }
   & span {
     font-size: calc(0.75rem * var(--figmaMultipler));
     font-weight: 500;
@@ -232,7 +238,7 @@
 .albumCard,
 .songCard {
   position: relative;
-  background-color: hsla(0, 0%, 0%, 0.1);
+  background-color: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
   text-align: left;
   &:after {
     border-radius: inherit;

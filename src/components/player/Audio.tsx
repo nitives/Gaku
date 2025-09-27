@@ -1,10 +1,11 @@
 "use client";
 import { useAudioStore } from "@/context/AudioContext";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
 
+type PlayerRef = ReactPlayer | null;
+
 export const Audio = () => {
-  // Render only after client mounts to avoid hydration mismatches
   const [mounted, setMounted] = useState(false);
   const {
     currentSong,
@@ -19,16 +20,28 @@ export const Audio = () => {
     playbackRate,
     repeat,
   } = useAudioStore();
-  const playerRef = useRef<HTMLMediaElement>(null);
+  const playerRef = useRef<PlayerRef>(null);
+
+  const mediaEl = useCallback((): HTMLMediaElement | null => {
+    const inst = playerRef.current as ReactPlayer | null;
+    const anyInst = inst as unknown as {
+      getInternalPlayer?: () => any;
+      el?: any;
+      player?: any;
+    } | null;
+
+    const maybe =
+      anyInst?.getInternalPlayer?.() ?? anyInst?.el ?? anyInst?.player ?? null;
+
+    return maybe as unknown as HTMLMediaElement | null;
+  }, []);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    setPlayerRef(playerRef);
-    // Initialize Web Audio engine lazily once the internal element exists
-    // This should be triggered after a user gesture causes playback
+    setPlayerRef(playerRef as any);
     const t = setTimeout(() => {
       try {
         useAudioStore.getState().initializeEngineIfNeeded?.();
@@ -57,77 +70,100 @@ export const Audio = () => {
       ],
     });
 
-    navigator.mediaSession.setActionHandler("play", () => {
-      setIsPlaying(true);
-    });
-    navigator.mediaSession.setActionHandler("pause", () => {
-      setIsPlaying(false);
-    });
-    navigator.mediaSession.setActionHandler("nexttrack", () => {
-      nextSong();
-    });
-    navigator.mediaSession.setActionHandler("previoustrack", () => {
-      previousSong();
-    });
+    navigator.mediaSession.setActionHandler("play", () => setIsPlaying(true));
+    navigator.mediaSession.setActionHandler("pause", () => setIsPlaying(false));
+    navigator.mediaSession.setActionHandler("nexttrack", () => nextSong());
+    navigator.mediaSession.setActionHandler("previoustrack", () =>
+      previousSong()
+    );
     navigator.mediaSession.setActionHandler("seekto", (details) => {
-      if (playerRef.current && details.seekTime != null) {
-        playerRef.current.currentTime = details.seekTime;
-      }
+      const el = mediaEl();
+      if (el && details.seekTime != null) el.currentTime = details.seekTime;
     });
+
     const updatePositionState = () => {
       try {
-        const player = playerRef.current;
-        if (!player) return;
+        const el = mediaEl();
+        if (!el) return;
+
         let d =
           typeof duration === "number" && isFinite(duration) && duration > 0
             ? duration
-            : player.duration || 0;
+            : el.duration || 0;
         if (!isFinite(d) || d < 0) d = 0;
-        // Current playback position
-        let pos = player.currentTime || 0;
+
+        let pos = el.currentTime || 0;
         if (!isFinite(pos) || pos < 0) pos = 0;
-        // If duration is unknown/zero, force position to 0 to satisfy API
         if (d <= 0) pos = 0;
-        // Otherwise clamp within [0, d]
         else if (pos > d) pos = d;
 
         navigator.mediaSession.setPositionState({
           duration: d,
-          playbackRate: player.playbackRate ?? 1,
+          playbackRate: el.playbackRate ?? 1,
           position: pos,
         });
-      } catch {
-        // Swallow MediaSession errors (e.g., during track transitions)
-      }
+      } catch {}
     };
-    const positionUpdateInterval = setInterval(updatePositionState, 1000);
-    return () => {
-      clearInterval(positionUpdateInterval);
-    };
-  }, [currentSong, isPlaying, duration, nextSong, previousSong, setIsPlaying]);
 
-  // Avoid rendering on the server or without a valid URL to keep SSR and CSR output consistent
+    const positionUpdateInterval = setInterval(updatePositionState, 1000);
+    return () => clearInterval(positionUpdateInterval);
+  }, [
+    currentSong,
+    isPlaying,
+    duration,
+    nextSong,
+    previousSong,
+    setIsPlaying,
+    mediaEl,
+  ]);
+
   if (!mounted || !currentSong?.src) return null;
 
   return (
     <ReactPlayer
-      ref={(player) => {
-        playerRef.current = player;
-      }}
-      src={currentSong?.src}
+      ref={playerRef}
+      /* ReactPlayer expects `url`, not `src` */
+      url={currentSong.src}
       playing={isPlaying}
       loop={repeat === "one"}
       onEnded={nextSong}
       volume={muted ? 0 : volume}
       playbackRate={playbackRate}
-      onTimeUpdate={() =>
-        useAudioStore
-          .getState()
-          .setCurrentTime(playerRef.current?.currentTime ?? 0)
-      }
-      onDurationChange={() =>
-        useAudioStore.getState().setDuration(playerRef.current?.duration ?? 0)
-      }
+      /* onProgress fires ~ every second with playedSeconds */
+      onProgress={(state: any) => {
+        if (typeof state.playedSeconds === "number") {
+          useAudioStore.getState().setCurrentTime(state.playedSeconds);
+        } else {
+          const t = mediaEl()?.currentTime ?? 0;
+          useAudioStore.getState().setCurrentTime(t);
+        }
+      }}
+      /* onDuration gives total seconds once known */
+      onDuration={(d: number) => {
+        if (typeof d === "number" && isFinite(d)) {
+          useAudioStore.getState().setDuration(d);
+        }
+      }}
+      onReady={() => {
+        try {
+          useAudioStore.getState().initializeEngineIfNeeded?.();
+        } catch {}
+      }}
+      onPlay={() => setIsPlaying(true)}
+      onPause={() => setIsPlaying(false)}
+      onError={(e) => {
+        // eslint-disable-next-line no-console
+        console.error("ReactPlayer error", e, currentSong);
+      }}
+      config={{
+        file: {
+          attributes: {
+            preload: "metadata",
+            crossOrigin: "anonymous",
+          },
+          forceAudio: true,
+        },
+      }}
       width="0px"
       height="0px"
     />

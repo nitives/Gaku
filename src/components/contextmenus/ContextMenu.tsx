@@ -10,6 +10,7 @@ type ContextMenuProps = {
   as?: React.ElementType;
   className?: string;
   title?: string;
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
 };
 
 export const handleContextMenu = (
@@ -31,6 +32,7 @@ const ContextMenu = ({
   as: Element = "div",
   className = "",
   title = "",
+  onClick,
 }: ContextMenuProps) => {
   let menuId: string;
   switch (type) {
@@ -53,12 +55,13 @@ const ContextMenu = ({
     <Element
       key={itemId}
       ref={ref}
+      onClick={onClick}
       {...(title ? { title } : {})} // dont add title if it's empty
       onContextMenu={(e: React.MouseEvent<HTMLElement>) => {
-      e.preventDefault();
-      // Pass itemId to the menu
-      dev.log("Context menu |", "type:", type, "id:", itemId);
-      show({ event: e, props: { itemId } });
+        e.preventDefault();
+        // Pass itemId to the menu
+        dev.log("Context menu |", "type:", type, "id:", itemId);
+        show({ event: e, props: { itemId } });
       }}
       className={className}
     >

@@ -12,8 +12,6 @@ import { LikeFilledIcon } from "@/components/player/new/PlayerBar";
 import ContextMenu from "@/components/contextmenus/ContextMenu";
 import { Song } from "@/lib/audio/types";
 
-const soundCloudOfficial = ["music-charts-us"];
-
 // Fetch artist data with all tracks
 async function fetchArtistAllTracks(artistId: string, _artistName: string) {
   const data = (await SoundCloudKit.getData(artistId, "artist", {
@@ -21,6 +19,8 @@ async function fetchArtistAllTracks(artistId: string, _artistName: string) {
   })) as SoundCloudArtist & { allTracks: SoundCloudTrack[] };
   return data;
 }
+
+const soundCloudOfficial = ["music-charts-us"];
 
 // Convert SoundCloud track to Song format
 const convertTrackToSong = (track: SoundCloudTrack): Song => {
@@ -42,7 +42,6 @@ const convertTrackToSong = (track: SoundCloudTrack): Song => {
     metadata: {
       artistName: track.publisher_metadata?.artist || "",
       albumTitle: track.publisher_metadata?.album_title || "",
-      isrc: track.publisher_metadata?.isrc || "",
     },
     artwork: {
       hdUrl: track.artwork_url

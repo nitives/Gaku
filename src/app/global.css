@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   :root {
@@ -127,6 +129,14 @@
     format("woff2-variations");
   font-family: "SF Rounded";
   font-style: normal;
+}
+
+@layer utilities {
+  .vibrant {
+    --vibrant-saturation: saturate(125%);
+    --vibrant-brightness: brightness(125%);
+    backdrop-filter: var(--vibrant-saturation) var(--vibrant-brightness);
+  }
 }
 
 .SFPro {

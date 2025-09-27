@@ -1,7 +1,7 @@
-// app/providers/UserDataProvider.tsx
 "use client";
 import { createContext, useContext, useMemo } from "react";
 import useSWR from "swr";
+import { useUser as useClerkUser } from "@clerk/nextjs";
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((r) => {
@@ -19,30 +19,38 @@ type Ctx = {
 const Ctx = createContext<Ctx>({ loading: true });
 
 export function UserDataProvider({ children }: { children: React.ReactNode }) {
-  // Load in parallel, non-blocking, and only once (shared SWR cache).
+  const { isSignedIn: isLoggedIn } = useClerkUser() || { isSignedIn: false };
+
+  // Only fetch when logged in; when not logged in pass null to SWR to skip fetching.
   const { data: settings, error: settingsErr } = useSWR(
-    "/api/user/settings",
+    isLoggedIn ? "/api/user/settings" : null,
     fetcher,
     {
       suspense: false,
       revalidateOnFocus: false,
     }
   );
-  const { data: songs, error: songsErr } = useSWR("/api/user/songs", fetcher, {
-    suspense: false,
-    revalidateOnFocus: false,
-    dedupingInterval: 15_000, // coalesce repeated mounts
-    keepPreviousData: true,
-  });
+
+  const { data: songs, error: songsErr } = useSWR(
+    isLoggedIn ? "/api/user/songs" : null,
+    fetcher,
+    {
+      suspense: false,
+      revalidateOnFocus: false,
+      dedupingInterval: 15_000,
+      keepPreviousData: true,
+    }
+  );
 
   const value = useMemo<Ctx>(
     () => ({
       settings,
       songs,
-      loading: !settings || !songs,
+      // If not logged in, nothing is loading (we're intentionally not fetching).
+      loading: isLoggedIn ? !settings || !songs : false,
       error: settingsErr || songsErr,
     }),
-    [settings, songs, settingsErr, songsErr]
+    [settings, songs, settingsErr, songsErr, isLoggedIn]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

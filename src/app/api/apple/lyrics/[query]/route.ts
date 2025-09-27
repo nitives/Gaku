@@ -1,15 +1,19 @@
-import { json, error, withErrorHandling } from "@/lib/api/respond";
 import { conf } from "@/lib/config";
+import { json, error, withErrorHandling } from "@/lib/api/respond";
+import { AppleKit } from "@/lib/apple/kit";
 
-const APPLE_AUTH = conf().APPLE.MUSIC.AUTH;
 const USER_TOKEN = conf().APPLE.MUSIC.USER_TOKEN;
+const USE_PERSONAL_TOKEN = conf().APPLE.MUSIC.USE_PERSONAL_TOKEN;
+const APPLE_AUTH = conf().APPLE.MUSIC.AUTH;
 
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(
   async (_req: Request, { params }: { params: Promise<{ query: string }> }) => {
-    if (!APPLE_AUTH) return error("Missing APPLE_AUTH", 500);
-    if (!USER_TOKEN) return error("Missing USER_TOKEN", 500);
+    const devToken = USE_PERSONAL_TOKEN
+      ? APPLE_AUTH
+      : await AppleKit.createAppleDevToken();
+    if (!devToken) return error("Missing APPLE_AUTH", 500);
 
     const { query } = await params;
     const url = new URL(_req.url);
@@ -26,8 +30,8 @@ export const GET = withErrorHandling(
         )}`,
         {
           headers: {
+            Authorization: `Bearer ${devToken}`,
             Origin: "https://music.apple.com",
-            Authorization: `Bearer ${APPLE_AUTH}`,
           },
           cache: "no-store",
         }
@@ -51,8 +55,8 @@ export const GET = withErrorHandling(
         )}&limit=10`,
         {
           headers: {
+            Authorization: `Bearer ${devToken}`,
             Origin: "https://music.apple.com",
-            Authorization: `Bearer ${APPLE_AUTH}`,
           },
           cache: "no-store",
         }
@@ -74,9 +78,9 @@ export const GET = withErrorHandling(
       `https://amp-api.music.apple.com/v1/catalog/us/songs/${songID}/syllable-lyrics`,
       {
         headers: {
-          Origin: "https://music.apple.com",
-          Authorization: `Bearer ${APPLE_AUTH}`,
+          Authorization: `Bearer ${devToken}`,
           "media-user-token": USER_TOKEN,
+          Origin: "https://music.apple.com",
         },
         cache: "no-store",
       }

@@ -12,7 +12,7 @@ import {
   AnimatePresence,
   LayoutGroup,
   MotionProps,
-} from "motion/react";
+} from "framer-motion";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { TitleOverflowAnimator } from "@/components/mobile/TitleOverflowAnimator";
@@ -337,7 +337,7 @@ const ExpandedPlayer = ({
           </motion.span>
         )} */}
         <BackgroundRender
-          fps={30} 
+          fps={30}
           playing={isPlaying}
           style={{
             position: "fixed",
@@ -578,7 +578,8 @@ export const AppleCover = ({
 
   if (isAnimated) {
     return (
-      <div className="select-none" style={squircleStyle}>
+      // did have style={squircleStyle} but it was causing issues with layout shifts
+      <div className="select-none">
         <AnimatedCover
           style={{
             width: imageSize,
@@ -591,7 +592,8 @@ export const AppleCover = ({
   }
 
   return (
-    <div className="select-none" style={squircleStyle}>
+    // did have style={squircleStyle} but it was causing issues with layout shifts
+    <div className="select-none">
       <Image
         className={isDesktop ? "" : ""}
         src={IMAGEHD || PLACEHOLDER_IMAGE}
@@ -635,7 +637,7 @@ export const LyricButton = ({
           ? "rgba(255, 255, 255, 0.1)"
           : "rgba(255, 255, 255, 0.05)",
       }}
-      className="flex items-center justify-center size-8 rounded-full"
+      className="flex items-center justify-center size-8 rounded-full vibrant"
     >
       <LyricIcon className="size-[20px] fill-white" />
     </motion.button>
@@ -655,7 +657,7 @@ export const OptionsButton = ({ onClick }: { onClick: () => void }) => {
       damping: 17,
     },
     className:
-      "flex flex-col items-center rounded-full p-2 justify-center size-8",
+      "flex flex-col items-center rounded-full p-2 justify-center size-8 vibrant",
   } satisfies MotionProps & { className: string };
   return (
     <motion.button
@@ -704,16 +706,14 @@ export const DurationSlider = ({
 
   return (
     <div className="flex items-center gap-2 w-full">
-      <motion.input
+      <input
         ref={sliderRef}
         type="range"
         min={0}
         max={duration || 1}
         value={currentTime}
         onChange={onChange}
-        // whileHover={{ scaleY: 1.5 }}
-        // whileTap={{ scaleY: 0.995 }}
-        className="gaku-slider seek-slider"
+        className="gaku-slider seek-slider vibrant"
       />
     </div>
   );
@@ -781,7 +781,7 @@ export const VolumeSlider = ({
           />
         </button>
         <input
-          className="gaku-slider volume-slider"
+          className="gaku-slider volume-slider vibrant"
           type="range"
           min={0}
           max={1}
@@ -808,10 +808,8 @@ export const VolumeSlider = ({
           <Volume2 size={20} className="text-white/80" />
         )}
       </motion.button>
-      <motion.input
-        whileHover={{ scaleY: 1.5 }}
-        whileTap={{ scaleY: 0.995 }}
-        className="gaku-slider volume-slider"
+      <input
+        className="gaku-slider volume-slider vibrant"
         type="range"
         min={0}
         max={1}

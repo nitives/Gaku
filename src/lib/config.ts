@@ -8,7 +8,11 @@ export interface Config {
     MUSIC: {
       AUTH: string;
       USER_TOKEN: string;
+      USE_PERSONAL_TOKEN: boolean;
     };
+    TEAM_ID: string;
+    KEY_ID: string;
+    PRIVATE_KEY_PEM: string;
   };
   DISCOGS: {
     APIKEY: string;
@@ -22,7 +26,11 @@ export function conf(): Config {
       MUSIC: {
         AUTH: process.env.APPLE_AUTH || "",
         USER_TOKEN: process.env.APPLE_MEDIA_USER_TOKEN || "",
+        USE_PERSONAL_TOKEN: true,
       },
+      TEAM_ID: process.env.APPLE_MUSIC_TEAM_ID!,
+      KEY_ID: process.env.APPLE_MUSIC_KEY_ID!,
+      PRIVATE_KEY_PEM: process.env.APPLE_MUSIC_PRIVATE_KEY! || "",
     },
     SOUNDCLOUD: {
       CLIENT_ID: process.env.SOUNDCLOUD_CLIENT_ID || "",

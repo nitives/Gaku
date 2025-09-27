@@ -22,7 +22,7 @@ export const Latest = ({ artist }: { artist: SoundCloudArtist | null }) => {
       <div style={{ display: "flex", flexDirection: "column", width: "15rem" }}>
         <div className={style.Artwork}>
           <Image
-            src={HD_ARTWORK }
+            src={HD_ARTWORK}
             fill
             draggable={false}
             alt={track.title}

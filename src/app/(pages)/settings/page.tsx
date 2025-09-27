@@ -2,7 +2,6 @@
 import { SafeView } from "@/components/mobile/SafeView";
 import { useState, useEffect, useRef } from "react";
 import { SignOutButton, useUser } from "@clerk/nextjs";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   IoColorPaletteOutline,
   IoPersonOutline,
@@ -16,7 +15,6 @@ import { Switch } from "@/components/controls/Switch";
 
 export default function SettingsPage() {
   const { user, isLoaded } = useUser();
-  const queryClient = useQueryClient();
   const [username, setUsername] = useState("");
   const [themeColor, setThemeColor] = useState("#5891fa"); // Default color
   const [highlightedQueries, setHighlightedQueries] = useState(false);
@@ -107,7 +105,6 @@ export default function SettingsPage() {
         });
         if (response.ok) {
           showToast("success", "Theme color updated");
-          await queryClient.invalidateQueries({ queryKey: ["userSettings"] });
         } else {
           showToast("error", "Failed to save theme color");
         }
@@ -128,7 +125,6 @@ export default function SettingsPage() {
 
       if (response.ok) {
         showToast("success", "Setting updated");
-        await queryClient.invalidateQueries({ queryKey: ["userSettings"] });
         return true;
       } else {
         showToast("error", "Failed to save setting");
@@ -334,7 +330,7 @@ export default function SettingsPage() {
           <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
             <IoSearchOutline /> Search
           </h2>
-          <div onClick={toggleHighlightedQueries} className="space-y-4">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-medium">Highlight search queries</h3>
@@ -345,7 +341,7 @@ export default function SettingsPage() {
               <Switch
                 checked={highlightedQueries}
                 onCheckedChange={toggleHighlightedQueries}
-                id="highlighted-queries"
+                id="show-sidebar-icons"
               />
             </div>
           </div>
@@ -356,7 +352,7 @@ export default function SettingsPage() {
           <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
             <IoMenuOutline /> Sidebar
           </h2>
-          <div onClick={toggleShowSidebarIcons} className="space-y-4">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-medium">Show sidebar icons</h3>

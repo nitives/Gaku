@@ -32,11 +32,6 @@
   cursor: pointer;
 }
 
-.gaku-slider:hover {
-  opacity: 1;
-  backdrop-filter: blur(10px);
-}
-
 /* .gaku-slider::-webkit-slider-thumb {
   opacity: 0;
   -webkit-appearance: none;

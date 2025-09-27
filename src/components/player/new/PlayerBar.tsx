@@ -77,7 +77,8 @@ const LikeButton = ({ song }: { song: any }) => {
 
   // Check if currentSong is in the user’s library
   const isInLibrary =
-    librarySongs?.some((librarySong: any) => librarySong?.id == songID) || false;
+    librarySongs?.some((librarySong: any) => librarySong?.id == songID) ||
+    false;
 
   // Handler to toggle add/remove from library
   const handleLikeToggle = () => {

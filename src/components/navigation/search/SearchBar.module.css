@@ -13,6 +13,10 @@
   -moz-margin-start: var(--SearchBarWrapper-inline-margin);
   -webkit-margin-end: var(--SearchBarWrapper-inline-margin);
   -moz-margin-end: var(--SearchBarWrapper-inline-margin);
+  @media not all and (min-width: 640px) {
+    width: calc(100vw - (var(--SearchBarWrapper-inline-margin) * 2));
+    margin-top: 30px;
+  }
 }
 
 .SearchInput {
