@@ -35,7 +35,7 @@
     "lottie-react": "^2.4.0",
     "lucide-react": "^0.417.0",
     "motion": "^12.23.12",
-    "next": "^15.4.1",
+    "next": "15.4.10",
     "next-themes": "^0.3.0",
     "progressive-blur": "^1.0.0",
     "react": "^18",
