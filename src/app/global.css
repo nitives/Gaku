@@ -300,9 +300,8 @@ body.fullscreen-active {
 
 #mobile-fullscreen-main {
   --artwork-override-height: auto;
-  --artwork-override-max-width: calc(100dvw - 364px);
+  --artwork-override-max-width: calc(100dvw - 100px);
   --artwork-override-max-height: calc(100dvh - 335px);
-  aspect-ratio: 1 / 1;
   mask-image: linear-gradient(
     to top,
     rgba(0, 0, 0, 0) 0.5%,

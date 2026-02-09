@@ -211,10 +211,10 @@ const Screen = () => {
                     </motion.h2>
                   </motion.div>
                   <motion.div className="flex gap-2">
-                    <LyricButton
+                    {/* <LyricButton
                       active={lyricsVisible}
                       onClick={toggleLyrics}
-                    />
+                    /> */}
                     <OptionsButton onClick={optionsButton} />
                   </motion.div>
                 </motion.div>

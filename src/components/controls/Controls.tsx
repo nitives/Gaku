@@ -31,7 +31,7 @@ const AppleLyrics = dynamic(
   () => import("../lyrics/AppleLyrics").then((mod) => mod.AppleLyrics),
   {
     ssr: false,
-  }
+  },
 );
 // Also fixing document not defined error
 const BackgroundRender = dynamic(
@@ -39,7 +39,7 @@ const BackgroundRender = dynamic(
     import("@applemusic-like-lyrics/react").then((mod) => mod.BackgroundRender),
   {
     ssr: false,
-  }
+  },
 );
 
 export const Controls: React.FC = () => {
@@ -427,7 +427,7 @@ const ExpandedPlayer = ({
                   const artistUrl = `/artist/${song?.artist.id}/${song?.artist.id}`;
                   if (
                     window.location.pathname.includes(
-                      song?.artist.id.toString() || ""
+                      song?.artist.id.toString() || "",
                     )
                   ) {
                     onClose();
@@ -474,9 +474,9 @@ const ExpandedPlayer = ({
                   isDesktop ? "w-full" : ""
                 } flex items-center gap-2 justify-between`}
               >
-                {isDesktop && (
+                {/* {isDesktop && (
                   <LyricButton active={lyricsVisible} onClick={toggleLyrics} />
-                )}
+                )} */}
                 <OptionsButton onClick={toggleLyrics} />
               </div>
             </motion.div>
@@ -719,7 +719,7 @@ export const DurationSlider = ({
         if (sliderRef.current) {
           sliderRef.current.style.setProperty(
             "--seek-value",
-            `${seekPercentage}%`
+            `${seekPercentage}%`,
           );
         }
       });
@@ -760,7 +760,7 @@ export const VolumeSlider = ({
   useEffect(() => {
     document.documentElement.style.setProperty(
       "--volume-value",
-      `${volumePercentage}%`
+      `${volumePercentage}%`,
     );
   }, [volumePercentage]);
 

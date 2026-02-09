@@ -9,15 +9,15 @@ export const NavigationBar = ({ song }: { song: Song | any }) => {
     <div className={style.NavigationBar}>
       <div className={style.NavigationContent}>
         <TrackContent song={song} />
-        <Controls />
+        <Links />
       </div>
     </div>
   );
 };
 
-const Controls = () => {
+const Links = () => {
   return (
-    <div className={style.Controls}>
+    <div className={style.Links}>
       <button className={style.Button}>Home</button>
       <button className={style.Button}>Search</button>
       <button className={style.Button}>Library</button>

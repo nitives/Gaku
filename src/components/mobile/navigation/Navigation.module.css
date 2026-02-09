@@ -59,3 +59,8 @@
 .TrackInfo {
   font-weight: 600;
 }
+
+.Links {
+  display: flex;
+  gap: 1rem;
+}

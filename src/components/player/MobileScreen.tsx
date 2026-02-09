@@ -339,10 +339,10 @@ export const MobileScreen = () => {
                     className="mt-[auto] mx-[2rem] mb-[1rem]"
                   >
                     <div className="flex justify-around mt-[1.5rem] mix-blend-plus-lighter">
-                      <LyricButton
+                      {/* <LyricButton
                         active={lyricsVisible}
                         onClick={toggleLyrics}
-                      />
+                      /> */}
                       <OptionsButton onClick={handleOptionsClick} />
                     </div>
                   </div>
