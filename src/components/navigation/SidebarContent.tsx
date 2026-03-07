@@ -15,8 +15,8 @@ const libraryItems = [
     text: "Recently Added",
     icon: <AiFillClockCircle />,
   },
-  { href: "/library/artists", text: "Artists", icon: <FaUserAlt /> },
-  { href: "/library/albums", text: "Albums", icon: <BiSolidAlbum /> },
+  // { href: "/library/artists", text: "Artists", icon: <FaUserAlt /> },
+  // { href: "/library/albums", text: "Albums", icon: <BiSolidAlbum /> },
   { href: "/library/songs", text: "Songs", icon: <BiSolidMusic /> },
 ];
 

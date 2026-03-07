@@ -10,7 +10,6 @@ const fetcher = (url: string) =>
   });
 
 type Ctx = {
-  settings?: any;
   songs?: any[];
   loading: boolean;
   error?: Error;
@@ -21,16 +20,6 @@ const Ctx = createContext<Ctx>({ loading: true });
 export function UserDataProvider({ children }: { children: React.ReactNode }) {
   const { isSignedIn: isLoggedIn } = useClerkUser() || { isSignedIn: false };
 
-  // Only fetch when logged in; when not logged in pass null to SWR to skip fetching.
-  const { data: settings, error: settingsErr } = useSWR(
-    isLoggedIn ? "/api/user/settings" : null,
-    fetcher,
-    {
-      suspense: false,
-      revalidateOnFocus: false,
-    }
-  );
-
   const { data: songs, error: songsErr } = useSWR(
     isLoggedIn ? "/api/user/songs" : null,
     fetcher,
@@ -39,18 +28,16 @@ export function UserDataProvider({ children }: { children: React.ReactNode }) {
       revalidateOnFocus: false,
       dedupingInterval: 15_000,
       keepPreviousData: true,
-    }
+    },
   );
 
   const value = useMemo<Ctx>(
     () => ({
-      settings,
       songs,
-      // If not logged in, nothing is loading (we're intentionally not fetching).
-      loading: isLoggedIn ? !settings || !songs : false,
-      error: settingsErr || songsErr,
+      loading: isLoggedIn ? !songs : false,
+      error: songsErr,
     }),
-    [settings, songs, settingsErr, songsErr, isLoggedIn]
+    [songs, songsErr, isLoggedIn],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

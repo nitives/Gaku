@@ -16,8 +16,8 @@ export default function UserLikes() {
     refetch,
   } = useQuery({
     queryKey: ["soundcloudUserID", settings?.data?.soundcloudUserId],
-    queryFn: () => SoundCloudKit.getUserData(settings!.data!.soundcloudUserId),
-    enabled: !!settings,
+    queryFn: () => SoundCloudKit.getUserData(settings.data!.soundcloudUserId),
+    enabled: !!settings?.data?.soundcloudUserId,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: false,
     refetchOnWindowFocus: false,
@@ -26,6 +26,12 @@ export default function UserLikes() {
   if (settings.isLoading)
     return (
       <p className="text-[--systemSecondary] shadow-lg">Loading user data.</p>
+    );
+  if (!settings?.data?.soundcloudUserId)
+    return (
+      <p className="text-[--systemSecondary]">
+        Link your SoundCloud account in Settings to view your likes.
+      </p>
     );
   if (isLoading) return <Spinner />;
   if (error) {

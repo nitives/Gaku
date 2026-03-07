@@ -1,7 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { showToast } from "./useToast";
-import { useUser as useClerkUser } from "@clerk/nextjs";
+import { useMemo, useCallback } from "react";
+import { useLocalSettings } from "./useLocalSettings";
 
 // Define the type for a song
 interface Song {
@@ -10,147 +8,52 @@ interface Song {
   updatedAt: string;
 }
 
-interface UserSettings {
-  createdAt: Date;
-  highlightedQueries: boolean;
-  id: string;
-  showSidebarIcons: boolean;
-  themeColor: string;
-  updatedAt: Date;
-  userId: string;
-  soundcloudUserId: string;
-}
-
-// Define the type for the library songs
-type LibrarySongs = Song[];
-
 export const useUser = () => {
-  const queryClient = useQueryClient();
-  const { isSignedIn: isLoggedIn } = useClerkUser() || { isSignedIn: false };
-  // Fetch the user's library songs (only when logged in)
-  const { data, isLoading, error } = useQuery<LibrarySongs>({
-    queryKey: ["librarySongIDs"],
-    queryFn: async () => (await axios.get("/api/user/songs")).data,
-    staleTime: 5 * 60_000,
-    gcTime: 30 * 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    enabled: isLoggedIn || false,
-  });
+  const { settings, loaded, updateSetting } = useLocalSettings();
 
-  // Add a song to the user's library
-  const { mutate: addSongMutate } = useMutation({
-    mutationFn: async (soundcloudId: string) => {
-      const response = await axios.post("/api/user/songs", { soundcloudId });
-      return response.data as Song;
+  // Derive Song[] from stored IDs (newest first = index 0)
+  const librarySongs: Song[] = useMemo(() => {
+    const ids = settings.librarySongIds ?? [];
+    const now = Date.now();
+    return ids.map((id, i) => ({
+      id,
+      // Synthetic timestamps: earlier entries get slightly older timestamps
+      // so sort-by-createdAt-desc preserves insertion order (newest first)
+      createdAt: new Date(now - i * 1000).toISOString(),
+      updatedAt: new Date(now - i * 1000).toISOString(),
+    }));
+  }, [settings.librarySongIds]);
+
+  const addSongToLibrary = useCallback(
+    (soundcloudId: string) => {
+      const current = settings.librarySongIds ?? [];
+      if (current.includes(soundcloudId)) return;
+      updateSetting("librarySongIds", [soundcloudId, ...current]);
     },
-    // Optimistic update
-    onMutate: async (soundcloudId: string) => {
-      await queryClient.cancelQueries({ queryKey: ["librarySongIDs"] });
-      const previous = queryClient.getQueryData<LibrarySongs>([
-        "librarySongIDs",
-      ]);
+    [settings.librarySongIds, updateSetting],
+  );
 
-      const optimistic: Song = {
-        id: soundcloudId,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      queryClient.setQueryData<LibrarySongs>(["librarySongIDs"], (old) => {
-        const base = old ?? [];
-        // avoid duplicates
-        if (base.some((s) => s.id === soundcloudId)) return base;
-        return [...base, optimistic];
-      });
-
-      return { previous } as { previous?: LibrarySongs };
+  const removeSongFromLibrary = useCallback(
+    (soundcloudId: string) => {
+      const current = settings.librarySongIds ?? [];
+      updateSetting(
+        "librarySongIds",
+        current.filter((id) => id !== soundcloudId),
+      );
     },
-    onError: (_err, _vars, ctx) => {
-      // rollback
-      if (ctx?.previous) {
-        queryClient.setQueryData(["librarySongIDs"], ctx.previous);
-      }
-      showToast("error", `Failed to add song`);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["librarySongIDs"] });
-    },
-  });
-
-  // Remove a song from the user's library
-  const { mutate: removeSongMutate } = useMutation({
-    mutationFn: async (soundcloudId: string) => {
-      const response = await axios.delete("/api/user/songs", {
-        data: { soundcloudId },
-      });
-      return response.data as { success: boolean };
-    },
-    onMutate: async (soundcloudId: string) => {
-      await queryClient.cancelQueries({ queryKey: ["librarySongIDs"] });
-      const previous = queryClient.getQueryData<LibrarySongs>([
-        "librarySongIDs",
-      ]);
-
-      queryClient.setQueryData<LibrarySongs>(["librarySongIDs"], (old) => {
-        const base = old ?? [];
-        return base.filter((s) => s.id !== soundcloudId);
-      });
-
-      return { previous } as { previous?: LibrarySongs };
-    },
-    onError: (_err, _vars, ctx) => {
-      if (ctx?.previous) {
-        queryClient.setQueryData(["librarySongIDs"], ctx.previous);
-      }
-      showToast("error", `Failed to remove song`);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["librarySongIDs"] });
-    },
-  });
-
-  // Safe wrappers that prevent requests when not logged in
-  const addSongToLibrary = (soundcloudId: string) => {
-    if (!isLoggedIn) {
-      showToast("error", "You must be logged in to add songs");
-      return;
-    }
-    addSongMutate(soundcloudId);
-  };
-
-  const removeSongFromLibrary = (soundcloudId: string) => {
-    if (!isLoggedIn) {
-      showToast("error", "You must be logged in to remove songs");
-      return;
-    }
-    removeSongMutate(soundcloudId);
-  };
-
-  const {
-    data: settings,
-    isLoading: isLoadingSettings,
-    error: settingsError,
-  } = useQuery<UserSettings>({
-    queryKey: ["userSettings"],
-    queryFn: async () => {
-      const response = await axios.get("/api/user/settings");
-      return response.data;
-    },
-    staleTime: 1000 * 60 * 5,
-    enabled: isLoggedIn || false,
-  });
+    [settings.librarySongIds, updateSetting],
+  );
 
   return {
     settings: {
-      data: settings,
-      isLoading: isLoadingSettings,
-      error: settingsError,
+      data: loaded ? settings : undefined,
+      isLoading: !loaded,
+      error: null,
     },
-    librarySongs: data, // Array of songs or undefined if not loaded / not logged in
-    isLoading, // Boolean indicating loading state
-    error, // Any error from fetching songs
-    addSongToLibrary, // Function to add a song (no-op + toast when not logged in)
-    removeSongFromLibrary, // Function to remove a song (no-op + toast when not logged in)
+    librarySongs,
+    isLoading: !loaded,
+    error: null,
+    addSongToLibrary,
+    removeSongFromLibrary,
   };
 };

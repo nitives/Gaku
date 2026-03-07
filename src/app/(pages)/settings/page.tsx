@@ -1,29 +1,78 @@
 "use client";
-import { SafeView } from "@/components/mobile/SafeView";
-import { useState, useEffect, useRef } from "react";
-import { SignOutButton, useUser } from "@clerk/nextjs";
+import { useRef, useState } from "react";
+import { SignOutButton } from "@clerk/nextjs";
 import {
   IoColorPaletteOutline,
   IoPersonOutline,
   IoSearchOutline,
   IoMenuOutline,
   IoMusicalNotesOutline,
+  IoDownloadOutline,
+  IoCloudUploadOutline,
+  IoCloudOutline,
+  IoSyncOutline,
+  IoCheckmarkCircleOutline,
+  IoLinkOutline,
+  IoCloseCircleOutline,
 } from "react-icons/io5";
 import { showToast } from "@/hooks/useToast";
-import { Spinner } from "@/components/extra/Spinner";
 import { Switch } from "@/components/controls/Switch";
+import { useLocalSettings, exportSettings } from "@/hooks/useLocalSettings";
 
 export default function SettingsPage() {
-  const { user, isLoaded } = useUser();
-  const [username, setUsername] = useState("");
-  const [themeColor, setThemeColor] = useState("#5891fa"); // Default color
-  const [highlightedQueries, setHighlightedQueries] = useState(false);
-  const [showSidebarIcons, setShowSidebarIcons] = useState(true);
-  const [soundcloudUserId, setSoundcloudUserId] = useState("");
-  const [saving, setSaving] = useState(false);
+  const { settings, updateSetting, importSettings, isSignedIn, isSyncing } =
+    useLocalSettings();
   const colorInputRef = useRef<HTMLInputElement>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
-  // Predefined color options
+  type ResolveStatus = "idle" | "loading" | "linked" | "error";
+  const [profileUrlDraft, setProfileUrlDraft] = useState(
+    settings.soundcloudProfileUrl ?? "",
+  );
+  const [resolveStatus, setResolveStatus] = useState<ResolveStatus>(
+    settings.soundcloudUserId ? "linked" : "idle",
+  );
+  const [resolveError, setResolveError] = useState("");
+  const [linkedUsername, setLinkedUsername] = useState(
+    settings.soundcloudUserId ? settings.soundcloudProfileUrl || "" : "",
+  );
+
+  const handleLinkAccount = async () => {
+    const url = profileUrlDraft.trim();
+    if (!url) return;
+    setResolveStatus("loading");
+    setResolveError("");
+    try {
+      const res = await fetch(
+        `/api/soundcloud/user?profileUrl=${encodeURIComponent(url)}`,
+      );
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error ?? "Failed to resolve profile");
+      }
+      const data = await res.json();
+      const userId = String(data.userData?.id ?? "");
+      if (!userId) throw new Error("Could not find user ID in response");
+      const username = data.userData?.username ?? url;
+      updateSetting("soundcloudProfileUrl", url);
+      updateSetting("soundcloudUserId", userId);
+      setLinkedUsername(username);
+      setResolveStatus("linked");
+    } catch (err) {
+      setResolveStatus("error");
+      setResolveError((err as Error).message);
+    }
+  };
+
+  const handleUnlink = () => {
+    updateSetting("soundcloudProfileUrl", "");
+    updateSetting("soundcloudUserId", "");
+    setProfileUrlDraft("");
+    setLinkedUsername("");
+    setResolveStatus("idle");
+    setResolveError("");
+  };
+
   const colorOptions = [
     { name: "Blue", value: "#5891fa" },
     { name: "Purple", value: "#8a4fff" },
@@ -34,134 +83,25 @@ export default function SettingsPage() {
     { name: "Teal", value: "#009688" },
   ];
 
-  useEffect(() => {
-    if (isLoaded && user) {
-      setUsername(user.username || "");
-      fetchUserSettings();
-    }
-  }, [isLoaded, user]);
-
-  // Set the CSS variable when themeColor changes (e.g., on mount or save)
-  useEffect(() => {
-    if (themeColor) {
-      document.documentElement.style.setProperty("--keyColor", themeColor);
-    }
-  }, [themeColor]);
-
-  const fetchUserSettings = async () => {
-    try {
-      const response = await fetch("/api/user/settings");
-      if (response.ok) {
-        const data = await response.json();
-        if (data.themeColor) {
-          setThemeColor(data.themeColor);
-        }
-        setHighlightedQueries(data.highlightedQueries || false);
-        setShowSidebarIcons(data.showSidebarIcons !== false); // Default to true if not set
-        setSoundcloudUserId(data.soundcloudUserId || "");
-      }
-    } catch (error) {
-      console.error("Error fetching user settings:", error);
-    }
+  const handleColorPick = (hex: string) => {
+    document.documentElement.style.setProperty("--keyColor", hex);
+    if (colorInputRef.current) colorInputRef.current.value = hex;
+    updateSetting("themeColor", hex);
   };
 
-  const updateUsername = async () => {
-    if (!user) return;
-    setSaving(true);
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
     try {
-      await user.update({ username });
-      showToast("success", "Username updated successfully");
-    } catch (error) {
-      console.error("Error updating username:", error);
-      const errorMessage = error instanceof Error ? error.message : "";
-      if (
-        errorMessage.includes(
-          "Username must be between 4 and 64 characters long"
-        )
-      ) {
-        showToast("error", "Username must be between 4 and 64 characters long");
-      } else {
-        showToast("error", "Failed to update username");
-      }
+      await importSettings(file);
+      showToast("success", "Settings imported");
+    } catch {
+      showToast("error", "Failed to import settings");
     } finally {
-      setSaving(false);
+      // Reset so the same file can be re-imported
+      e.target.value = "";
     }
   };
-
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Update CSS variable directly for real-time preview
-    document.documentElement.style.setProperty("--keyColor", e.target.value);
-  };
-
-  const handleSaveThemeColor = async () => {
-    if (colorInputRef.current) {
-      const selectedColor = colorInputRef.current.value;
-      setThemeColor(selectedColor); // Update state
-      try {
-        const response = await fetch("/api/user/settings", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ themeColor: selectedColor }),
-        });
-        if (response.ok) {
-          showToast("success", "Theme color updated");
-        } else {
-          showToast("error", "Failed to save theme color");
-        }
-      } catch (error) {
-        console.error("Error updating theme color:", error);
-        showToast("error", "Failed to save theme color");
-      }
-    }
-  };
-
-  const updateSetting = async (settingName: string, value: any) => {
-    try {
-      const response = await fetch("/api/user/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [settingName]: value }),
-      });
-
-      if (response.ok) {
-        showToast("success", "Setting updated");
-        return true;
-      } else {
-        showToast("error", "Failed to save setting");
-        return false;
-      }
-    } catch (error) {
-      console.error(`Error updating ${settingName}:`, error);
-      showToast("error", "Failed to save setting");
-      return false;
-    }
-  };
-
-  const toggleHighlightedQueries = async () => {
-    const newValue = !highlightedQueries;
-    setHighlightedQueries(newValue);
-    await updateSetting("highlightedQueries", newValue);
-  };
-
-  const toggleShowSidebarIcons = async () => {
-    const newValue = !showSidebarIcons;
-    setShowSidebarIcons(newValue);
-    await updateSetting("showSidebarIcons", newValue);
-  };
-
-  const saveSoundcloudUserId = async () => {
-    const trimmedId = soundcloudUserId.trim();
-    await updateSetting("soundcloudUserId", trimmedId || null);
-  };
-
-  if (!isLoaded) {
-    return (
-      <SafeView className="w-full">
-        <h1 className="text-3xl font-bold mb-4">Settings</h1>
-        <Spinner />
-      </SafeView>
-    );
-  }
 
   return (
     <div className="pb-24 p-4 w-full">
@@ -173,94 +113,75 @@ export default function SettingsPage() {
       </div>
 
       <div className="space-y-8">
-        {/* Profile Section */}
-        <section>
-          <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
-            <IoPersonOutline /> Profile
-          </h2>
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="username"
-                className="block select-none text-sm font-medium mb-1"
-              >
-                Username
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (
-                      e.key === "Enter" &&
-                      username &&
-                      username !== user?.username
-                    ) {
-                      updateUsername();
-                    }
-                  }}
-                  className="p-2 bg-background border border-labelDivider rounded-xl w-full placeholder:text-[--systemSecondary]"
-                  placeholder="Enter username"
-                />
-                <button
-                  onClick={updateUsername}
-                  disabled={saving || !username || username === user?.username}
-                  className="px-4 py-2 select-none bg-background border border-labelDivider rounded-xl hover:bg-systemToolbarTitlebar transition-colors disabled:opacity-50"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* SoundCloud Section */}
         <section>
           <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
             <IoMusicalNotesOutline /> SoundCloud Integration
           </h2>
-          <div className="space-y-4">
+          {resolveStatus === "linked" ? (
+            <div className="flex items-center justify-between p-3 bg-background border border-labelDivider rounded-xl">
+              <div className="flex items-center gap-2">
+                <IoCheckmarkCircleOutline className="text-green-500 shrink-0" />
+                <div>
+                  <p className="text-sm font-medium">Linked account</p>
+                  <p className="text-xs text-[--systemSecondary] truncate max-w-[240px]">
+                    {linkedUsername}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleUnlink}
+                className="flex items-center gap-1 text-sm text-red-500 hover:underline shrink-0"
+              >
+                <IoCloseCircleOutline /> Unlink
+              </button>
+            </div>
+          ) : (
             <div>
               <label
-                htmlFor="soundcloud-userid"
+                htmlFor="soundcloud-profile-url"
                 className="block select-none text-sm font-medium mb-1"
               >
-                SoundCloud User ID
+                SoundCloud Profile URL
               </label>
               <p className="text-sm text-[--systemSecondary] mb-2">
-                Enter your SoundCloud User ID to access your playlists, likes,
-                and more
+                Enter your SoundCloud profile URL to link your account and
+                access your likes and playlists.
               </p>
               <div className="flex gap-2">
                 <input
-                  type="text"
-                  id="soundcloud-userid"
-                  value={soundcloudUserId}
-                  onChange={(e) => setSoundcloudUserId(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      saveSoundcloudUserId();
-                    }
+                  type="url"
+                  id="soundcloud-profile-url"
+                  value={profileUrlDraft}
+                  onChange={(e) => {
+                    setProfileUrlDraft(e.target.value);
+                    if (resolveStatus !== "idle") setResolveStatus("idle");
+                    setResolveError("");
                   }}
+                  onKeyDown={(e) => e.key === "Enter" && handleLinkAccount()}
                   className="p-2 bg-background border border-labelDivider rounded-xl w-full placeholder:text-[--systemSecondary]"
-                  placeholder="e.g. 123456789"
+                  placeholder="https://soundcloud.com/your-username"
                 />
                 <button
-                  onClick={saveSoundcloudUserId}
-                  className="px-4 py-2 select-none bg-background border border-labelDivider rounded-xl hover:bg-systemToolbarTitlebar transition-colors"
+                  onClick={handleLinkAccount}
+                  disabled={
+                    resolveStatus === "loading" || !profileUrlDraft.trim()
+                  }
+                  className="flex items-center gap-2 px-4 py-2 select-none bg-[var(--keyColor)] text-white rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 shrink-0"
                 >
-                  Save
+                  {resolveStatus === "loading" ? (
+                    <IoSyncOutline className="animate-spin" />
+                  ) : (
+                    <IoLinkOutline />
+                  )}
+                  Link
                 </button>
               </div>
-              <p className="text-xs text-[--systemSecondary] mt-1">
-                You can find your User ID in your SoundCloud profile URL or
-                settings (e.g., ...soundcloud.com/saber-
-                <span className="text-[var(--keyColor)]">601742928</span>?...).
-              </p>
+              {resolveStatus === "error" && (
+                <p className="text-xs text-red-500 mt-1">{resolveError}</p>
+              )}
             </div>
-          </div>
+          )}
         </section>
 
         {/* Appearance Section */}
@@ -276,17 +197,9 @@ export default function SettingsPage() {
               {colorOptions.map((color) => (
                 <button
                   key={color.value}
-                  onClick={() => {
-                    if (colorInputRef.current) {
-                      colorInputRef.current.value = color.value;
-                      document.documentElement.style.setProperty(
-                        "--keyColor",
-                        color.value
-                      );
-                    }
-                  }}
+                  onClick={() => handleColorPick(color.value)}
                   className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform ${
-                    themeColor === color.value
+                    settings.themeColor === color.value
                       ? "ring-2 ring-offset-2 scale-110"
                       : ""
                   }`}
@@ -297,7 +210,6 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Custom color picker */}
           <div className="mt-4">
             <label
               htmlFor="custom-color"
@@ -309,18 +221,18 @@ export default function SettingsPage() {
               <input
                 type="color"
                 id="custom-color"
-                defaultValue={themeColor} // Uncontrolled input
+                defaultValue={settings.themeColor}
                 ref={colorInputRef}
-                onChange={handleColorChange}
+                onChange={(e) => {
+                  document.documentElement.style.setProperty(
+                    "--keyColor",
+                    e.target.value,
+                  );
+                }}
+                onBlur={(e) => handleColorPick(e.target.value)}
                 className="w-10 h-10 rounded cursor-pointer"
               />
-              <span className="text-sm">{themeColor}</span>
-              <button
-                onClick={handleSaveThemeColor}
-                className="px-4 py-2 select-none bg-background border border-labelDivider rounded-xl hover:bg-systemToolbarTitlebar transition-colors disabled:opacity-50"
-              >
-                Save
-              </button>
+              <span className="text-sm">{settings.themeColor}</span>
             </div>
           </div>
         </section>
@@ -330,20 +242,18 @@ export default function SettingsPage() {
           <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
             <IoSearchOutline /> Search
           </h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">Highlight search queries</h3>
-                <p className="text-sm text-[--systemSecondary]">
-                  Highlight matching text in search results
-                </p>
-              </div>
-              <Switch
-                checked={highlightedQueries}
-                onCheckedChange={toggleHighlightedQueries}
-                id="show-sidebar-icons"
-              />
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Highlight search queries</h3>
+              <p className="text-sm text-[--systemSecondary]">
+                Highlight matching text in search results
+              </p>
             </div>
+            <Switch
+              checked={settings.highlightedQueries}
+              onCheckedChange={(v) => updateSetting("highlightedQueries", v)}
+              id="highlighted-queries"
+            />
           </div>
         </section>
 
@@ -352,24 +262,75 @@ export default function SettingsPage() {
           <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
             <IoMenuOutline /> Sidebar
           </h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">Show sidebar icons</h3>
-                <p className="text-sm text-[--systemSecondary]">
-                  Display icons next to sidebar menu items
-                </p>
-              </div>
-              <Switch
-                checked={showSidebarIcons}
-                onCheckedChange={toggleShowSidebarIcons}
-                id="show-sidebar-icons"
-              />
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Show sidebar icons</h3>
+              <p className="text-sm text-[--systemSecondary]">
+                Display icons next to sidebar menu items
+              </p>
             </div>
+            <Switch
+              checked={settings.showSidebarIcons}
+              onCheckedChange={(v) => updateSetting("showSidebarIcons", v)}
+              id="show-sidebar-icons"
+            />
           </div>
         </section>
+
+        {/* Data Section */}
+        <section>
+          <h2 className="text-xl font-semibold select-none flex items-center gap-2 mb-4">
+            <IoDownloadOutline /> Data
+            {isSignedIn && (
+              <span className="ml-auto flex items-center gap-1 text-sm font-normal">
+                {isSyncing ? (
+                  <>
+                    <IoSyncOutline className="animate-spin text-[--systemSecondary]" />
+                    <span className="text-[--systemSecondary]">
+                      Syncing&hellip;
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <IoCheckmarkCircleOutline className="text-green-500" />
+                    <span className="text-green-500">Synced</span>
+                  </>
+                )}
+              </span>
+            )}
+          </h2>
+          <p className="text-sm text-[--systemSecondary] mb-4">
+            {isSignedIn
+              ? "Settings are synced to your account and stored locally — changes are reflected across all your devices."
+              : "Settings are stored locally in your browser. Sign in to sync them across devices. Export to back them up or import to restore them."}
+          </p>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={exportSettings}
+              className="flex items-center gap-2 px-4 py-2 select-none bg-background border border-labelDivider rounded-xl hover:bg-systemToolbarTitlebar transition-colors"
+            >
+              <IoDownloadOutline />
+              Export settings
+            </button>
+            <button
+              onClick={() => importInputRef.current?.click()}
+              className="flex items-center gap-2 px-4 py-2 select-none bg-background border border-labelDivider rounded-xl hover:bg-systemToolbarTitlebar transition-colors"
+            >
+              <IoCloudUploadOutline />
+              Import settings
+            </button>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={handleImportFile}
+            />
+          </div>
+        </section>
+
         <SignOutButton>
-          <button className="px-4 py-2 select-none bg-background hover:bg-red-500/5 hover:text-red-500 border border-labelDivider hover:border-red-500 rounded-xl hover:bg-systemToolbarTitlebar transition-colors disabled:opacity-50">
+          <button className="px-4 py-2 select-none bg-background hover:bg-red-500/5 hover:text-red-500 border border-labelDivider hover:border-red-500 rounded-xl transition-colors">
             Sign Out
           </button>
         </SignOutButton>

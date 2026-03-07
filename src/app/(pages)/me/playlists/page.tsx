@@ -15,15 +15,21 @@ export default function UserPlaylist() {
     refetch,
   } = useQuery({
     queryKey: ["soundcloudUserID", settings?.data?.soundcloudUserId],
-    queryFn: () => SoundCloudKit.getUserData(settings.data?.soundcloudUserId!),
+    queryFn: () => SoundCloudKit.getUserData(settings.data!.soundcloudUserId),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    enabled: !!settings,
+    enabled: !!settings?.data?.soundcloudUserId,
     retry: false,
     refetchOnWindowFocus: false,
   });
   dev.log("[USER PLAYLIST] Data:", user);
-  if (!settings)
+  if (settings.isLoading)
     return <p className="text-[--systemSecondary]">Loading user data.</p>;
+  if (!settings?.data?.soundcloudUserId)
+    return (
+      <p className="text-[--systemSecondary]">
+        Link your SoundCloud account in Settings to view your playlists.
+      </p>
+    );
   if (isLoading) return <Spinner />;
   if (error) {
     return (
