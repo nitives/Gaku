@@ -22,7 +22,7 @@ export default function UserLikes() {
     retry: false,
     refetchOnWindowFocus: false,
   });
-  dev.log("[USER LIKES] Data:", user);
+
   if (settings.isLoading)
     return (
       <p className="text-[--systemSecondary] shadow-lg">Loading user data.</p>
@@ -34,6 +34,7 @@ export default function UserLikes() {
       </p>
     );
   if (isLoading) return <Spinner />;
+
   if (error) {
     return (
       <TryAgain
@@ -43,6 +44,6 @@ export default function UserLikes() {
       />
     );
   }
-
+  dev.log("[USER LIKES] Data:", user);
   return <UserLikedSongs user={user} />;
 }

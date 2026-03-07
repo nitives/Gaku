@@ -1,5 +1,6 @@
 import { json, badRequest, error, withErrorHandling } from "@/lib/api/respond";
 import { scAuth } from "@/lib/config";
+import { dev } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export const GET = withErrorHandling(async (request: Request) => {
 
   const clientID = CLIENT_ID || process.env.SOUNDCLOUD_CLIENT_ID;
   if (!clientID) return error("Missing SoundCloud credentials", 500);
-
+  dev.log("| [SOUNDCLOUD] | Using Client ID:", clientID);
   const headers = {
     Host: "api-v2.soundcloud.com",
     // Authorization: `OAuth ${apiKey}`,
@@ -36,12 +37,6 @@ export const GET = withErrorHandling(async (request: Request) => {
     resolvedUserData = resolved; // reuse resolved data, skip extra /users fetch
   }
 
-  const likesRes = await fetch(
-    `https://api-v2.soundcloud.com/users/${userId}/likes?client_id=${clientID}&limit=500&offset=0`,
-    { headers, cache: "no-store" },
-  );
-  if (!likesRes.ok) return error("Failed to fetch user likes", 502);
-
   let userData = resolvedUserData;
   if (!userData) {
     const userRes = await fetch(
@@ -52,6 +47,24 @@ export const GET = withErrorHandling(async (request: Request) => {
     userData = await userRes.json();
   }
 
-  const userLikes = await likesRes.json();
+  // Paginate through all likes pages
+  const allLikes: unknown[] = [];
+  let nextUrl: string | null =
+    `https://api-v2.soundcloud.com/users/${userId}/likes?client_id=${clientID}&limit=200`;
+
+  while (nextUrl) {
+    // Append client_id if missing (next_href may omit it)
+    const pageUrl: string = nextUrl.includes("client_id=")
+      ? nextUrl
+      : `${nextUrl}&client_id=${clientID}`;
+    const res: Response = await fetch(pageUrl, { headers, cache: "no-store" });
+    if (!res.ok) break;
+    const page: { collection: unknown[]; next_href?: string | null } =
+      await res.json();
+    if (Array.isArray(page.collection)) allLikes.push(...page.collection);
+    nextUrl = page.next_href ?? null;
+  }
+
+  const userLikes = { collection: allLikes };
   return json({ userData, userLikes });
 });

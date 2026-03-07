@@ -67,7 +67,7 @@ export default function UserLikedSongs({ user }: { user: any }) {
             <div className="mt-4 mb-40 flex justify-center">
               <button
                 className="bg-white/10 text-white py-2 px-4 rounded-md hover:bg-white/15 transition"
-                onClick={() => setVisibleCount((prev) => prev + 10000)}
+                onClick={() => setVisibleCount((prev) => prev + 300)}
               >
                 Load More
               </button>
