@@ -84,6 +84,41 @@ export const Banner = ({ artist }: { artist: SoundCloudArtist | null }) => {
     animated: editorialVideo,
   } = getFirstEditorialArtwork(apple);
 
+  if (!editorialVideo) {
+    const scUsername = artist.username || "";
+    const mappedName = artistMappings[scUsername] ?? scUsername;
+    return (
+      <div className="p-4 flex items-center gap-4 user-select-none">
+        <Image
+          src={artist.avatar_url}
+          alt={`${mappedName}'s Avatar`}
+          width={80}
+          height={80}
+          draggable={false}
+          style={{
+            borderRadius: "50%",
+            userSelect: "none",
+            WebkitUserSelect: "none",
+            MozUserSelect: "none",
+          }}
+        />
+        <h1
+          style={{
+            zIndex: 2,
+            userSelect: "none",
+            WebkitUserSelect: "none",
+            MozUserSelect: "none",
+            fontWeight: 700,
+            fontSize: "2rem",
+            color: "white",
+          }}
+        >
+          {mappedName}
+        </h1>
+      </div>
+    );
+  }
+
   // Decide which display name to show if we have a video
   const scUsername = artist.username || "";
   const mappedName = artistMappings[scUsername] ?? scUsername;
@@ -98,7 +133,7 @@ export const Banner = ({ artist }: { artist: SoundCloudArtist | null }) => {
   const appleBannerUrl = editorialUrl
     ? editorialUrl.replace(
         /\/\{\w+\}x\{\w+\}\{\w*\}\.\{?\w+\}?/,
-        `/${bannerWidth}x${bannerHeight}${bannerCon}.${bannerFormat}`
+        `/${bannerWidth}x${bannerHeight}${bannerCon}.${bannerFormat}`,
       )
     : undefined;
 
