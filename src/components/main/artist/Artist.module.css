@@ -166,7 +166,9 @@
   overflow: hidden;
   border-radius: 0.75rem;
   height: 100%;
-  box-shadow: 0 0 5px hsla(0, 0%, 0%, 0.1), 0 1px 10px rgba(0, 0, 0, 0.025);
+  box-shadow:
+    0 0 5px hsla(0, 0%, 0%, 0.1),
+    0 1px 10px rgba(0, 0, 0, 0.025);
   width: 100%;
 }
 
@@ -187,5 +189,214 @@
     overflow: hidden;
     font-weight: 400;
     font-size: 15px;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Popular Tracks                                                            */
+/* ------------------------------------------------------------------------ */
+
+.PopularList {
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+}
+
+.PopularTrack {
+  border-radius: 8px;
+  padding: 0.45rem 0.5rem;
+  user-select: none;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  &:hover {
+    background: rgba(128, 128, 128, 0.1);
+  }
+}
+
+.PopularTrackIndex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--systemSecondary);
+  flex-shrink: 0;
+}
+
+.PopularTrackArtwork {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  &:after {
+    content: "";
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px hsla(0, 0%, 50%, 0.1);
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+}
+
+.PopularTrackInfo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.PopularTrackTitle {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.TrackMeta {
+  font-size: 0.75rem;
+  color: var(--systemSecondary);
+  font-weight: 400;
+  margin-top: 1px;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Discography                                                               */
+/* ------------------------------------------------------------------------ */
+
+.DiscographyGrid {
+  grid-auto-columns: 140px;
+  grid-template-rows: repeat(1, max-content);
+  row-gap: 0;
+  align-items: start;
+  padding-block: 15px;
+  column-gap: 16px;
+  width: calc(100% + 30px);
+  margin-inline-end: calc(15px * -1);
+  margin-inline-start: calc(15px * -1);
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  display: grid;
+  grid-auto-flow: column;
+  list-style: none;
+  margin: 0;
+  margin-bottom: calc(15px * -1);
+  margin-top: calc(15px * -1);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: none;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.DiscographyCard {
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  & > ul {
+    padding: 0 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    & > li:first-child {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--systemPrimary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    & > li:last-child > span {
+      font-size: 0.75rem;
+      color: var(--systemSecondary);
+      font-weight: 400;
+    }
+  }
+}
+
+.DiscographyArtwork {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  cursor: pointer;
+  &:after {
+    content: "";
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px hsla(0, 0%, 50%, 0.1);
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+  &:hover .DiscographyArtworkOverlay {
+    opacity: 1;
+  }
+}
+
+.DiscographyArtworkOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.38);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  border-radius: inherit;
+}
+
+.DiscographyPlayBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9375rem;
+  padding-left: 2px;
+  cursor: pointer;
+  transition:
+    transform 0.1s ease,
+    background 0.1s ease;
+  &:hover {
+    background: #fff;
+  }
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.DiscographyMenuBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.1s ease;
+  &:hover {
+    background: rgba(0, 0, 0, 0.65);
   }
 }

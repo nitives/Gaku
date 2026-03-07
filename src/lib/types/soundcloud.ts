@@ -55,6 +55,8 @@ export interface SoundCloudArtist {
   station_permalink: string;
   spotlight: any[];
   latest: any[];
+  popularTracks?: SoundCloudTrack[];
+  albums?: SoundCloudAlbum[];
 }
 
 export interface SoundCloudTrack {

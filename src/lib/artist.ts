@@ -8,7 +8,7 @@ export const artistMappings: Record<string, string> = {
 
 export async function fetchArtistData(artistId: string, _artistName: string) {
   const data = (await SoundCloudKit.getData(artistId, "artist", {
-    include: ["spotlight", "latest"],
+    include: ["spotlight", "latest", "popularTracks", "albums"],
   })) as SoundCloudArtist;
   return data;
 }

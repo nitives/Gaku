@@ -88,6 +88,59 @@ export const Banner = ({ artist }: { artist: SoundCloudArtist | null }) => {
   if (!editorialVideo) {
     const scUsername = artist.username || "";
     const mappedName = artistMappings[scUsername] ?? scUsername;
+    const scBanner = artist.visuals?.visuals?.[0]?.visual_url;
+
+    if (scBanner) {
+      return (
+        <div
+          className={style.Banner}
+          style={{ position: "relative", aspectRatio: "3/1" }}
+        >
+          <Image
+            fill
+            priority
+            style={{ objectFit: "cover" }}
+            src={scBanner}
+            alt={`${mappedName}'s Banner`}
+            draggable={false}
+          />
+          <div
+            className={style.BannerOverlay}
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.65) 100%)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <Image
+                src={artist.avatar_url}
+                alt={mappedName}
+                width={56}
+                height={56}
+                draggable={false}
+                style={{ borderRadius: "50%", flexShrink: 0 }}
+              />
+              <h1
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+                }}
+              >
+                {mappedName}
+                {artist.verified && (
+                  <span style={{ color: "var(--keyColor)", fontSize: "1.25rem" }}>
+                    <RiVerifiedBadgeFill />
+                  </span>
+                )}
+              </h1>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="p-4 flex items-center gap-4 user-select-none">
         <Image

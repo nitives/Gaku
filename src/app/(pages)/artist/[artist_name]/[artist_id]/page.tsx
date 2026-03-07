@@ -2,6 +2,8 @@
 import { Banner } from "@/components/main/artist/banner/Banner";
 import { Spotlight } from "@/components/main/artist/Spotlight";
 import { Latest } from "@/components/main/artist/Latest";
+import { PopularTracks } from "@/components/main/artist/PopularTracks";
+import { Discography } from "@/components/main/artist/Discography";
 import { Spinner } from "@/components/extra/Spinner";
 import { SoundCloudArtist } from "@/lib/types/soundcloud";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +14,12 @@ import { fetchArtistData } from "@/lib/artist";
 import { dev } from "@/lib/utils";
 
 const soundCloudOfficial = ["music-charts-us"];
+
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${Math.round(n / 1_000)}K`;
+  return String(n);
+}
 
 export default function ArtistPage() {
   const { artist_name, artist_id } = useParams() as {
@@ -26,7 +34,6 @@ export default function ArtistPage() {
   } = useQuery<SoundCloudArtist>({
     queryKey: ["soundcloudArtist", artist_id],
     queryFn: () => fetchArtistData(artist_id, artist_name),
-    // only run if artist_id is truthy
     enabled: !!artist_id,
     retry: false,
     refetchOnWindowFocus: false,
@@ -64,16 +71,37 @@ export default function ArtistPage() {
   return (
     <>
       <Banner artist={artist} />
-      <div className="flex pb-12">
-        <Latest artist={artist} />
-        <Spotlight artist={artist} />
+
+      {/* Stats row */}
+      <div className="flex gap-3 px-4 pt-3 pb-1 text-xs text-[--systemSecondary]">
+        {!!artist.followers_count && (
+          <span>{formatCount(artist.followers_count)} followers</span>
+        )}
+        {!!artist.followers_count && !!artist.followings_count && (
+          <span>·</span>
+        )}
+        {!!artist.followings_count && (
+          <span>{formatCount(artist.followings_count)} following</span>
+        )}
+        {!!artist.track_count && (
+          <>
+            <span>·</span>
+            <span>{artist.track_count} tracks</span>
+          </>
+        )}
       </div>
+
+      <PopularTracks artist={artist} />
+      <Discography artist={artist} />
+      <Latest artist={artist} />
+      <Spotlight artist={artist} />
+
       <div className="flex flex-col p-4 mb-20">
         <Link
           href={`/artist/${artist_name}/${artist_id}/see-all`}
-          className="text-[--systemSecondary]"
+          className="text-[--systemSecondary] text-sm"
         >
-          See all
+          See all tracks
         </Link>
       </div>
     </>

@@ -156,6 +156,52 @@ export const GET = withErrorHandling(
         }
       }
 
+      if (includes.includes("popularTracks")) {
+        const topRes = await fetch(
+          `https://api-v2.soundcloud.com/users/${id}/toptracks?client_id=${CLIENT_ID}&limit=10`,
+          {
+            headers,
+            next: {
+              revalidate: ttl.track,
+              tags: [`sc:artist:${id}:toptracks`],
+            },
+          },
+        );
+        if (topRes.ok) {
+          const data = await topRes.json();
+          const tracks = data.collection || [];
+          artist.popularTracks = tracks.map((track: any) => ({
+            ...track,
+            artwork_url_hd: track.artwork_url
+              ? track.artwork_url.replace("large", "t500x500")
+              : null,
+          }));
+        }
+      }
+
+      if (includes.includes("albums")) {
+        const albumsRes = await fetch(
+          `https://api-v2.soundcloud.com/users/${id}/albums?client_id=${CLIENT_ID}&limit=20`,
+          {
+            headers,
+            next: {
+              revalidate: ttl.playlist,
+              tags: [`sc:artist:${id}:albums`],
+            },
+          },
+        );
+        if (albumsRes.ok) {
+          const data = await albumsRes.json();
+          const albums = data.collection || [];
+          artist.albums = albums.map((album: any) => ({
+            ...album,
+            artwork_url_hd: album.artwork_url
+              ? album.artwork_url.replace("large", "t500x500")
+              : null,
+          }));
+        }
+      }
+
       return json(artist);
     }
 
