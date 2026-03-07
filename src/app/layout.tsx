@@ -31,7 +31,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  viewportFit: "cover",  
+  viewportFit: "cover",
 };
 
 const USE_PERSONAL_TOKEN = conf().APPLE.MUSIC.USE_PERSONAL_TOKEN;
@@ -285,54 +285,54 @@ export default function RootLayout({
         </head>
         <body className="SFPro" suppressHydrationWarning>
           <ReactQueryWrapper>
-              <ThemeProvider>
-                <NextThemeProvider
-                  attribute="class"
-                  defaultTheme="system"
-                  enableSystem
-                >
-                  <Content>
-                    {children}
-                    {contextMenus}
-                  </Content>
-                  <Toaster
-                    position="bottom-center"
-                    toastOptions={{
-                      style: {
-                        padding: "12px 16px",
-                        borderRadius: "15px",
-                        background: "rgba(28, 28, 30, 0.85)",
-                        color: "#fff",
-                        fontSize: "15px",
-                        fontWeight: "500",
-                        maxWidth: "90%",
-                        textAlign: "center",
-                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                        backdropFilter: "blur(10px)",
-                        filter: "grayscale(1)",
+            <ThemeProvider>
+              <NextThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+              >
+                <Content>
+                  {children}
+                  {contextMenus}
+                </Content>
+                <Toaster
+                  position="bottom-center"
+                  toastOptions={{
+                    style: {
+                      padding: "12px 16px",
+                      borderRadius: "15px",
+                      background: "rgba(28, 28, 30, 0.85)",
+                      color: "#fff",
+                      fontSize: "15px",
+                      fontWeight: "500",
+                      maxWidth: "90%",
+                      textAlign: "center",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                      backdropFilter: "blur(10px)",
+                      filter: "grayscale(1)",
+                    },
+                    success: {
+                      iconTheme: {
+                        primary: "#fff",
+                        secondary: "rgba(28, 28, 30, 0.85)",
                       },
-                      success: {
-                        iconTheme: {
-                          primary: "#fff",
-                          secondary: "rgba(28, 28, 30, 0.85)",
-                        },
-                        duration: 2000,
+                      duration: 2000,
+                    },
+                    error: {
+                      iconTheme: {
+                        primary: "#fff",
+                        secondary: "rgba(28, 28, 30, 0.85)",
                       },
-                      error: {
-                        iconTheme: {
-                          primary: "#fff",
-                          secondary: "rgba(28, 28, 30, 0.85)",
-                        },
-                        duration: 3000,
-                      },
-                    }}
-                    containerStyle={{
-                      bottom: 50,
-                    }}
-                  />
-                  <Audio />
-                </NextThemeProvider>
-              </ThemeProvider>
+                      duration: 3000,
+                    },
+                  }}
+                  containerStyle={{
+                    bottom: 50,
+                  }}
+                />
+                <Audio />
+              </NextThemeProvider>
+            </ThemeProvider>
           </ReactQueryWrapper>
         </body>
       </html>

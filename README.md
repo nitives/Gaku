@@ -19,7 +19,7 @@
 - **State Management**: Zustand
 - **Data Fetching**: TanStack Query
 - **Authentication**: Clerk
-- **Database**: Prisma (PostgreSQL/Vercel Storage)
+- **Database**: LocalStorage (for user settings) and Clerk for syncing user data
 - **Streaming**: HLS & React Player
 - **Lyrics Integration**: Musixmatch and Apple Music API for lyrics fetching
 
