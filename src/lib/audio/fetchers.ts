@@ -12,19 +12,19 @@ import { SoundCloudAlbum, SoundCloudTrack } from "../types/soundcloud";
  */
 async function fetchJson<T>(
   url: string,
-  errorMessage: string
+  errorMessage?: string
 ): Promise<T | null> {
   try {
     const res = await fetch(url);
     if (!res.ok) {
       console.error(`${errorMessage} | ${res.status}`);
-      showToast("error", errorMessage);
+      // showToast("error", errorMessage);
       return null;
     }
     return (await res.json()) as T;
   } catch (error) {
     console.error(`${errorMessage}:`, error);
-    showToast("error", errorMessage);
+    // showToast("error", errorMessage);
     return null;
   }
 }
@@ -441,7 +441,7 @@ export const AppleKit = {
       const query = `${cleanedTitle.replace(/ /g, "+")}+${cleanedArtist}`;
       const data = await fetchJson<any>(
         `/api/apple/song/${query}?type=${type}`,
-        `Failed to get data from AppleKit`
+        // `Failed to get data from AppleKit`
       );
       return data || "";
     } catch (error) {
@@ -459,7 +459,7 @@ export const AppleKit = {
       dev.log("AppleKit | Artist | Query: ", query);
       const data = await fetchJson<any>(
         `/api/apple/artist/${query}`,
-        `Failed to get data for artist ${query} from AppleKit`
+        // `Failed to get data for artist ${query} from AppleKit`
       );
       return data || "";
     } catch (error) {
