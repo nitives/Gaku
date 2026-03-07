@@ -31,7 +31,7 @@ const playlistItems = [
 
 const meItems = [
   { href: "/me/likes", text: "Your Likes", icon: <AiFillHeart /> },
-  { href: "/me/playlists", text: "Your Playlists", icon: <FaListAlt /> },
+  // { href: "/me/playlists", text: "Your Playlists", icon: <FaListAlt /> },
   // {
   //   href: "/2093-all-parts",
   //   text: "2093 (All Parts)",
@@ -78,7 +78,7 @@ export const SidebarContent = () => {
             />
           ))}
 
-          <SectionLabel label="Playlists" />
+          {/* <SectionLabel label="Playlists" />
           {playlistItems.map((item, index) => (
             <Item
               key={`playlist-${index}`}
@@ -86,9 +86,9 @@ export const SidebarContent = () => {
               text={item.text}
               icon={item.icon}
             />
-          ))}
+          ))} */}
 
-          <SectionLabel label="Pinned" />
+          {/* <SectionLabel label="Pinned" />
           {pinnedItems.map((item, index) => (
             <Item
               key={`pinned-${index}`}
@@ -96,7 +96,7 @@ export const SidebarContent = () => {
               text={item.text}
               icon={item.icon}
             />
-          ))}
+          ))} */}
         </ul>
       </div>
       <div className={style.SidebarFooter}>

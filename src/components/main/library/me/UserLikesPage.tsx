@@ -1,18 +1,16 @@
 "use client";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useUser } from "@/hooks/useUser";
 import { Spinner } from "@/components/extra/Spinner";
 import { LibraryItem } from "@/components/main/library/LibraryItem";
 import style from "@/components/main/library/Library.module.css";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import type { SoundCloudTrack } from "@/lib/types/soundcloud";
 import { dev } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function UserLikedSongs({ user }: { user: any }) {
   const { isLoading, error } = useUser();
-  const parentRef = useRef<HTMLDivElement>(null);
-  const [visibleCount, setVisibleCount] = useState(100); // Start with 100 items
+  const [visibleCount, setVisibleCount] = useState(300);
 
   // Extract and transform liked tracks
   const likedTracks = user?.userLikes?.collection || [];
@@ -25,12 +23,7 @@ export default function UserLikedSongs({ user }: { user: any }) {
       scTrack: like.track as SoundCloudTrack,
     }));
 
-  const rowVirtualizer = useVirtualizer({
-    count: visibleCount,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 60, // Adjust item height estimation
-    overscan: 10, // Load extra items for smooth scrolling
-  });
+  const visibleTracks = transformedTracks.slice(0, visibleCount);
 
   if (isLoading) return <Spinner />;
   if (error) return <div>Error: {(error as Error).message}</div>;
@@ -40,7 +33,7 @@ export default function UserLikedSongs({ user }: { user: any }) {
   dev.log("Transformed Tracks", transformedTracks);
 
   return (
-    <div className="p-4 mb-14">
+    <div className="p-4 pb-24">
       <div className="mb-4">
         <h1 className="text-3xl font-bold">
           Liked Songs
@@ -59,41 +52,22 @@ export default function UserLikedSongs({ user }: { user: any }) {
         <EmptyLibrary />
       ) : (
         <>
-          <div ref={parentRef}>
-            <ul
-              className={style.libraryList}
-              style={{
-                height: `${rowVirtualizer.getTotalSize()}px`,
-                position: "relative",
-              }}
-            >
-              {rowVirtualizer.getVirtualItems().map((virtualItem: any) => {
-                const item = transformedTracks[virtualItem.index];
-                return (
-                  <LibraryItem
-                    key={item.id + Math}
-                    ref={virtualItem.measureRef}
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      transform: `translateY(${virtualItem.start}px)`,
-                    }}
-                    item={item}
-                    allItems={transformedTracks}
-                  />
-                );
-              })}
-            </ul>
-          </div>
+          <ul className={style.libraryList}>
+            {visibleTracks.map((item: any) => (
+              <LibraryItem
+                key={item.id}
+                item={item}
+                allItems={transformedTracks}
+              />
+            ))}
+          </ul>
 
           {/* Load More Button */}
           {visibleCount < transformedTracks.length && (
-            <div className="mt-4 flex justify-center">
+            <div className="mt-4 mb-40 flex justify-center">
               <button
                 className="bg-white/10 text-white py-2 px-4 rounded-md hover:bg-white/15 transition"
-                onClick={() => setVisibleCount((prev) => prev + 100)}
+                onClick={() => setVisibleCount((prev) => prev + 10000)}
               >
                 Load More
               </button>
