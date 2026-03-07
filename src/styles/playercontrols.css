@@ -1,6 +1,12 @@
 :root {
-  --slider-track-color: hsla(0, 0%, 80%, 0.1);
-  --slider-fill-color: hsla(0, 0%, 100%, 0.8);
+  --slider-track-color: light-dark(
+    hsla(0, 0%, 100%, 0.1),
+    hsla(0, 0%, 80%, 0.1)
+  );
+  --slider-fill-color: light-dark(
+    hsla(0, 0%, 95%, 0.8),
+    hsla(0, 0%, 100%, 0.8)
+  );
   --slider-hover-color: rgba(255, 255, 255, 0.5);
   --slider-thumb-color: #ffffff;
   --volume-value: 0%;
@@ -30,6 +36,24 @@
   transition: backdrop-filter 0.5s 1s ease-in-out;
   transition: opacity 0.5s 1s ease-in-out;
   cursor: pointer;
+}
+
+#duration-slider-container .gaku-slider {
+--slider-track-color-alt: light-dark(
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.1)
+  );
+  --slider-fill-color-alt: light-dark(
+    rgba(0, 0, 0, 0.25),
+    rgba(255, 255, 255, 0.75)
+  );
+  background: linear-gradient(
+    to right,
+    var(--slider-fill-color-alt) 0%,
+    var(--slider-fill-color-alt) var(--seek-value),
+    var(--slider-track-color-alt) var(--seek-value),
+    var(--slider-track-color-alt) 100%
+  );
 }
 
 /* .gaku-slider::-webkit-slider-thumb {
@@ -78,6 +102,7 @@
   width: 100%;
   height: 1rem;
   border-radius: 0.5rem;
+  background: var(--track-color);
 }
 
 .gaku-slider::-ms-track {
@@ -131,6 +156,7 @@
   margin-top: calc(
     (var(--gaku-progress-bar-height, 4px) - var(--gaku-progress-thumb-size)) / 2
   );
-  background: white;
+  background: var(--slider-thumb-color);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
   border: 0px solid transparent;
 }

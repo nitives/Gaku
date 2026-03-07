@@ -207,7 +207,7 @@ const DurationSlider = ({
         if (sliderRef.current) {
           sliderRef.current.style.setProperty(
             "--seek-value",
-            `${seekPercentage}%`
+            `${seekPercentage}%`,
           );
         }
       });
@@ -215,7 +215,7 @@ const DurationSlider = ({
   }, [seekPercentage]);
 
   return (
-    <div className="flex items-center gap-2 w-full">
+    <div id="duration-slider-container" className="flex items-center gap-2 w-full">
       <input
         ref={sliderRef}
         type="range"
@@ -248,7 +248,7 @@ const Buttons = () => {
       >
         <ShuffleIcon
           className={style.shuffleIcon}
-          fill="white"
+          fill="var(--iconColor)"
           size={16}
           opacity={shuffle ? 1 : 0.5}
         />
@@ -262,21 +262,21 @@ const Buttons = () => {
         {repeat === "all" ? (
           <LoopIcon
             className={style.loopIcon}
-            fill="white"
+            fill="var(--iconColor)"
             size={16}
             opacity={1}
           />
         ) : repeat === "one" ? (
           <LoopSingleIcon
             className={style.loopIcon}
-            fill="white"
+            fill="var(--iconColor)"
             size={16}
             opacity={1}
           />
         ) : (
           <LoopIcon
             className={style.loopIcon}
-            fill="white"
+            fill="var(--iconColor)"
             size={16}
             opacity={0.5}
           />
@@ -288,7 +288,7 @@ const Buttons = () => {
 
 const PlayPauseButtons = () => {
   const { isPlaying, setIsPlaying, nextSong, previousSong } = useAudioStore(
-    (state: any) => state
+    (state: any) => state,
   );
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -297,7 +297,7 @@ const PlayPauseButtons = () => {
   return (
     <div className={style.playPauseSkipButtons}>
       <button onClick={previousSong} className={style.backwardsButton}>
-        <BackwardsIcon height={14} fill={"white"} className={style.icon} />
+        <BackwardsIcon height={14} fill={"var(--iconColor)"} className={style.icon} />
       </button>
       <button
         className={style.playPauseButton}
@@ -305,13 +305,13 @@ const PlayPauseButtons = () => {
         aria-label={isPlaying ? "Pause" : "Play"}
       >
         {isPlaying ? (
-          <PauseIcon fill={"white"} className={style.icon} />
+          <PauseIcon fill={"var(--iconColor)"} className={style.icon} />
         ) : (
-          <PlayIcon fill={"white"} className={style.icon} />
+          <PlayIcon fill={"var(--iconColor)"} className={style.icon} />
         )}
       </button>
       <button onClick={nextSong} className={style.forwardsButton}>
-        <ForwardsIcon height={14} fill={"white"} className={style.icon} />
+        <ForwardsIcon height={14} fill={"var(--iconColor)"} className={style.icon} />
       </button>
     </div>
   );

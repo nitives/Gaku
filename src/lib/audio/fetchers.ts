@@ -571,6 +571,6 @@ export const SoundCloudKit = {
    * Get HD version of the current image.
    */
   getHD(url: string) {
-    return url.replace("large", "t500x500");
+    return url?.replace("large", "t500x500");
   },
 };

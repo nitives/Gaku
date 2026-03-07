@@ -1,12 +1,14 @@
 import { json, error, withErrorHandling } from "@/lib/api/respond";
+import { scAuth } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(
   async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { GUEST_KEY } = await scAuth();
     const headers = {
       Host: "api-v2.soundcloud.com",
-      Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,
+      Authorization: `OAuth ${GUEST_KEY || process.env.SOUNDCLOUD_API_KEY}`,
     } as Record<string, string>;
     const { id } = await params;
     const res = await fetch(

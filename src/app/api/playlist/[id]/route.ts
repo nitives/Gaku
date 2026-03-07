@@ -1,17 +1,18 @@
 import { json, error, withErrorHandling } from "@/lib/api/respond";
+import { scAuth } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(
   async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
+    const { CLIENT_ID } = await scAuth();
     const headers = {
       Host: "api-v2.soundcloud.com",
-      Authorization: `OAuth ${process.env.SOUNDCLOUD_API_KEY}`,
     } as Record<string, string>;
-
+    const clientIdQuery = `?client_id=${CLIENT_ID || process.env.SOUNDCLOUD_CLIENT_ID}`;
     const playlistRes = await fetch(
-      `https://api-v2.soundcloud.com/playlists/${id}`,
+      `https://api-v2.soundcloud.com/playlists/${id}${clientIdQuery}`,
       { headers, cache: "no-store" }
     );
     if (!playlistRes.ok) return error("Failed to fetch playlist", 502);
@@ -22,7 +23,7 @@ export const GET = withErrorHandling(
       .map((t: any) => t.id);
     if (trackIdsToFetch.length > 0) {
       const tracksRes = await fetch(
-        `https://api-v2.soundcloud.com/tracks?ids=${trackIdsToFetch.join(",")}`,
+        `https://api-v2.soundcloud.com/tracks?ids=${trackIdsToFetch.join(",")}${clientIdQuery}`,
         { headers, cache: "no-store" }
       );
       if (tracksRes.ok) {

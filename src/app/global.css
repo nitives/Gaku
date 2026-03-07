@@ -184,6 +184,8 @@ body {
     --systemSecondary: hsla(0, 0%, 0%, 0.5);
     --systemToolbarTitlebar: hsla(0, 0%, 99%, 0.8);
 
+    --iconColor: var(--foreground);
+
     /* --z-web-chrome: 9901; */
     --z-web-chrome: 1;
   }
@@ -197,6 +199,8 @@ body {
       --systemPrimary: hsla(0, 0%, 100%, 0.92);
       --systemSecondary: hsla(0, 0%, 100%, 0.64);
       --systemToolbarTitlebar: rgba(60, 60, 60, 0.4);
+
+      --iconColor: var(--foreground);
     }
   }
   /* .dark {

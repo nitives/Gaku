@@ -1,15 +1,18 @@
 import { json, error, withErrorHandling } from "@/lib/api/respond";
-import { conf } from "@/lib/config";
+import { conf, scAuth } from "@/lib/config";
+import { dev } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(async () => {
-  const KEY = conf().SOUNDCLOUD.CLIENT_ID;
-  const APIKEY = conf().SOUNDCLOUD.API_KEY;
+  const { CLIENT_ID } = await scAuth();
+  const KEY =  CLIENT_ID || conf().SOUNDCLOUD.CLIENT_ID;
   const res = await fetch(
     `https://api-v2.soundcloud.com/mixed-selections?client_id=${KEY}`,
-    { headers: { Authorization: `OAuth ${APIKEY}` }, cache: "no-store" }
   );
+  if (!KEY) return error("SoundCloud API key is not configured", 500);
+  if (res.status === 403) return error("Forbidden: Invalid SoundCloud API key", 403);
+  if (res.status === 401) return error("Unauthorized: Invalid SoundCloud API key", 401);
   if (!res.ok) return error("Failed to fetch SoundCloud sections", 502);
   const data = await res.json();
   const includedFeatureNames = [

@@ -1,3 +1,5 @@
+import { getSoundCloudCredentials } from "@/app/api/soundcloud/auth/route";
+
 export interface Config {
   APP_NAME: string;
   SOUNDCLOUD: {
@@ -39,5 +41,29 @@ export function conf(): Config {
     DISCOGS: {
       APIKEY: process.env.DISCOGS_APIKEY || "",
     },
+  };
+}
+
+export async function scAuth() {
+  const { clientId, guestKey } = await getSoundCloudCredentials();
+  if (!clientId) {
+    throw new Error(
+      "Failed to fetch SoundCloud Client ID. Please set it in the .env file.",
+    );
+  }
+  if (!guestKey) {
+    throw new Error(
+      "Failed to fetch SoundCloud Guest Key. Please set it in the .env file.",
+    );
+  }
+  if (!clientId || !guestKey) {
+    throw new Error(
+      "Failed to fetch SoundCloud Credentials. Please set them in the .env file.",
+    );
+  }
+  console.log("Successfully fetched SoundCloud Credentials");
+  return {
+    CLIENT_ID: clientId,
+    GUEST_KEY: guestKey,
   };
 }

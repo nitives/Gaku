@@ -1,18 +1,21 @@
 import { json, badRequest, error, withErrorHandling } from "@/lib/api/respond";
+import { scAuth } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
 export const GET = withErrorHandling(async (request: Request) => {
   const { searchParams } = new URL(request.url);
+  const { CLIENT_ID } = await scAuth();
+
   const trackUrl = searchParams.get("trackUrl");
   if (!trackUrl) return badRequest("Missing trackUrl parameter");
 
-  const clientId = process.env.SOUNDCLOUD_CLIENT_ID;
+  const clientId = CLIENT_ID || process.env.SOUNDCLOUD_CLIENT_ID;
   if (!clientId) return error("Missing SOUNDCLOUD_CLIENT_ID", 500);
 
   // Step 1: Resolve track to ID
   const trackApiUrl = `https://api-v2.soundcloud.com/resolve?url=${encodeURIComponent(
-    trackUrl
+    trackUrl,
   )}&client_id=${clientId}`;
   const trackResponse = await fetch(trackApiUrl, { cache: "no-store" });
   if (!trackResponse.ok) return error("Failed to resolve track URL", 502);

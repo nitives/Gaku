@@ -1,6 +1,8 @@
 // src/app/api/soundcloud/[id]/route.ts
 import type { NextRequest } from "next/server";
 import { json, error, withErrorHandling } from "@/lib/api/respond";
+import { scAuth } from "@/lib/config";
+import { dev } from "@/lib/utils";
 
 // Keep dynamic while debugging; we'll cache the upstream fetches.
 export const dynamic = "force-dynamic";
@@ -8,22 +10,25 @@ export const dynamic = "force-dynamic";
 export const GET = withErrorHandling(
   async (
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> },
   ) => {
     const { id } = await params;
+    const { CLIENT_ID, GUEST_KEY } = await scAuth();
 
     // Use nextUrl for robust query parsing in Next 15
     const { searchParams } = request.nextUrl;
     const type = searchParams.get("type") ?? "songs";
     const include = searchParams.get("include") ?? "";
 
-    const apiKey = process.env.SOUNDCLOUD_API_KEY;
+    const apiKey = GUEST_KEY || process.env.SOUNDCLOUD_API_KEY;
+    dev.log("| [SOUNDCLOUD] | API KEY:", apiKey);
     if (!apiKey) return error("Missing SOUNDCLOUD_API_KEY", 500);
 
     const headers: Record<string, string> = {
       Host: "api-v2.soundcloud.com",
-      Authorization: `OAuth ${apiKey}`,
+      // Authorization: `OAuth ${apiKey}`,
     };
+    const clientIdQuery = `?client_id=${CLIENT_ID}`;
 
     // TTLs for caching the upstream responses (not your route response)
     const ttl = {
@@ -37,11 +42,11 @@ export const GET = withErrorHandling(
 
     if (type === "albums") {
       const playlistRes = await fetch(
-        `https://api-v2.soundcloud.com/playlists/${id}`,
+        `https://api-v2.soundcloud.com/playlists/${id}${clientIdQuery}`,
         {
           headers,
           next: { revalidate: ttl.playlist, tags: [`sc:playlist:${id}`] },
-        }
+        },
       );
       if (!playlistRes.ok) return error("Failed to fetch playlist", 502);
       const playlist = await playlistRes.json();
@@ -50,11 +55,11 @@ export const GET = withErrorHandling(
       const ids = rest.map((t: any) => t.id);
       if (ids.length > 0) {
         const tracksRes = await fetch(
-          `https://api-v2.soundcloud.com/tracks?ids=${ids.join(",")}`,
+          `https://api-v2.soundcloud.com/tracks?ids=${ids.join(",")}&client_id=${CLIENT_ID}`,
           {
             headers,
             next: { revalidate: ttl.playlist, tags: [`sc:playlist:${id}`] },
-          }
+          },
         );
         if (tracksRes.ok) {
           const tracks = await tracksRes.json();
@@ -68,8 +73,11 @@ export const GET = withErrorHandling(
 
     if (type === "artist") {
       const artistRes = await fetch(
-        `https://api-v2.soundcloud.com/users/${id}`,
-        { headers, next: { revalidate: ttl.artist, tags: [`sc:artist:${id}`] } }
+        `https://api-v2.soundcloud.com/users/${id}${clientIdQuery}`,
+        {
+          headers,
+          next: { revalidate: ttl.artist, tags: [`sc:artist:${id}`] },
+        },
       );
       if (!artistRes.ok) return error("Failed to fetch artist", 502);
       const artist = await artistRes.json();
@@ -78,14 +86,14 @@ export const GET = withErrorHandling(
 
       if (includes.includes("spotlight")) {
         const spotlightRes = await fetch(
-          `https://api-v2.soundcloud.com/users/${id}/spotlight`,
+          `https://api-v2.soundcloud.com/users/${id}/spotlight${clientIdQuery}`,
           {
             headers,
             next: {
               revalidate: ttl.spotlight,
               tags: [`sc:artist:${id}:spotlight`],
             },
-          }
+          },
         );
         if (spotlightRes.ok) {
           const data = await spotlightRes.json();
@@ -101,11 +109,11 @@ export const GET = withErrorHandling(
 
       if (includes.includes("latest")) {
         const latestRes = await fetch(
-          `https://api-v2.soundcloud.com/stream/users/${id}`,
+          `https://api-v2.soundcloud.com/stream/users/${id}${clientIdQuery}`,
           {
             headers,
             next: { revalidate: ttl.latest, tags: [`sc:artist:${id}:latest`] },
-          }
+          },
         );
         if (latestRes.ok) {
           const data = await latestRes.json();
@@ -127,14 +135,14 @@ export const GET = withErrorHandling(
 
       if (includes.includes("allTracks")) {
         const allRes = await fetch(
-          `https://api-v2.soundcloud.com/users/${id}/tracks?limit=500`,
+          `https://api-v2.soundcloud.com/users/${id}/tracks?limit=500&client_id=${apiKey}`,
           {
             headers,
             next: {
               revalidate: ttl.allTracks,
               tags: [`sc:artist:${id}:allTracks`],
             },
-          }
+          },
         );
         if (allRes.ok) {
           const data = await allRes.json();
@@ -153,18 +161,21 @@ export const GET = withErrorHandling(
 
     // default: track or playlist by id
     const path = type === "playlists" ? `/playlists/${id}` : `/tracks/${id}`;
-    const res = await fetch(`https://api-v2.soundcloud.com${path}`, {
-      headers,
-      next: {
-        revalidate: type === "playlists" ? ttl.playlist : ttl.track,
-        tags: [`sc:${type}:${id}`],
+    const res = await fetch(
+      `https://api-v2.soundcloud.com${path}${clientIdQuery}`,
+      {
+        headers,
+        next: {
+          revalidate: type === "playlists" ? ttl.playlist : ttl.track,
+          tags: [`sc:${type}:${id}`],
+        },
       },
-    });
+    );
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       console.error("SoundCloud error:", res.status, text);
       return error("Failed to fetch resource", 502);
     }
     return json(await res.json());
-  }
+  },
 );

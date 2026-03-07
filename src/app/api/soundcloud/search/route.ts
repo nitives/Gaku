@@ -1,6 +1,6 @@
 import { json, badRequest, error, withErrorHandling } from "@/lib/api/respond";
 import { SEARCH_PAGE } from "@/lib/constants";
-import { conf } from "@/lib/config";
+import { conf, scAuth } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +8,8 @@ export const GET = withErrorHandling(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q");
   const type = searchParams.get("type") ?? "mini";
-  const key = conf().SOUNDCLOUD.CLIENT_ID;
+  const { CLIENT_ID } = await scAuth();
+  const key = CLIENT_ID || conf().SOUNDCLOUD.CLIENT_ID;
 
   if (!q) return badRequest('Query parameter "q" is required.');
   if (!key) return error("SoundCloud Client ID is not configured.", 500);

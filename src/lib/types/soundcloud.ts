@@ -276,3 +276,76 @@ export interface SoundCloudSections {
     id: string;
   }[];
 }
+
+export type SoundCloudHydrationData =
+  | { hydratable: "anonymousId"; data: string }
+  | { hydratable: "trackingBrowserTabId"; data: string }
+  | {
+      hydratable: "features";
+      data: {
+        features: string[];
+      };
+    }
+  | {
+      hydratable: "geoip";
+      data: {
+        country_code: string;
+        country_name: string;
+        region: string;
+        city: string;
+        postal_code: string;
+        latitude: number;
+        longitude: number;
+      };
+    }
+  | {
+      hydratable: "privacySettings";
+      data: {
+        allows_messages_from_unfollowed_users: boolean;
+        analytics_opt_in: boolean;
+        communications_opt_in: boolean;
+        targeted_advertising_opt_in: boolean;
+        legislation: any[];
+      };
+    }
+  | {
+      hydratable: "statsigClientInitializeResponse";
+      data: {
+        configString: any; // As requested
+        user: {
+          customIDs: { stableID: string };
+          country: string;
+          appVersion: string;
+          custom: { region: string };
+          statsigEnvironment: { tier: string };
+        };
+      };
+    }
+  | {
+      hydratable: "apiClient";
+      data: {
+        id: string;
+        isExpiring: boolean;
+      };
+    };
+
+export type SoundCloudAPIRoutes = [
+  "/tracks",
+  "/tracks/*/comments",
+  "/users/*/conversations/*",
+  "/me/followings/*",
+  "/users/*/tracks/*",
+  "/users/*/track_likes/*",
+  "/users/*/playlist_likes/*",
+  "/users/*/system_playlist_likes/*",
+  "/users/*/emails",
+  "/playlists",
+  "/playlists/*",
+  "/me",
+  "/me/track_reposts/*",
+  "/me/track_reposts/*/caption",
+  "/me/playlist_reposts/*",
+  "/uploads/*/track-transcoding",
+  "/uploads/track-upload-policy",
+  "/graphql",
+];
