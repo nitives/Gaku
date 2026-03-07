@@ -8,7 +8,6 @@ import { Audio } from "@/components/player/Audio";
 import { ClerkProvider } from "@clerk/nextjs";
 import { contextMenus } from "@/components/contextmenus/contextMenus";
 import { ThemeProvider } from "@/providers/ThemeProvider";
-import { UserDataProvider } from "@/providers/UserDataProvider";
 import "react-contexify/dist/ReactContexify.css";
 import "../styles/contexifyGaku.css";
 import "../styles/playercontrols.css";
@@ -286,7 +285,6 @@ export default function RootLayout({
         </head>
         <body className="SFPro" suppressHydrationWarning>
           <ReactQueryWrapper>
-            <UserDataProvider>
               <ThemeProvider>
                 <NextThemeProvider
                   attribute="class"
@@ -335,7 +333,6 @@ export default function RootLayout({
                   <Audio />
                 </NextThemeProvider>
               </ThemeProvider>
-            </UserDataProvider>
           </ReactQueryWrapper>
         </body>
       </html>
