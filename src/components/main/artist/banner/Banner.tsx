@@ -9,6 +9,7 @@ import { AppleKit } from "@/lib/audio/fetchers";
 import { dev } from "@/lib/utils";
 import { SoundCloudArtist } from "@/lib/types/soundcloud";
 import { artistMappings } from "@/lib/artist";
+import { RiVerifiedBadgeFill } from "react-icons/ri";
 
 type EditorialResult = {
   url?: string;
@@ -111,9 +112,35 @@ export const Banner = ({ artist }: { artist: SoundCloudArtist | null }) => {
             fontWeight: 700,
             fontSize: "2rem",
             color: "white",
+            display: "flex",
+            alignItems: "center",
+            position: "relative",
           }}
         >
           {mappedName}
+          {artist.verified && (
+            <span
+              style={{
+                marginLeft: "8px",
+                color: "var(--keyColor)",
+                fontSize: "1.5rem",
+              }}
+            >
+              <RiVerifiedBadgeFill />
+            </span>
+          )}
+          <span className="absolute -bottom-4">
+            {artist.city && (
+              <span
+                style={{
+                  fontSize: "0.75rem",
+                  color: "var(--systemSecondary)",
+                }}
+              >
+                {artist.city}
+              </span>
+            )}
+          </span>
         </h1>
       </div>
     );
