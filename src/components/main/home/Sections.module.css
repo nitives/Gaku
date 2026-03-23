@@ -97,7 +97,7 @@
   opacity: 0;
   transition: opacity 0.15s ease;
   border-radius: inherit;
-   transition:
+  transition:
     background 0.15s ease,
     opacity 0.15s ease;
   .card:hover & {
@@ -143,20 +143,19 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex: 1 1 0;
   min-width: 0;
 }
 
 .explicitBadge {
-  font-size: 0.55rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--systemSecondary);
-  border: 1.5px solid var(--systemSecondary);
-  border-radius: 3px;
-  padding: 0 2px;
-  line-height: 1.4;
   flex-shrink: 0;
   letter-spacing: 0.02em;
+  height: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cardSubtitle {

@@ -84,7 +84,7 @@ const ShelfCard = ({
     <div className={style.cardInfo}>
       <div className={style.cardTitleRow}>
         <span className={style.cardTitle}>{title}</span>
-        {explicit && <span className={style.explicitBadge}>E</span>}
+        {explicit && <span className={style.explicitBadge}>🅴</span>}
       </div>
       {subtitle && <span className={style.cardSubtitle}>{subtitle}</span>}
     </div>

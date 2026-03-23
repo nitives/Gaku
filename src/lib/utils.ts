@@ -64,7 +64,7 @@ export async function fetchPlaylistM3U8(trackUrl: string) {
     dev.log("fetchPlaylistM3U8 | data:", data);
     return data.playlistUrl;
   } catch (error) {
-    dev.error("Error fetching playlist URL | fetchPlaylistM3U8:", error);
+    dev.error(`Error fetching playlist URL (${trackUrl}) | fetchPlaylistM3U8:`, error);
   }
 }
 

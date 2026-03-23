@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SignOutButton } from "@clerk/nextjs";
 import {
   IoColorPaletteOutline,
@@ -36,6 +36,22 @@ export default function SettingsPage() {
   const [linkedUsername, setLinkedUsername] = useState(
     settings.soundcloudUserId ? settings.soundcloudProfileUrl || "" : "",
   );
+
+  useEffect(() => {
+    const savedProfileUrl = settings.soundcloudProfileUrl ?? "";
+    const isLinked = Boolean(settings.soundcloudUserId && savedProfileUrl);
+
+    if (isLinked) {
+      setProfileUrlDraft(savedProfileUrl);
+      setLinkedUsername(savedProfileUrl);
+      setResolveStatus("linked");
+      setResolveError("");
+      return;
+    }
+
+    setResolveStatus("idle");
+    setLinkedUsername("");
+  }, [settings.soundcloudUserId, settings.soundcloudProfileUrl]);
 
   const handleLinkAccount = async () => {
     const url = profileUrlDraft.trim();
